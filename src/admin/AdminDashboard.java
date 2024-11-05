@@ -1,7 +1,9 @@
-import javax.swing.*;
+package admin;
+
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
     public AdminDashboard() {
@@ -25,7 +27,6 @@ public class AdminDashboard extends JFrame {
         Image scaledWebLogo = webLogoIcon.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
         JLabel webLogoLabel = new JLabel(new ImageIcon(scaledWebLogo)); // Tạo JLabel từ ImageIcon đã chỉnh kích thước
         leftPanel.add(webLogoLabel);
-
 
         // Ngày tháng bên cạnh logo web
         JLabel dateLabel = new JLabel(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
