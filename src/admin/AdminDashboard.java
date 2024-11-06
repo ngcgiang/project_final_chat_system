@@ -26,7 +26,6 @@ public class AdminDashboard extends JFrame {
         JLabel webLogoLabel = new JLabel(new ImageIcon(scaledWebLogo)); // Tạo JLabel từ ImageIcon đã chỉnh kích thước
         leftPanel.add(webLogoLabel);
 
-
         // Date
         JLabel dateLabel = new JLabel(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 14));
