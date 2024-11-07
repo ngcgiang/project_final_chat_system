@@ -1,7 +1,7 @@
-import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
     public AdminDashboard() {
@@ -16,7 +16,7 @@ public class AdminDashboard extends JFrame {
         headerPanel.setBackground(Color.LIGHT_GRAY);
         headerPanel.setPreferredSize(new Dimension(800, 80));
 
-        // Logo web 
+        // Logo web
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setBackground(Color.LIGHT_GRAY);
 
@@ -70,7 +70,7 @@ public class AdminDashboard extends JFrame {
         JButton amountUserChartButton = new JButton("Amount User Chart");
         JButton userOnlineManagementButton = new JButton("User Online Management");
         JButton userOnlineChartButton = new JButton("User Online Chart");
-        
+
         // Thêm các nút vào container
         mainContainer.add(userManagementButton);
         mainContainer.add(loginManagementButton);
@@ -80,12 +80,12 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(amountUserChartButton);
         mainContainer.add(userOnlineManagementButton);
         mainContainer.add(userOnlineChartButton);
-        
+
         // Add header to main window
         add(headerPanel, BorderLayout.NORTH);
         // Add container to main window
         add(mainContainer, BorderLayout.CENTER);
-        // Hiển thị cửa sổ 
+        // Hiển thị cửa sổ
         setVisible(true);
     }
 
