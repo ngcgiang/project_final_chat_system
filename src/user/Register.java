@@ -3,15 +3,14 @@ package user;
 import java.awt.*;
 import javax.swing.*;
 
-public class RegisterGUI {
+public class Register {
     private JPanel panel;
     private JTextField txtUsername;
     private JPasswordField txtPassword, txtConfirmPassword;
 
-    public RegisterGUI() {
+    public Register() {
         panel = new JPanel();
         panel.setLayout(new GridBagLayout()); // Sử dụng GridBagLayout cho bố trí linh hoạt
-        panel.setBackground(Color.LIGHT_GRAY);
 
         // Tạo các trường nhập liệu
         txtUsername = new JTextField(20); // Giới hạn chiều dài
@@ -31,21 +30,21 @@ public class RegisterGUI {
 
         gbc.gridx = 0; // Cột 0
         gbc.gridy = 0; // Dòng 0
-        panel.add(createLabel("Username:"), gbc);
+        panel.add(Utilities.createLabel("Username:", "bold", 16), gbc);
 
         gbc.gridx = 1; // Cột 1
         panel.add(txtUsername, gbc);
 
         gbc.gridx = 0; // Cột 0
         gbc.gridy = 1; // Dòng 1
-        panel.add(createLabel("Password:"), gbc);
+        panel.add(Utilities.createLabel("Password:", "bold", 16), gbc);
 
         gbc.gridx = 1; // Cột 1
         panel.add(txtPassword, gbc);
 
         gbc.gridx = 0; // Cột 0
         gbc.gridy = 2; // Dòng 2
-        panel.add(createLabel("Confirm Password:"), gbc);
+        panel.add(Utilities.createLabel("Confirm Password:", "bold", 16), gbc);
 
         gbc.gridx = 1; // Cột 1
         panel.add(txtConfirmPassword, gbc);
@@ -62,13 +61,27 @@ public class RegisterGUI {
         gbc.gridx = 1; // Cột 1
         gbc.gridy = 3; // Dòng 3
         panel.add(btnRegister, gbc);
-    }
 
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
-        label.setHorizontalAlignment(SwingConstants.LEFT);
-        return label;
+        // Thêm nút "Login" để chuyển qua trang đăng nhập
+        JButton btnLogin = new JButton("Login");
+        btnLogin.setFont(font);
+        btnLogin.setBackground(Color.GRAY);
+        btnLogin.setForeground(Color.WHITE);
+        btnLogin.setFocusPainted(false);
+        btnLogin.setBorderPainted(true);
+        btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        gbc.gridy = 4; // Dòng 3
+        panel.add(btnLogin, gbc);
+
+        // Thiết lập hành động khi nhấn nút "Login"
+        btnLogin.addActionListener(e -> {
+            // Tìm JFrame chứa RegisterGUI và yêu cầu chuyển đổi sang giao diện "Login"
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Login");
+            }
+        });
     }
 
     public JPanel getPanel() {

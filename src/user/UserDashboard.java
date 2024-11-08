@@ -9,7 +9,7 @@ public class UserDashboard extends JFrame {
 
     public UserDashboard() {
         // Đặt tiêu đề cho cửa sổ
-        setTitle("User Dashboard - Chat App");
+        setTitle("User Dashboard - User");
 
         // Đặt kích thước cho cửa sổ
         setSize(800, 600);
@@ -27,14 +27,26 @@ public class UserDashboard extends JFrame {
         // Tạo giao diện trang chính
         JPanel homePanel = createHomePanel();
 
-        // Tạo các giao diện LoginGUI và RegisterGUI
-        LoginGUI loginGUI = new LoginGUI();
-        RegisterGUI registerGUI = new RegisterGUI();
+        // Tạo các giao diện khác
+        Login loginGUI = new Login();
+        Register registerGUI = new Register();
+        Management managementGUI = new Management();
+        UpdateAccountInfo updateAccountInfoGUI = new UpdateAccountInfo();
+        ResetPassword resetPasswordGUI = new ResetPassword();
+        UpdatePassword updatePasswordGUI = new UpdatePassword();
+        FriendList friendListGUI = new FriendList();
+        FriendRequest friendRequestGUI = new FriendRequest();
 
         // Thêm các trang vào CardLayout
         mainPanel.add(homePanel, "Home"); // Trang chính
         mainPanel.add(loginGUI.getPanel(), "Login"); // Trang đăng nhập
         mainPanel.add(registerGUI.getPanel(), "Register"); // Trang đăng ký
+        mainPanel.add(managementGUI.getPanel(), "Management"); // Trang quản lý tài khoản
+        mainPanel.add(updateAccountInfoGUI.getPanel(), "Update Account Info"); // Trang cập nhật thông tin tài khoản
+        mainPanel.add(resetPasswordGUI.getPanel(), "Reset Password"); // Trang reset mật khẩu
+        mainPanel.add(updatePasswordGUI.getPanel(), "Update Password"); // Trang cập nhật mật khẩu
+        mainPanel.add(friendListGUI.getPanel(), "Friend List"); // Trang danh sách bạn bè
+        mainPanel.add(friendRequestGUI.getPanel(), "Friend Request"); // Trang danh sách yêu cầu kết bạn
 
         // Thêm mainPanel vào JFrame
         add(mainPanel);
@@ -48,18 +60,10 @@ public class UserDashboard extends JFrame {
         JPanel panel = new JPanel(new GridBagLayout());
 
         // Tạo nút "Register"
-        JButton btnRegister = new JButton("Register");
-        btnRegister.setFocusPainted(false);
-        btnRegister.setBorderPainted(true);
-        btnRegister.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnRegister.setPreferredSize(new Dimension(400, 100));
+        JButton btnRegister = Utilities.createButton("Register", 400, 100);
 
         // Tạo nút "Login"
-        JButton btnLogin = new JButton("Login");
-        btnLogin.setFocusPainted(false);
-        btnLogin.setBorderPainted(true);
-        btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btnLogin.setPreferredSize(new Dimension(400, 100));
+        JButton btnLogin = Utilities.createButton("Login", 400, 100);
 
         // Thiết lập GridBagConstraints để bố trí các thành phần
         GridBagConstraints gbc = new GridBagConstraints();
@@ -77,12 +81,50 @@ public class UserDashboard extends JFrame {
         panel.add(btnLogin, gbc);
 
         // Thiết lập hành động cho nút "Register" để chuyển sang giao diện đăng ký
-        btnRegister.addActionListener(e -> cardLayout.show(mainPanel, "Register"));
+        btnRegister.addActionListener(e -> {
+            setTitle("Register - User");
+            cardLayout.show(mainPanel, "Register");
+        });
 
         // Thiết lập hành động cho nút "Login" để chuyển sang giao diện đăng nhập
-        btnLogin.addActionListener(e -> cardLayout.show(mainPanel, "Login"));
+        btnLogin.addActionListener(e -> {
+            setTitle("Login - User");
+            cardLayout.show(mainPanel, "Login");
+        });
 
         return panel;
+    }
+
+    public void switchPanel(String panelName) {
+        switch (panelName) {
+            case "Login":
+                setTitle("Login - User");
+                break;
+            case "Register":
+                setTitle("Register - User");
+                break;
+            case "Management":
+                setTitle("Management - User");
+                break;
+            case "Update Account Info":
+                setTitle("Update Account Info - User");
+                break;
+            case "Reset Password":
+                setTitle("Reset Password - User");
+                break;
+            case "Update Password":
+                setTitle("Update Password - User");
+                break;
+            case "Friend List":
+                setTitle("Friend List - User");
+                break;
+            case "Friend Request":
+                setTitle("Friend Request - User");
+                break;
+            default:
+                setTitle("User Dashboard - User");
+        }
+        cardLayout.show(mainPanel, panelName);
     }
 
     // Phương thức main để chạy chương trình
