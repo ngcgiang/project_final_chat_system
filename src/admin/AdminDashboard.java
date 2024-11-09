@@ -21,7 +21,7 @@ public class AdminDashboard extends JFrame {
         leftPanel.setBackground(Color.LIGHT_GRAY);
 
         // Logo web
-        ImageIcon webLogoIcon = new ImageIcon(".\\img\\webLogo.jpg");
+        ImageIcon webLogoIcon = new ImageIcon("..\\img\\webLogo.jpg");
         Image scaledWebLogo = webLogoIcon.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
         JLabel webLogoLabel = new JLabel(new ImageIcon(scaledWebLogo)); // Tạo JLabel từ ImageIcon đã chỉnh kích thước
         leftPanel.add(webLogoLabel);
@@ -67,9 +67,7 @@ public class AdminDashboard extends JFrame {
         JButton groupChatManagementButton = new JButton("Group Chat Management");
         JButton reportManagementButton = new JButton("Report Management");
         JButton newUserManagementButton = new JButton("New-User Management");
-        JButton amountUserChartButton = new JButton("Amount User Chart");
         JButton userOnlineManagementButton = new JButton("User Online Management");
-        JButton userOnlineChartButton = new JButton("User Online Chart");
 
         // Thêm các nút vào container
         mainContainer.add(userManagementButton);
@@ -77,9 +75,7 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(groupChatManagementButton);
         mainContainer.add(reportManagementButton);
         mainContainer.add(newUserManagementButton);
-        mainContainer.add(amountUserChartButton);
         mainContainer.add(userOnlineManagementButton);
-        mainContainer.add(userOnlineChartButton);
 
         // Add header to main window
         add(headerPanel, BorderLayout.NORTH);
