@@ -27,27 +27,17 @@ public class LoginManagement extends JFrame {
         leftPanel.add(loginHisLabel);
         headerPanel.add(leftPanel, BorderLayout.WEST);
 
-        // Admin information
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.setBackground(Color.LIGHT_GRAY);
-
-        // Admin name
-        JLabel adminNameLabel = new JLabel("ngcjang");
-        adminNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        rightPanel.add(adminNameLabel);
-        headerPanel.add(rightPanel, BorderLayout.EAST);
-
         add(headerPanel, BorderLayout.NORTH); // Add header to frame
 
         // Table for Login History
-        tableModel = new DefaultTableModel(new Object[]{"Login Time", "User-name", "Full-name"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"Login Time","User ID", "User-name", "Full-name"}, 0);
         historyLoginTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(historyLoginTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Sample data for testing
-        tableModel.addRow(new Object[]{"2024-11-08 10:15:00", "ngcjang", "Nguyen Ngoc Giang"});
-        tableModel.addRow(new Object[]{"2024-11-08 10:18:45", "huytan", "Nguyen Huy Tan"});
+        tableModel.addRow(new Object[]{"2024-11-08 10:15:00", "US01", "ngcjang", "Nguyen Ngoc Giang"});
+        tableModel.addRow(new Object[]{"2024-11-08 10:18:45", "US02",  "huytan", "Nguyen Huy Tan"});
 
         setVisible(true);
     }

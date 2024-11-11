@@ -64,14 +64,14 @@ public class NewUserManagement extends JFrame {
         add(northPanel, BorderLayout.NORTH);
 
         // Table for displaying new user registrations
-        tableModel = new DefaultTableModel(new Object[]{"Username", "Registration Time"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Registration Time"}, 0);
         userTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(userTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Adding sample data to the table (optional)
-        tableModel.addRow(new Object[]{"user123", "2024-11-08 10:30"});
-        tableModel.addRow(new Object[]{"user456", "2024-11-07 14:15"});
+        tableModel.addRow(new Object[]{"US01", "user123", "2024-11-08 10:30"});
+        tableModel.addRow(new Object[]{"US02", "user456", "2024-11-07 14:15"});
 
         setVisible(true);
     }

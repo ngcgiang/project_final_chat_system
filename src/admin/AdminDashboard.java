@@ -58,7 +58,7 @@ public class AdminDashboard extends JFrame {
 
         // Container chính cho các nút quản lý
         JPanel mainContainer = new JPanel();
-        mainContainer.setLayout(new GridLayout(4, 2, 10, 10));
+        mainContainer.setLayout(new GridLayout(3, 2, 10, 10));
         mainContainer.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Các nút chức năng
@@ -67,6 +67,7 @@ public class AdminDashboard extends JFrame {
         JButton groupChatManagementButton = new JButton("Group Chat Management");
         JButton reportManagementButton = new JButton("Report Management");
         JButton newUserManagementButton = new JButton("New-User Management");
+        JButton userFriendList = new JButton("User Friend List Management");
         JButton userOnlineManagementButton = new JButton("User Online Management");
 
         // Thêm các nút vào container
@@ -75,6 +76,7 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(groupChatManagementButton);
         mainContainer.add(reportManagementButton);
         mainContainer.add(newUserManagementButton);
+        mainContainer.add(userFriendList);
         mainContainer.add(userOnlineManagementButton);
 
         // Add header to main window

@@ -29,24 +29,6 @@ public class GroupChatManagement extends JFrame {
         leftPanel.add(chatLabel);
         headerPanel.add(leftPanel, BorderLayout.WEST);
 
-        // Right Panel for Admin Info
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.setBackground(Color.LIGHT_GRAY);
-        JLabel adminNameLabel = new JLabel("ngcjang");
-        adminNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        rightPanel.add(adminNameLabel);
-
-        // Admin Button with Icon
-        ImageIcon adminLogoIcon = new ImageIcon(".\\img\\profile-user.png");
-        Image scaledAdminLogo = adminLogoIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        JButton adminButton = new JButton(new ImageIcon(scaledAdminLogo));
-        adminButton.setFocusPainted(false);
-        adminButton.setContentAreaFilled(false);
-        adminButton.setBorderPainted(false);
-        adminButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Open settings"));
-        rightPanel.add(adminButton);
-        headerPanel.add(rightPanel, BorderLayout.EAST);
-
         // Filter Panel for Search and Filter Options
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchField = new JTextField(15);
@@ -55,7 +37,7 @@ public class GroupChatManagement extends JFrame {
         filterPanel.add(searchField);
         filterPanel.add(searchButton);
 
-        filterComboBox = new JComboBox<>(new String[]{"Group name", "Creation time"});
+        filterComboBox = new JComboBox<>(new String[]{"Group ID", "Group name", "Creation time"});
         filterPanel.add(new JLabel("Filter:"));
         filterPanel.add(filterComboBox);
 
@@ -67,14 +49,14 @@ public class GroupChatManagement extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
 
         // Table for Group Chat Information
-        tableModel = new DefaultTableModel(new Object[]{"Name group", "Creation time", "Amount of members"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"Group ID", "Name group", "Creation time", "Amount of members"}, 0);
         groupTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(groupTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Sample data for testing (optional)
-        tableModel.addRow(new Object[]{"Study Group", "2024-11-01", 10});
-        tableModel.addRow(new Object[]{"Project Team", "2024-10-15", 5});
+        tableModel.addRow(new Object[]{"GR01", "Study Group", "2024-11-01", 10});
+        tableModel.addRow(new Object[]{"GR02", "Project Team", "2024-10-15", 5});
 
         // Button Panel for User Actions
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));

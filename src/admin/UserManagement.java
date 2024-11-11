@@ -10,15 +10,26 @@ public class UserManagement extends JFrame {
     private JButton searchButton;
 
     public UserManagement() {
-        
         // Container
         setTitle("User Management - Chat system");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        // Header panel for the title
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(Color.LIGHT_GRAY);
+        headerPanel.setPreferredSize(new Dimension(800, 40));
+
+        // Set FlowLayout to left-align the title
+        headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        JLabel titleLabel = new JLabel("User Management");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        headerPanel.add(titleLabel);
+
         // Main Table Panel for User Information
-        String[] columnNames = {"ID", "Username", "Full-name", "Address", "DOB", "Gender", "Email", "Status"};
+        String[] columnNames = {"User ID", "Username", "Full-name", "Address", "DOB", "Gender", "Email", "Status"};
         tableModel = new DefaultTableModel(columnNames, 0);
         userTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(userTable);
@@ -36,11 +47,15 @@ public class UserManagement extends JFrame {
         filterPanel.add(new JLabel("Filter:"));
         filterPanel.add(filterComboBox);
 
-        JButton searchButton = new JButton("Apply");
-        filterPanel.add(searchButton);
+        JButton applyFilterButton = new JButton("Apply Filter");
+        filterPanel.add(applyFilterButton);
         
-        // Add filterPanel below headerPanel
-        add(filterPanel, BorderLayout.NORTH);
+        JPanel northPanel = new JPanel();
+        northPanel.setLayout(new BorderLayout());
+        northPanel.add(headerPanel, BorderLayout.NORTH);
+        northPanel.add(filterPanel, BorderLayout.CENTER);
+
+        add(northPanel, BorderLayout.NORTH);  // Add northPanel to the main frame
 
         // Button Panel for User Actions
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -51,6 +66,10 @@ public class UserManagement extends JFrame {
         JButton viewLoginHistoryButton = new JButton("Login history");
         JButton viewFriendsButton = new JButton("Friends list");
 
+        // Adding sample data to the table
+        tableModel.addRow(new Object[]{"US01", "user123", "Ngoc Giang", "123 Minh Phung", "01/01/2004", "Male", "user123@example.com", "Active"});
+        tableModel.addRow(new Object[]{"US02", "user456", "Huy Tan", "456 Nguyen Trai", "02/02/2004", "Male", "user456@example.com", "Inactive"});
+        
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(lockButton);
