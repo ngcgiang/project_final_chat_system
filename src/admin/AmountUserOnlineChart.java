@@ -1,16 +1,14 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
 import java.awt.*;
 
-public class NewRegistrationChartView extends JFrame {
-  
+public class AmountUserOnlineChart extends JFrame {
+
     private JTextField usernameFilterField;
     private JButton applyFilterButton;
 
-    public NewRegistrationChartView() {
+    public AmountUserOnlineChart() {
         // Main window setup
-        setTitle("New registration Chart - Chat App");
+        setTitle("User Online Management - Chat App");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -21,7 +19,7 @@ public class NewRegistrationChartView extends JFrame {
         headerPanel.setPreferredSize(new Dimension(800, 40));
         headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JLabel titleLabel = new JLabel("New registration Chart");
+        JLabel titleLabel = new JLabel("Amount User Online Chart");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         headerPanel.add(titleLabel);
 
@@ -49,6 +47,6 @@ public class NewRegistrationChartView extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new NewRegistrationChartView());
+        SwingUtilities.invokeLater(() -> new AmountUserOnlineChart());
     }
 }
