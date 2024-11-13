@@ -23,10 +23,6 @@ public class UserDashboard extends JFrame {
         // Khởi tạo CardLayout và JPanel chính
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
-
-        // Tạo giao diện trang chính
-        JPanel homePanel = createHomePanel();
-
         // Tạo các giao diện khác
         Login loginGUI = new Login();
         Register registerGUI = new Register();
@@ -36,9 +32,10 @@ public class UserDashboard extends JFrame {
         UpdatePassword updatePasswordGUI = new UpdatePassword();
         FriendList friendListGUI = new FriendList();
         FriendRequest friendRequestGUI = new FriendRequest();
+        Message messageGUI = new Message();
+        FindUser findUserGUI = new FindUser();
 
         // Thêm các trang vào CardLayout
-        mainPanel.add(homePanel, "Home"); // Trang chính
         mainPanel.add(loginGUI.getPanel(), "Login"); // Trang đăng nhập
         mainPanel.add(registerGUI.getPanel(), "Register"); // Trang đăng ký
         mainPanel.add(managementGUI.getPanel(), "Management"); // Trang quản lý tài khoản
@@ -47,52 +44,14 @@ public class UserDashboard extends JFrame {
         mainPanel.add(updatePasswordGUI.getPanel(), "Update Password"); // Trang cập nhật mật khẩu
         mainPanel.add(friendListGUI.getPanel(), "Friend List"); // Trang danh sách bạn bè
         mainPanel.add(friendRequestGUI.getPanel(), "Friend Request"); // Trang danh sách yêu cầu kết bạn
+        mainPanel.add(messageGUI.getPanel(), "Message");
+        mainPanel.add(findUserGUI.getPanel(), "Find User");
 
         // Thêm mainPanel vào JFrame
         add(mainPanel);
 
         // Hiển thị cửa sổ JFrame
         setVisible(true);
-    }
-
-    // Tạo giao diện trang chính với các nút "Register" và "Login"
-    private JPanel createHomePanel() {
-        JPanel panel = new JPanel(new GridBagLayout());
-
-        // Tạo nút "Register"
-        JButton btnRegister = Utilities.createButton("Register", 400, 100);
-
-        // Tạo nút "Login"
-        JButton btnLogin = Utilities.createButton("Login", 400, 100);
-
-        // Thiết lập GridBagConstraints để bố trí các thành phần
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 0, 10, 0);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        // Thêm nút "Register" vào panel tại vị trí dòng 0, cột 0
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(btnRegister, gbc);
-
-        // Thêm nút "Login" vào panel tại vị trí dòng 1, cột 0
-        gbc.gridy = 1;
-        panel.add(btnLogin, gbc);
-
-        // Thiết lập hành động cho nút "Register" để chuyển sang giao diện đăng ký
-        btnRegister.addActionListener(e -> {
-            setTitle("Register - User");
-            cardLayout.show(mainPanel, "Register");
-        });
-
-        // Thiết lập hành động cho nút "Login" để chuyển sang giao diện đăng nhập
-        btnLogin.addActionListener(e -> {
-            setTitle("Login - User");
-            cardLayout.show(mainPanel, "Login");
-        });
-
-        return panel;
     }
 
     public void switchPanel(String panelName) {
@@ -120,6 +79,12 @@ public class UserDashboard extends JFrame {
                 break;
             case "Friend Request":
                 setTitle("Friend Request - User");
+                break;
+            case "Message":
+                setTitle("Message - User");
+                break;
+            case "Find User":
+                setTitle("Find User - User");
                 break;
             default:
                 setTitle("User Dashboard - User");

@@ -15,34 +15,45 @@ public class Management {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Tạo các button và thiết lập kiểu dáng giống UserDashboard
+        // Thanh header với BorderLayout
+        JPanel header = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnLogOut = Utilities.createButton("Log out");
+        header.add(btnLogOut); // Đặt btnLogOut ở góc phải của header
+
+        // Đặt header vào GridBagLayout
+        gbc.gridx = 0; // Cột đầu tiên
+        gbc.gridy = 0; // Hàng đầu tiên
+        gbc.gridwidth = 2;
+        panel.add(header, gbc);
+
         int width = 400, height = 75;
         JButton btnUpdateAccountInfo = Utilities.createButton("Update Account Info", width, height);
         JButton btnResetPassword = Utilities.createButton("Reset Password", width, height);
         JButton btnUpdatePassword = Utilities.createButton("Update Password", width, height);
         JButton btnFriendList = Utilities.createButton("Friend List", width, height);
-        JButton btnReportSpam = Utilities.createButton("Report Spam", width, height);
-        JButton btnChat = Utilities.createButton("Chat", width, height);
+        JButton btnMessage = Utilities.createButton("Message", width, height);
+        JButton btnFindUser = Utilities.createButton("Find user", width, height);
 
-        // Thêm các button vào panel
+        // Các button tiếp theo
         gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel.add(btnUpdateAccountInfo, gbc);
-
         gbc.gridy = 1;
-        panel.add(btnResetPassword, gbc);
+        gbc.gridwidth = 1;
+        panel.add(btnMessage, gbc);
 
         gbc.gridy = 2;
-        panel.add(btnUpdatePassword, gbc);
+        panel.add(btnFindUser, gbc);
 
         gbc.gridy = 3;
         panel.add(btnFriendList, gbc);
 
         gbc.gridy = 4;
-        panel.add(btnReportSpam, gbc);
+        panel.add(btnResetPassword, gbc);
 
         gbc.gridy = 5;
-        panel.add(btnChat, gbc);
+        panel.add(btnUpdatePassword, gbc);
+
+        gbc.gridy = 6;
+        panel.add(btnUpdateAccountInfo, gbc);
 
         // Thiết lập hành động khi nhấn nút "Update Account Info"
         btnUpdateAccountInfo.addActionListener(e -> {
@@ -81,6 +92,33 @@ public class Management {
             Container topLevel = panel.getTopLevelAncestor();
             if (topLevel instanceof UserDashboard) {
                 ((UserDashboard) topLevel).switchPanel("Friend List");
+            }
+        });
+
+        // Thiết lập hành động khi nhấn nút "Message"
+        btnMessage.addActionListener(e -> {
+            // Tìm JFrame chứa "Management" và yêu cầu chuyển đổi sang giao diện "Message"
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Message");
+            }
+        });
+
+        // Thiết lập hành động khi nhấn nút "Find User"
+        btnFindUser.addActionListener(e -> {
+            // Tìm JFrame chứa "Management" và yêu cầu chuyển đổi sang giao diện "Find User"
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Find User");
+            }
+        });
+
+        // Thiết lập hành động khi nhấn nút "Log out"
+        btnLogOut.addActionListener(e -> {
+            // Tìm JFrame chứa "Management" và yêu cầu chuyển đổi sang giao diện "Login"
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Login");
             }
         });
     }

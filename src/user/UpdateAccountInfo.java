@@ -9,7 +9,6 @@ public class UpdateAccountInfo {
     public UpdateAccountInfo() {
         panel = new JPanel();
         panel.setLayout(new GridBagLayout());
-        panel.setBackground(Color.WHITE); // Màu nền sáng
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);

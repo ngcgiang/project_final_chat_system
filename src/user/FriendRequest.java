@@ -18,9 +18,7 @@ public class FriendRequest {
 
         // Tạo thanh tìm kiếm
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel lblSearch = Utilities.createLabel("Search Request:", "plain", 14);
         txtSearch = new JTextField(20);
-        searchPanel.add(lblSearch);
         searchPanel.add(txtSearch);
 
         // Tạo bảng hiển thị danh sách yêu cầu kết bạn
