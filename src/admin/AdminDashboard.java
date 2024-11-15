@@ -79,6 +79,14 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(userFriendList);
         mainContainer.add(userOnlineManagementButton);
 
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
+
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+
         // Add header to main window
         add(headerPanel, BorderLayout.NORTH);
         // Add container to main window

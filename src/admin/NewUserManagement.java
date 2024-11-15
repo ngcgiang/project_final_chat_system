@@ -72,7 +72,15 @@ public class NewUserManagement extends JFrame {
         // Adding sample data to the table (optional)
         tableModel.addRow(new Object[]{"US01", "user123", "2024-11-08 10:30"});
         tableModel.addRow(new Object[]{"US02", "user456", "2024-11-07 14:15"});
+        
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
 
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+        
         setVisible(true);
     }
 

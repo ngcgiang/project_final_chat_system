@@ -74,6 +74,14 @@ public class UserFriendListManagement extends JFrame {
         tableModel.addRow(new Object[]{"US01", "user123", "123", "09/11/2024"});
         tableModel.addRow(new Object[]{"US02", "user456", "560", "10/11/2024"});
 
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
+
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+
         setVisible(true);
     }
 

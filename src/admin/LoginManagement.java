@@ -39,6 +39,14 @@ public class LoginManagement extends JFrame {
         tableModel.addRow(new Object[]{"2024-11-08 10:15:00", "US01", "ngcjang", "Nguyen Ngoc Giang"});
         tableModel.addRow(new Object[]{"2024-11-08 10:18:45", "US02",  "huytan", "Nguyen Huy Tan"});
 
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
+
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+        
         setVisible(true);
     }
 

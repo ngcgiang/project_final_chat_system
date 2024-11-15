@@ -56,21 +56,23 @@ public class SpamReportManagement extends JFrame {
         add(northPanel, BorderLayout.NORTH);
 
         // Table for displaying spam reports
-        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Report Time", "Reason"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Reported by", "Report Time", "Reason"}, 0);
         reportTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(reportTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Button panel for locking accounts
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
         lockAccountButton = new JButton("Lock Account");
+        buttonPanel.add(backButton);
         buttonPanel.add(lockAccountButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Adding sample data to the table (optional)
-        tableModel.addRow(new Object[]{"US01", "user123", "2024-11-08 10:30", "Spam messages"});
-        tableModel.addRow(new Object[]{"US02", "user456", "2024-11-07 14:15", "Inappropriate content"});
+        tableModel.addRow(new Object[]{"US01", "user123", "US02", "2024-11-08 10:30", "Spam messages"});
+        tableModel.addRow(new Object[]{"US02", "user456", "US01", "2024-11-07 14:15", "Inappropriate content"});
 
         setVisible(true);
     }

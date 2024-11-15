@@ -58,7 +58,8 @@ public class UserManagement extends JFrame {
         add(northPanel, BorderLayout.NORTH);  // Add northPanel to the main frame
 
         // Button Panel for User Actions
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("Back");
         JButton updateButton = new JButton("Update");
         JButton deleteButton = new JButton("Remove");
         JButton lockButton = new JButton("Lock/Unlock");
@@ -70,6 +71,7 @@ public class UserManagement extends JFrame {
         tableModel.addRow(new Object[]{"US01", "user123", "Ngoc Giang", "123 Minh Phung", "01/01/2004", "Male", "user123@example.com", "Active"});
         tableModel.addRow(new Object[]{"US02", "user456", "Huy Tan", "456 Nguyen Trai", "02/02/2004", "Male", "user456@example.com", "Inactive"});
         
+        buttonPanel.add(backButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(lockButton);

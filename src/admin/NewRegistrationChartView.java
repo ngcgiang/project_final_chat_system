@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
 
@@ -44,6 +43,14 @@ public class NewRegistrationChartView extends JFrame {
         northPanel.add(filterSortPanel, BorderLayout.CENTER);
 
         add(northPanel, BorderLayout.NORTH);
+
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
+
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }

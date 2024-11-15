@@ -67,7 +67,7 @@ public class UserOnlineManagement extends JFrame {
         add(northPanel, BorderLayout.NORTH);
 
         // Table for displaying user information
-        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Open app", "Amount of people", "Amount of group", "Date creation"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Open app", "Chat with amount of people", "Chat with amount of group", "Date creation"}, 0);
         reportTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(reportTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -75,6 +75,14 @@ public class UserOnlineManagement extends JFrame {
         // Adding sample data to the table (optional)
         tableModel.addRow(new Object[]{"US01", "user123", "12", "8", "4", "01/01/2024"});
         tableModel.addRow(new Object[]{"US02", "user456", "23", "16", "2", "04/01/2024"});
+
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
+
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }

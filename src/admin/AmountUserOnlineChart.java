@@ -43,6 +43,14 @@ public class AmountUserOnlineChart extends JFrame {
 
         add(northPanel, BorderLayout.NORTH);
 
+        // Back button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("BACK");
+
+        buttonPanel.add(backButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+
         setVisible(true);
     }
 
