@@ -2,18 +2,16 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class MemberListManagement extends JFrame {
+public class MemberListManagement extends JPanel {
     private JTable memberTable;
     private DefaultTableModel tableModel;
     private JTextField searchField;
     private JComboBox<String> filterComboBox;
     private JButton searchButton;
+    private JButton backButton;
 
     public MemberListManagement() {
         // Setting main window properties
-        setTitle("Member List Management - Chat App");
-        setSize(600, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header Panel
@@ -62,17 +60,15 @@ public class MemberListManagement extends JFrame {
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
 
         buttonPanel.add(backButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Show window
-        setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MemberListManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

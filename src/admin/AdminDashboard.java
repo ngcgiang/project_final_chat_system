@@ -4,6 +4,7 @@ import java.util.Date;
 import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
+    private JPanel headerPanel;
     public AdminDashboard() {
         // Setting main windows
         setTitle("Admin Dashboard - Chat App");
@@ -12,9 +13,9 @@ public class AdminDashboard extends JFrame {
         setLayout(new BorderLayout());
 
         // Header
-        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.LIGHT_GRAY);
-        headerPanel.setPreferredSize(new Dimension(800, 80));
+        headerPanel.setPreferredSize(new Dimension(800, 30));
 
         // Logo web
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -67,7 +68,7 @@ public class AdminDashboard extends JFrame {
         JButton groupChatManagementButton = new JButton("Group Chat Management");
         JButton reportManagementButton = new JButton("Report Management");
         JButton newUserManagementButton = new JButton("New-User Management");
-        JButton userFriendList = new JButton("User Friend List Management");
+        JButton userFriendListButton = new JButton("User Friend List Management");
         JButton userOnlineManagementButton = new JButton("User Online Management");
 
         // Thêm các nút vào container
@@ -76,17 +77,52 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(groupChatManagementButton);
         mainContainer.add(reportManagementButton);
         mainContainer.add(newUserManagementButton);
-        mainContainer.add(userFriendList);
+        mainContainer.add(userFriendListButton);
         mainContainer.add(userOnlineManagementButton);
 
-        // Back button
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        //handle event click button
+        //to user management
+        userManagementButton.addActionListener(e -> {
+            UserManagement userManagementPanel = new UserManagement();
+            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao diện chính
+            switchPanel(userManagementPanel);
+        });
+        //to login management
+        loginManagementButton.addActionListener(e -> {
+            LoginManagement loginManagementPanel = new LoginManagement();
+            loginManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
+            switchPanel(loginManagementPanel);
+        });
+         //to group chat management
+         groupChatManagementButton.addActionListener(e -> {
+            GroupChatManagement groupChatManagementPanel = new GroupChatManagement(this);
+            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao diện chính
+            switchPanel(groupChatManagementPanel);
+        });
+        //to report management
+        reportManagementButton.addActionListener(e -> {
+            SpamReportManagement spamReportManagementPanel = new SpamReportManagement();
+            spamReportManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
+            switchPanel(spamReportManagementPanel);
+        });
+        //to new user management
+        newUserManagementButton.addActionListener(e -> {
+            NewUserManagement newUserManagementPanel = new NewUserManagement(this);
+            newUserManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
+            switchPanel(newUserManagementPanel);
+        });
+        userFriendListButton.addActionListener(e -> {
+            UserFriendListManagement userFriendListManagementPanel = new UserFriendListManagement();
+            userFriendListManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
+            switchPanel(userFriendListManagementPanel);
+        });
+        userOnlineManagementButton.addActionListener(e -> {
+            UserOnlineManagement userOnlineManagementPanel = new UserOnlineManagement();
+            userOnlineManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
+            switchPanel(userOnlineManagementPanel);
+        });
 
-        buttonPanel.add(backButton);
-
-        add(buttonPanel, BorderLayout.SOUTH);
-
+        
         // Add header to main window
         add(headerPanel, BorderLayout.NORTH);
         // Add container to main window
@@ -95,6 +131,15 @@ public class AdminDashboard extends JFrame {
         setVisible(true);
     }
 
+    //Switch panel
+    private void switchPanel(JPanel newPanel) {
+        getContentPane().removeAll();
+        add(headerPanel, BorderLayout.NORTH); // Giữ header
+        add(newPanel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new AdminDashboard());
     }

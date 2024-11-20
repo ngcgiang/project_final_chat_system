@@ -2,15 +2,13 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class LoginManagement extends JFrame {
+public class LoginManagement extends JPanel {
     private JTable historyLoginTable;
     private DefaultTableModel tableModel;
+    private JButton backButton;
 
     public LoginManagement() {
         // Container
-        setTitle("Login Management - Chat system");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header
@@ -41,7 +39,7 @@ public class LoginManagement extends JFrame {
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
 
         buttonPanel.add(backButton);
 
@@ -50,7 +48,7 @@ public class LoginManagement extends JFrame {
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LoginManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

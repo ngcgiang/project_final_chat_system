@@ -2,16 +2,14 @@ import javax.swing.*;
 
 import java.awt.*;
 
-public class NewRegistrationChartView extends JFrame {
+public class NewRegistrationChartView extends JPanel {
   
     private JTextField usernameFilterField;
     private JButton applyFilterButton;
+    private JButton backButton;
 
     public NewRegistrationChartView() {
         // Main window setup
-        setTitle("New registration Chart - Chat App");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header panel for the title
@@ -51,7 +49,7 @@ public class NewRegistrationChartView extends JFrame {
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
 
         buttonPanel.add(backButton);
 
@@ -60,48 +58,47 @@ public class NewRegistrationChartView extends JFrame {
         setVisible(true);
     }
 
-// Custom panel for drawing the chart
-class ChartPanel extends JPanel {
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    // Custom panel for drawing the chart
+    class ChartPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
 
-        // Example data: number of users for each month
-        int[] userCounts = {50, 75, 100, 125, 150, 175, 200, 180, 160, 140, 120, 90};
-        String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            // Example data: number of users for each month
+            int[] userCounts = {50, 75, 100, 125, 150, 175, 200, 180, 160, 140, 120, 90};
+            String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-        int chartWidth = getWidth() - 100;
-        int chartHeight = getHeight() - 100;
+            int chartWidth = getWidth() - 100;
+            int chartHeight = getHeight() - 100;
 
-        int barWidth = chartWidth / userCounts.length;
-        int maxUsers = 200; // Assume max number of users for scaling
+            int barWidth = chartWidth / userCounts.length;
+            int maxUsers = 200; // Assume max number of users for scaling
 
-        // Draw axes
-        g.drawLine(50, 50, 50, chartHeight + 50); // Y-axis
-        g.drawLine(50, chartHeight + 50, chartWidth + 50, chartHeight + 50); // X-axis
+            // Draw axes
+            g.drawLine(50, 50, 50, chartHeight + 50); // Y-axis
+            g.drawLine(50, chartHeight + 50, chartWidth + 50, chartHeight + 50); // X-axis
 
-        // Draw bars and labels
-        for (int i = 0; i < userCounts.length; i++) {
-            int barHeight = (userCounts[i] * chartHeight) / maxUsers;
-            g.setColor(Color.BLUE);
-            g.fillRect(50 + i * barWidth, chartHeight + 50 - barHeight, barWidth - 10, barHeight);
+            // Draw bars and labels
+            for (int i = 0; i < userCounts.length; i++) {
+                int barHeight = (userCounts[i] * chartHeight) / maxUsers;
+                g.setColor(Color.BLUE);
+                g.fillRect(50 + i * barWidth, chartHeight + 50 - barHeight, barWidth - 10, barHeight);
 
-            g.setColor(Color.BLACK);
-            g.drawString(months[i], 50 + i * barWidth + barWidth / 4, chartHeight + 70);
-        }
+                g.setColor(Color.BLACK);
+                g.drawString(months[i], 50 + i * barWidth + barWidth / 4, chartHeight + 70);
+            }
 
-        // Add y-axis labels
-        for (int i = 0; i <= maxUsers; i += 50) {
-            int y = chartHeight + 50 - (i * chartHeight) / maxUsers;
-            g.drawString(String.valueOf(i), 20, y);
-            g.drawLine(45, y, 50, y);
+            // Add y-axis labels
+            for (int i = 0; i <= maxUsers; i += 50) {
+                int y = chartHeight + 50 - (i * chartHeight) / maxUsers;
+                g.drawString(String.valueOf(i), 20, y);
+                g.drawLine(45, y, 50, y);
+            }
         }
     }
-}
 
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new NewRegistrationChartView());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

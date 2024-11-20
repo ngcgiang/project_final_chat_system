@@ -2,18 +2,16 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class UserManagement extends JFrame {
+public class UserManagement extends JPanel {
     private JTable userTable;
     private DefaultTableModel tableModel;
     private JTextField searchField;
     private JComboBox<String> filterComboBox;
     private JButton searchButton;
+    private JButton backButton;
 
     public UserManagement() {
         // Container
-        setTitle("User Management - Chat system");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header panel for the title
@@ -59,7 +57,7 @@ public class UserManagement extends JFrame {
 
         // Button Panel for User Actions
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("Back");
+        backButton = new JButton("Back");
         JButton updateButton = new JButton("Update");
         JButton deleteButton = new JButton("Remove");
         JButton lockButton = new JButton("Lock/Unlock");
@@ -81,11 +79,8 @@ public class UserManagement extends JFrame {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Display the frame
-        setVisible(true);
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new UserManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

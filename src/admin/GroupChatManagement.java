@@ -2,18 +2,22 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class GroupChatManagement extends JFrame {
+public class GroupChatManagement extends JPanel {
     private JTable groupTable;
     private DefaultTableModel tableModel;
     private JTextField searchField;
     private JComboBox<String> filterComboBox;
     private JButton searchButton;
+    private JButton backButton;
+    private JFrame parentFrame;
 
-    public GroupChatManagement() {
+    public GroupChatManagement(JFrame parentFrame) {
+        this.parentFrame = parentFrame; // Lưu tham chiếu đến JFrame cha
+        initComponents();
+    }
+    
+    private void initComponents() {
         // Setting main window properties
-        setTitle("Group chat management - Chat App");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header Panel
@@ -61,21 +65,38 @@ public class GroupChatManagement extends JFrame {
         // Button Panel for User Actions
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         // Back button
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
         JButton viewMember = new JButton("View member list");
+        viewMember.addActionListener(e -> {
+            MemberListManagement memberListManagementPanel  = new MemberListManagement();
+            memberListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
+            switchPanel(memberListManagementPanel);
+        }); // Open admin list view 
+
         JButton viewAdmin = new JButton("View admin list");
-        
+        viewAdmin.addActionListener(e -> {
+            AdminListManagement adminListManagementPanel = new AdminListManagement();
+            adminListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
+            switchPanel(adminListManagementPanel);
+        }); // Open admin list view 
+
         buttonPanel.add(backButton);
         buttonPanel.add(viewMember);
         buttonPanel.add(viewAdmin);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Show window
-        setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GroupChatManagement());
+    //Switch panel
+    private void switchPanel(JPanel newPanel) {
+        parentFrame.getContentPane().removeAll();
+        parentFrame.add(newPanel);
+        parentFrame.revalidate();
+        parentFrame.repaint();
+    }
+
+    public JButton getBackButton() {
+        return backButton;
     }
 }

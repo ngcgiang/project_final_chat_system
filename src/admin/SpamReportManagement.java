@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class SpamReportManagement extends JFrame {
+public class SpamReportManagement extends JPanel {
     private JTable reportTable;
     private DefaultTableModel tableModel;
     private JTextField usernameFilterField;
@@ -10,12 +10,10 @@ public class SpamReportManagement extends JFrame {
     private JComboBox<String> sortComboBox;
     private JButton applyFilterButton;
     private JButton lockAccountButton;
+    private JButton backButton;
 
     public SpamReportManagement() {
         // Main window setup
-        setTitle("Spam Report Management - Chat App");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header panel for the title
@@ -63,7 +61,7 @@ public class SpamReportManagement extends JFrame {
 
         // Button panel for locking accounts
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
         lockAccountButton = new JButton("Lock Account");
         buttonPanel.add(backButton);
         buttonPanel.add(lockAccountButton);
@@ -74,10 +72,9 @@ public class SpamReportManagement extends JFrame {
         tableModel.addRow(new Object[]{"US01", "user123", "US02", "2024-11-08 10:30", "Spam messages"});
         tableModel.addRow(new Object[]{"US02", "user456", "US01", "2024-11-07 14:15", "Inappropriate content"});
 
-        setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new SpamReportManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

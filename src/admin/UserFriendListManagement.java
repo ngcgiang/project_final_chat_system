@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class UserFriendListManagement extends JFrame {
+public class UserFriendListManagement extends JPanel {
     private JTable reportTable;
     private DefaultTableModel tableModel;
     private JTextField usernameFilterField;
@@ -10,12 +10,10 @@ public class UserFriendListManagement extends JFrame {
     private JComboBox<String> amountFilterComboBox;
     private JComboBox<String> sortComboBox;
     private JButton applyFilterButton;
+    private JButton backButton;
 
     public UserFriendListManagement() {
         // Main window setup
-        setTitle("User Friend List Management - Chat App");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header panel for the title
@@ -76,16 +74,15 @@ public class UserFriendListManagement extends JFrame {
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
 
         buttonPanel.add(backButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new UserFriendListManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

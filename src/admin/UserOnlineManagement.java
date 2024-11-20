@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class UserOnlineManagement extends JFrame {
+public class UserOnlineManagement extends JPanel {
     private JTable reportTable;
     private DefaultTableModel tableModel;
     private JTextField usernameFilterField;
@@ -11,12 +11,10 @@ public class UserOnlineManagement extends JFrame {
     private JComboBox<String> amountFilterComboBox;
     private JComboBox<String> sortComboBox;
     private JButton applyFilterButton;
+    private JButton backButton;
 
     public UserOnlineManagement() {
         // Main window setup
-        setTitle("User Online Management - Chat App");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Header panel for the title
@@ -78,16 +76,15 @@ public class UserOnlineManagement extends JFrame {
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
 
         buttonPanel.add(backButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
-        setVisible(true);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new UserOnlineManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }

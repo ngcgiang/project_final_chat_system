@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-public class NewUserManagement extends JFrame {
+public class NewUserManagement extends JPanel {
     private JTable userTable;
     private DefaultTableModel tableModel;
     private JTextField nameFilterField;
@@ -10,12 +10,16 @@ public class NewUserManagement extends JFrame {
     private JComboBox<String> sortComboBox;
     private JButton applyFilterButton;
     private JButton showChartButton;
+    private JButton backButton;
+    private JFrame parentFrame;
 
-    public NewUserManagement() {
+    public NewUserManagement(JFrame parentFrame) {
+        this.parentFrame = parentFrame; // Lưu tham chiếu đến JFrame cha
+        initComponents();
+    }
+    
+    private void initComponents() {
         // Main window setup
-        setTitle("New User Management - Chat App");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Main header and filter/sort panel to hold all north components
@@ -51,11 +55,6 @@ public class NewUserManagement extends JFrame {
         applyFilterButton = new JButton("Apply Filter");
         filterSortPanel.add(applyFilterButton);
 
-        // Show Chart Button
-        showChartButton = new JButton("Show Registration Chart");
-        showChartButton.addActionListener(e -> openChartView()); // Open chart view on button click
-        add(showChartButton, BorderLayout.SOUTH);
-
         // Add header and filter/sort panel to the north panel
         northPanel.add(headerPanel, BorderLayout.NORTH);
         northPanel.add(filterSortPanel, BorderLayout.SOUTH);
@@ -73,23 +72,35 @@ public class NewUserManagement extends JFrame {
         tableModel.addRow(new Object[]{"US01", "user123", "2024-11-08 10:30"});
         tableModel.addRow(new Object[]{"US02", "user456", "2024-11-07 14:15"});
         
+        // Show Chart Button
+        showChartButton = new JButton("Show Registration Chart");
+        showChartButton.addActionListener(e -> {
+            NewRegistrationChartView newRegistrationChartViewPanel = new NewRegistrationChartView();
+            newRegistrationChartViewPanel.getBackButton().addActionListener(event -> switchPanel(this));
+            switchPanel(newRegistrationChartViewPanel);
+        }); // Open chart view on button click
+
+
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JButton backButton = new JButton("BACK");
+        backButton = new JButton("BACK");
 
         buttonPanel.add(backButton);
+        buttonPanel.add(showChartButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
         
-        setVisible(true);
     }
 
-    // Method to open the chart view
-    private void openChartView() {
-        new NewRegistrationChartView();
+    //Switch panel
+    private void switchPanel(JPanel newPanel) {
+        parentFrame.getContentPane().removeAll();
+        parentFrame.add(newPanel);
+        parentFrame.revalidate();
+        parentFrame.repaint();
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new NewUserManagement());
+    public JButton getBackButton() {
+        return backButton;
     }
 }
