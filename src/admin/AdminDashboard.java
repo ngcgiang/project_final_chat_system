@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
@@ -84,6 +85,7 @@ public class AdminDashboard extends JFrame {
         //to user management
         userManagementButton.addActionListener(e -> {
             UserManagement userManagementPanel = new UserManagement();
+            userManagementPanel.loadUserData(null,null);
             userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao diện chính
             switchPanel(userManagementPanel);
         });
@@ -122,7 +124,6 @@ public class AdminDashboard extends JFrame {
             switchPanel(userOnlineManagementPanel);
         });
 
-        
         // Add header to main window
         add(headerPanel, BorderLayout.NORTH);
         // Add container to main window
@@ -141,6 +142,13 @@ public class AdminDashboard extends JFrame {
     }
     
     public static void main(String[] args) {
+    try (Connection connection = DatabaseConnection.getConnection()) {
+        if (connection != null) {
+            System.out.println("Database connection successful!");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
         SwingUtilities.invokeLater(() -> new AdminDashboard());
     }
 }

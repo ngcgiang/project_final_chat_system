@@ -1,6 +1,6 @@
+import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 
 public class AdminListManagement extends JPanel {
     private JTable memberTable;
@@ -21,7 +21,7 @@ public class AdminListManagement extends JPanel {
         // Left Panel for Header
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setBackground(Color.LIGHT_GRAY);
-        JLabel chatLabel = new JLabel("Member List Management");
+        JLabel chatLabel = new JLabel("Admin List Management");
         chatLabel.setFont(new Font("Arial", Font.BOLD, 16));
         leftPanel.add(chatLabel);
         headerPanel.add(leftPanel, BorderLayout.WEST);
