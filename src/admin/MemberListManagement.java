@@ -1,16 +1,14 @@
+import java.awt.*;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 
 public class MemberListManagement extends JPanel {
     private JTable memberTable;
     private DefaultTableModel tableModel;
-    private JTextField searchField;
-    private JComboBox<String> filterComboBox;
-    private JButton searchButton;
     private JButton backButton;
 
-    public MemberListManagement() {
+    public MemberListManagement(int groupID, String GroupName) {
         // Setting main window properties
         setLayout(new BorderLayout());
 
@@ -22,41 +20,23 @@ public class MemberListManagement extends JPanel {
         // Left Panel for Header
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setBackground(Color.LIGHT_GRAY);
-        JLabel chatLabel = new JLabel("Member List Management");
+        JLabel chatLabel = new JLabel("Member List Of " + GroupName);
         chatLabel.setFont(new Font("Arial", Font.BOLD, 16));
         leftPanel.add(chatLabel);
         headerPanel.add(leftPanel, BorderLayout.WEST);
 
         // Filter Panel for Search and Filter Options
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        searchField = new JTextField(15);
-        searchButton = new JButton("Search");
-        filterPanel.add(new JLabel("Search:"));
-        filterPanel.add(searchField);
-        filterPanel.add(searchButton);
-
-        filterComboBox = new JComboBox<>(new String[]{"Group ID", "User ID"});
-        filterPanel.add(new JLabel("Filter:"));
-        filterPanel.add(filterComboBox);
-
-        JButton applyButton = new JButton("Apply");
-        filterPanel.add(applyButton);
         
         // Add filter panel within the header panel
         headerPanel.add(filterPanel, BorderLayout.SOUTH);
         add(headerPanel, BorderLayout.NORTH);
 
         // Table for Member List Information
-        tableModel = new DefaultTableModel(new Object[]{"Group ID", "User ID"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"UserID", "Username", "Full-name"}, 0);
         memberTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(memberTable);
         add(scrollPane, BorderLayout.CENTER);
-
-        // Sample data for testing (optional)
-        tableModel.addRow(new Object[]{"GR01", "User001"});
-        tableModel.addRow(new Object[]{"GR01", "User002"});
-        tableModel.addRow(new Object[]{"GR02", "User101"});
-        tableModel.addRow(new Object[]{"GR02", "User102"});
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -66,7 +46,50 @@ public class MemberListManagement extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
+        loadDataFromDatabase(groupID);
+
     }
+
+    private void loadDataFromDatabase(int groupID) {
+        // Base query
+        String query = """
+            SELECT u.UserID, u.UserName, u.FullName
+            FROM Users u
+            INNER JOIN GroupMembers gm ON gm.UserID = u.UserID
+            WHERE gm.GroupID = ?
+            GROUP BY u.UserID, u.UserName, u.FullName
+            ORDER BY u.UserID
+            """;
+    
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+    
+            // Gán giá trị cho tham số dấu hỏi ?
+            preparedStatement.setInt(1, groupID);
+    
+            // Execute query and fetch results
+            ResultSet resultSet = preparedStatement.executeQuery();
+    
+            // Clear the table before adding new data
+            tableModel.setRowCount(0);
+    
+            // Populate table with data from ResultSet
+            while (resultSet.next()) {
+                int userID = resultSet.getInt("UserID");
+                String userName = resultSet.getString("UserName");
+                String fullName = resultSet.getNString("FullName");
+    
+                // Thêm dòng vào tableModel
+                tableModel.addRow(new Object[]{userID, userName, fullName});
+            }
+    
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    
 
     public JButton getBackButton() {
         return backButton;

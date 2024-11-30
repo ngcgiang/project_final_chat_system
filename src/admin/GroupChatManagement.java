@@ -1,6 +1,7 @@
+import java.awt.*;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 
 public class GroupChatManagement extends JPanel {
     private JTable groupTable;
@@ -58,27 +59,13 @@ public class GroupChatManagement extends JPanel {
         JScrollPane scrollPane = new JScrollPane(groupTable);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Sample data for testing (optional)
-        tableModel.addRow(new Object[]{"GR01", "Study Group", "2024-11-01", 10});
-        tableModel.addRow(new Object[]{"GR02", "Project Team", "2024-10-15", 5});
-
         // Button Panel for User Actions
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         // Back button
         backButton = new JButton("BACK");
         JButton viewMember = new JButton("View member list");
-        viewMember.addActionListener(e -> {
-            MemberListManagement memberListManagementPanel  = new MemberListManagement();
-            memberListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
-            switchPanel(memberListManagementPanel);
-        }); // Open admin list view 
 
         JButton viewAdmin = new JButton("View admin list");
-        viewAdmin.addActionListener(e -> {
-            AdminListManagement adminListManagementPanel = new AdminListManagement();
-            adminListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
-            switchPanel(adminListManagementPanel);
-        }); // Open admin list view 
 
         buttonPanel.add(backButton);
         buttonPanel.add(viewMember);
@@ -86,8 +73,173 @@ public class GroupChatManagement extends JPanel {
 
         add(buttonPanel, BorderLayout.SOUTH);
 
+        // Add ActionListener for the search button
+        searchButton.addActionListener(e -> handleButtonClick());
+
+        // Add ActionListener for Order button
+        applyButton.addActionListener(e -> handleButtonClick());
+
+        // Add ActionListener for viewMember button
+        viewMember.addActionListener(e -> {
+            int selectedRow = groupTable.getSelectedRow();
+        
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a group.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int groupID = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+            String groupName = tableModel.getValueAt(selectedRow, 1).toString();
+        
+            MemberListManagement memberListManagementPanel  = new MemberListManagement(groupID, groupName);
+            memberListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
+            switchPanel(memberListManagementPanel);
+        }); 
+        
+        // Open admin list view 
+        viewAdmin.addActionListener(e -> {
+
+            int selectedRow = groupTable.getSelectedRow();
+        
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a group.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            
+            int groupID = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+            String groupName = tableModel.getValueAt(selectedRow, 1).toString();
+
+            AdminListManagement adminListManagementPanel = new AdminListManagement(groupID, groupName);
+            adminListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
+            switchPanel(adminListManagementPanel);
+        }); // Open admin list view 
+
+
+        loadDataFromDatabase();
+
     }
 
+    // Hàm chung để xử lý hành động search và sort
+    private void handleButtonClick() {
+        String searchValue = searchField.getText(); // Get search value from text field
+        String orderBy;
+
+        // Determine the column to filter based on ComboBox selection
+        switch (filterComboBox.getSelectedItem().toString()) {
+            case "Group ID":
+                orderBy = "GroupID";
+                break;
+            case "Group name":
+                orderBy = "GroupName";
+                break;
+            case "Creation time":
+                orderBy = "CreatedAt";
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, "Invalid filter option.");
+                return;
+        }
+
+        // Reload data with search and filter criteria
+        loadDataFromDatabase(searchValue, orderBy);
+    }
+
+    private void loadDataFromDatabase(String searchValue, String orderBy) {
+        // Base query
+        String query = """
+            SELECT g.GroupID, g.GroupName, g.CreatedAt, COUNT(gm.UserID) AS AmountOfMember
+            FROM GroupInfo g
+            INNER JOIN GroupMembers gm ON gm.GroupID = g.GroupID
+            """;
+    
+        // Append WHERE clause if searchValue is provided
+        if (searchValue != null && !searchValue.isEmpty()) {
+            query += " WHERE g.GroupName LIKE ?";
+        }
+    
+        // Add GROUP BY clause
+        query += " GROUP BY g.GroupID, g.GroupName, g.CreatedAt";
+    
+        // Append ORDER BY clause if orderBy is provided
+        if (orderBy != null && !orderBy.isEmpty()) {
+            // Map filter options to database column names
+            switch (orderBy) {
+                case "GroupID":
+                case "GroupName":
+                case "CreatedAt":
+                    query += " ORDER BY " + orderBy;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid orderBy value: " + orderBy);
+            }
+        }
+    
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+    
+            // Set the search value if provided
+            if (searchValue != null && !searchValue.isEmpty()) {
+                preparedStatement.setString(1, "%" + searchValue + "%");
+            }
+    
+            // Execute query and fetch results
+            ResultSet resultSet = preparedStatement.executeQuery();
+    
+            // Clear the table before adding new data
+            tableModel.setRowCount(0);
+    
+            // Populate table with data from ResultSet
+            while (resultSet.next()) {
+                int groupID = resultSet.getInt("GroupID");
+                String groupName = resultSet.getString("GroupName");
+                String dateOfCreation = resultSet.getString("CreatedAt");
+                int amountOfMember = resultSet.getInt("AmountOfMember");
+    
+                tableModel.addRow(new Object[]{groupID, groupName, dateOfCreation, amountOfMember});
+            }
+    
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadDataFromDatabase() {
+        // Base query
+        String query = """
+            SELECT g.GroupID, g.GroupName, g.CreatedAt, COUNT(gm.UserID) AS AmountOfMember
+            FROM GroupInfo g
+            INNER JOIN GroupMembers gm ON gm.GroupID = g.GroupID
+            Group by g.GroupID, g.GroupName, g.CreatedAt
+            Order by g.GroupID
+            """;
+    
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            // Execute query and fetch results
+            ResultSet resultSet = preparedStatement.executeQuery();
+    
+            // Clear the table before adding new data
+            tableModel.setRowCount(0);
+    
+            // Populate table with data from ResultSet
+            while (resultSet.next()) {
+                int groupID = resultSet.getInt("GroupID");
+                String groupName = resultSet.getString("GroupName");
+                String dateOfCreation = resultSet.getString("CreatedAt");
+                int amountOfMember = resultSet.getInt("AmountOfMember");
+    
+                tableModel.addRow(new Object[]{groupID, groupName, dateOfCreation, amountOfMember});
+            }
+    
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
     //Switch panel
     private void switchPanel(JPanel newPanel) {
         parentFrame.getContentPane().removeAll();

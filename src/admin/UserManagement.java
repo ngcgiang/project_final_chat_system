@@ -326,6 +326,7 @@ public class UserManagement extends JPanel {
             loginHistoryFrame.setVisible(true);
         });
 
+        //add actionListener viewFriendsButton
         viewFriendsButton.addActionListener(e -> {
             int selectedRow = userTable.getSelectedRow();
             
@@ -396,8 +397,6 @@ public class UserManagement extends JPanel {
             if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
                 statement.setString(1, "%" + searchValue + "%");
             }
-
-            System.out.println(query);
 
             ResultSet resultSet = statement.executeQuery();
 
