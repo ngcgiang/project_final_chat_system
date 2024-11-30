@@ -105,8 +105,7 @@ public class GroupChatManagement extends JPanel {
                 JOptionPane.showMessageDialog(this, "Please select a group.", "No Selection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-
-            
+      
             int groupID = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
             String groupName = tableModel.getValueAt(selectedRow, 1).toString();
 
@@ -114,7 +113,6 @@ public class GroupChatManagement extends JPanel {
             adminListManagementPanel.getBackButton().addActionListener(event -> switchPanel(this));
             switchPanel(adminListManagementPanel);
         }); // Open admin list view 
-
 
         loadDataFromDatabase();
 
