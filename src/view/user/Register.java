@@ -1,5 +1,7 @@
 package view.user;
 
+import components.shared.utils.*;
+import components.user.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -73,6 +75,28 @@ public class Register {
 
         gbc.gridy = 4; // Dòng 3
         panel.add(btnLogin, gbc);
+
+        // Thiết lập hành động khi nhấn nút "Register"
+        btnRegister.addActionListener(e -> {
+            String username = txtUsername.getText();
+            String password = new String(txtPassword.getPassword());
+            String confirmPassword = new String(txtConfirmPassword.getPassword());
+
+            UserBUS userBUS = new UserBUS();
+            ResponseDTO result = userBUS.register(username, password, confirmPassword);
+
+            if (!result.isSuccess()) {
+                JOptionPane.showMessageDialog(null, result.getMessage());
+                return;
+            }
+
+            JOptionPane.showMessageDialog(null, result.getMessage());
+            // Chuyển sang màn hình đăng nhập
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Login");
+            }
+        });
 
         // Thiết lập hành động khi nhấn nút "Login"
         btnLogin.addActionListener(e -> {

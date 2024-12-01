@@ -7,7 +7,7 @@ public class DbConnection {
     String dbms = "mysql";
     String serverName = "localhost";
     int portNumber = 3306;
-    String dbName = "accounts";
+    String dbName = "chat_system";
     String user = "root";
     String password = "nguyenhuytan2004";
 

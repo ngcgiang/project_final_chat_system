@@ -1,5 +1,7 @@
 package view.user;
 
+import components.shared.utils.ResponseDTO;
+import components.user.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -66,21 +68,34 @@ class Login extends JFrame {
         gbc.gridy = 4; // Dòng 3
         panel.add(btnRegister, gbc);
 
+        // Thiết lập hành động khi nhấn nút "Login"
+        btnLogin.addActionListener(e -> {
+            String username = txtUsername.getText();
+            String password = new String(txtPassword.getPassword());
+
+            // Xác thực đăng nhập
+            UserBUS userBUS = new UserBUS();
+            ResponseDTO result = userBUS.login(username, password);
+
+            if (!result.isSuccess()) {
+                JOptionPane.showMessageDialog(null, result.getMessage());
+                return;
+            }
+
+            JOptionPane.showMessageDialog(null, result.getMessage());
+            // Chuyển đổi sang giao diện "Management"
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Management");
+            }
+        });
+
         // Thiết lập hành động khi nhấn nút "Register"
         btnRegister.addActionListener(e -> {
             // Tìm JFrame chứa "Login" và yêu cầu chuyển đổi sang giao diện "Register"
             Container topLevel = panel.getTopLevelAncestor();
             if (topLevel instanceof UserDashboard) {
                 ((UserDashboard) topLevel).switchPanel("Register");
-            }
-        });
-
-        // Thiết lập hành động khi nhấn nút "Login"
-        btnLogin.addActionListener(e -> {
-            // Tìm JFrame chứa "Login" và yêu cầu chuyển đổi sang giao diện "Management"
-            Container topLevel = panel.getTopLevelAncestor();
-            if (topLevel instanceof UserDashboard) {
-                ((UserDashboard) topLevel).switchPanel("Management");
             }
         });
     }
