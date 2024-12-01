@@ -154,6 +154,24 @@ public class SpamReportManagement extends JPanel {
             loadDataFromDatabase(sortBy, time, username);
         });
 
+        //Add actionListener sort by
+        sortComboBox.addActionListener(e -> {
+            String username = usernameFilterField.getText();
+            String sortBy = sortComboBox.getSelectedItem().toString();
+            String time = timeFilterComboBox.getSelectedItem().toString();
+
+            loadDataFromDatabase(sortBy, time, username);
+        });
+
+        //Add actionListener apply time
+        timeFilterComboBox.addActionListener(e ->{
+            String username = usernameFilterField.getText();
+            String sortBy = sortComboBox.getSelectedItem().toString();
+            String time = timeFilterComboBox.getSelectedItem().toString();
+
+            loadDataFromDatabase(sortBy, time, username);
+        });
+
         loadDataFromDatabase();
 
     }
@@ -222,13 +240,13 @@ public class SpamReportManagement extends JPanel {
             // Populate table with data from ResultSet
             while (resultSet.next()) {
                 int userID = resultSet.getInt("UserID");
-                String fullName = resultSet.getString("Username");
+                String userName = resultSet.getString("Username");
                 int reportedBy = resultSet.getInt("ReporterID");
                 Timestamp reportTime = resultSet.getTimestamp("ReportTime");
                 String reason = resultSet.getString("Reason");
                 String status = resultSet.getString("Access");
     
-                tableModel.addRow(new Object[]{userID, fullName, reportedBy, reportTime, reason, status});
+                tableModel.addRow(new Object[]{userID, userName, reportedBy, reportTime, reason, status});
             }
     
         } catch (SQLException ex) {
