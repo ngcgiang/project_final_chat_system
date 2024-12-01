@@ -1,4 +1,4 @@
-package user;
+package view.user;
 
 import java.awt.*;
 import javax.swing.*;
@@ -9,7 +9,7 @@ public class UserDashboard extends JFrame {
 
     public UserDashboard() {
         // Đặt tiêu đề cho cửa sổ
-        setTitle("User Dashboard - User");
+        setTitle("Login - User");
 
         // Đặt kích thước cho cửa sổ
         setSize(800, 600);

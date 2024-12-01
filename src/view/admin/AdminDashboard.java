@@ -6,6 +6,7 @@ import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
     private JPanel headerPanel;
+
     public AdminDashboard() {
         // Setting main windows
         setTitle("Admin Dashboard - Chat App");
@@ -81,33 +82,37 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(userFriendListButton);
         mainContainer.add(userOnlineManagementButton);
 
-        //handle event click button
-        //to user management
+        // handle event click button
+        // to user management
         userManagementButton.addActionListener(e -> {
             UserManagement userManagementPanel = new UserManagement();
-            userManagementPanel.loadUserData(null,null);
-            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao diện chính
+            userManagementPanel.loadUserData(null, null);
+            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao
+                                                                                                        // diện chính
             switchPanel(userManagementPanel);
         });
-        //to login management
+        // to login management
         loginManagementButton.addActionListener(e -> {
             LoginManagement loginManagementPanel = new LoginManagement();
             loginManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(loginManagementPanel);
         });
-         //to group chat management
-         groupChatManagementButton.addActionListener(e -> {
+        // to group chat management
+        groupChatManagementButton.addActionListener(e -> {
             GroupChatManagement groupChatManagementPanel = new GroupChatManagement(this);
-            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao diện chính
+            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại
+                                                                                                             // giao
+                                                                                                             // diện
+                                                                                                             // chính
             switchPanel(groupChatManagementPanel);
         });
-        //to report management
+        // to report management
         reportManagementButton.addActionListener(e -> {
             SpamReportManagement spamReportManagementPanel = new SpamReportManagement();
             spamReportManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(spamReportManagementPanel);
         });
-        //to new user management
+        // to new user management
         newUserManagementButton.addActionListener(e -> {
             NewUserManagement newUserManagementPanel = new NewUserManagement(this);
             newUserManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
@@ -132,7 +137,7 @@ public class AdminDashboard extends JFrame {
         setVisible(true);
     }
 
-    //Switch panel
+    // Switch panel
     private void switchPanel(JPanel newPanel) {
         getContentPane().removeAll();
         add(headerPanel, BorderLayout.NORTH); // Giữ header
@@ -140,15 +145,15 @@ public class AdminDashboard extends JFrame {
         revalidate();
         repaint();
     }
-    
+
     public static void main(String[] args) {
-    try (Connection connection = DatabaseConnection.getConnection()) {
-        if (connection != null) {
-            System.out.println("Database connection successful!");
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            if (connection != null) {
+                System.out.println("Database connection successful!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
         SwingUtilities.invokeLater(() -> new AdminDashboard());
     }
 }

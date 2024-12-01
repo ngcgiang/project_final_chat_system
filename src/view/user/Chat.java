@@ -1,4 +1,4 @@
-package user;
+package view.user;
 
 import java.awt.*;
 import java.awt.event.*;
