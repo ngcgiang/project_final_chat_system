@@ -3,6 +3,7 @@ package components.user;
 import components.shared.utils.*;
 import config.*;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class UserDAO {
     // Phương thức kiểm tra xem username đã tồn tại trong cơ sở dữ liệu chưa
@@ -90,6 +91,30 @@ public class UserDAO {
         return user;
     }
 
+    public ArrayList<UserDTO> getFriendList(String username) {
+        String query = """
+                SELECT u.FullName, u.Status
+                FROM users u
+                JOIN friends f ON u.UserID = f.User2ID
+                WHERE f.User1ID = (SELECT UserID FROM users where Username = ?); """;
+        ArrayList<UserDTO> friendList = new ArrayList<>();
+        try (Connection conn = new DbConnection().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                UserDTO friend = new UserDTO();
+                friend.setFullName(rs.getString("FullName"));
+                friend.setStatus(rs.getString("Status"));
+                friendList.add(friend);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return friendList;
+    }
+
     public Response updateOne(String username, String password, String fullName, String address, java.util.Date dob,
             String email,
             String phone,
@@ -110,6 +135,19 @@ public class UserDAO {
                     : new Response(false, "Update failure!");
         } catch (SQLException e) {
             return new Response(false, e.getMessage());
+        }
+    }
+
+    public void setStatus(String username, String status) {
+        String query = "UPDATE users SET Status = ? WHERE Username = ?";
+        try (Connection conn = new DbConnection().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, (status.equals("Online") ? "Online" : "Offline"));
+            stmt.setString(2, username);
+
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -1,9 +1,10 @@
 package view.user;
 
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
 import java.awt.*;
 import javax.swing.*;
-
-import components.shared.utils.Utilities;
 
 public class Management {
     private JPanel panel;
@@ -117,7 +118,9 @@ public class Management {
 
         // Thiết lập hành động khi nhấn nút "Log out"
         btnLogOut.addActionListener(e -> {
-            // Tìm JFrame chứa "Management" và yêu cầu chuyển đổi sang giao diện "Login"
+            String username = CurrentUser.getInstance().getUsername();
+            UserBUS userBUS = new UserBUS();
+            userBUS.logout(username);
             Container topLevel = panel.getTopLevelAncestor();
             if (topLevel instanceof UserDashboard) {
                 ((UserDashboard) topLevel).switchPanel("Login");

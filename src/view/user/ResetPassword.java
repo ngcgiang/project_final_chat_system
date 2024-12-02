@@ -1,6 +1,7 @@
 package view.user;
 
 import components.shared.utils.*;
+import components.user.UserBUS;
 import java.awt.*;
 import javax.swing.*;
 
@@ -43,6 +44,11 @@ public class ResetPassword {
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         panel.add(btnBack, gbc);
+
+        // Cập nhật mật khẩu mới trong database
+        String username = CurrentUser.getInstance().getUsername();
+        UserBUS userBUS = new UserBUS();
+        userBUS.resetPassword(username, newPassword);
 
         // Thiết lập hành động khi nhấn nút "Back"
         btnBack.addActionListener(e -> {

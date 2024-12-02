@@ -1,6 +1,9 @@
 package view.user;
 
+import components.shared.utils.CurrentUser;
+import components.user.UserBUS;
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 public class UserDashboard extends JFrame {
@@ -16,6 +19,18 @@ public class UserDashboard extends JFrame {
 
         // Đặt hành động khi đóng cửa sổ là thoát chương trình
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Thêm lắng nghe sự kiện đóng cửa sổ
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // Gọi logout trước khi thoát
+                String username = CurrentUser.getInstance().getUsername();
+
+                UserBUS userBUS = new UserBUS();
+                userBUS.logout(username);
+            }
+        });
 
         // Đặt vị trí cửa sổ ở giữa màn hình
         setLocationRelativeTo(null);

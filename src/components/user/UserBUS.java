@@ -1,6 +1,7 @@
 package components.user;
 
 import components.shared.utils.*;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class UserBUS {
@@ -55,9 +56,14 @@ public class UserBUS {
         Response result = userDAO.checkPassword(username, password);
         if (result.isSuccess()) {
             CurrentUser.getInstance().setUsername(username);
+            userDAO.setStatus(username, "Online");
         }
 
         return result;
+    }
+
+    public void logout(String username) {
+        userDAO.setStatus(username, "Offline");
     }
 
     public UserDTO getAccountInfo(String username) {
@@ -97,5 +103,25 @@ public class UserBUS {
                 user.getPhone(), user.getGender());
 
         return new Response(true, "Password updated!");
+    }
+
+    public void resetPassword(String username, String newPassword) {
+        UserDTO user = userDAO.getOne(username);
+        userDAO.updateOne(username, newPassword, user.getFullName(), user.getAddress(), user.getDob(), user.getEmail(),
+                user.getPhone(), user.getGender());
+    }
+
+    public Object[][] getFriendList(String username) {
+        ArrayList<UserDTO> friendList = userDAO.getFriendList(username);
+
+        Object[][] friendListObject = new Object[friendList.size()][2];
+
+        for (int i = 0; i < friendList.size(); i++) {
+            UserDTO friend = friendList.get(i);
+            friendListObject[i][0] = friend.getFullName();
+            friendListObject[i][1] = friend.getStatus();
+        }
+
+        return friendListObject;
     }
 }

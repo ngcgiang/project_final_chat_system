@@ -6,6 +6,7 @@ public class UserDTO {
     private String username, password, fullName, address;
     private Date dob;
     private String email, phone, gender;
+    private String status;
 
     // Default constructor
     public UserDTO() {
@@ -114,5 +115,14 @@ public class UserDTO {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    // Getter and Setter for status
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

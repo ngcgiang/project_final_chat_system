@@ -1,5 +1,7 @@
 package view.user;
 
+import components.shared.utils.*;
+import components.user.UserBUS;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,8 +11,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
-
-import components.shared.utils.*;
 
 public class FriendList {
     private JPanel panel;
@@ -242,20 +242,18 @@ public class FriendList {
     }
 
     private void addSampleData() {
-        Object[][] data = {
-                { "Alice", "Online" }, { "Bob", "Offline" }, { "Charlie", "Online" },
-                { "David", "Offline" },
-                { "Eve", "Online" }, { "Frank", "Offline" }, { "Grace", "Online" },
-                { "Hank", "Offline" },
-                { "Ivy", "Online" }, { "Jack", "Offline" }, { "Kara", "Online" },
-                { "Liam", "Offline" },
-                { "Mona", "Online" }, { "Nate", "Offline" }, { "Olivia", "Online" },
-                { "Paul", "Offline" },
-                { "Quinn", "Online" }, { "Rose", "Offline" }, { "Steve", "Online" },
-                { "Tina", "Offline" }
+        String username = CurrentUser.getInstance().getUsername();
+
+        UserBUS userBUS = new UserBUS();
+        Object[][] fiendList = userBUS.getFriendList(username);
+
+        Object[][] friendList = new Object[][] {
+                { "Nguyễn Huy Tấn", "Online" },
+                { "Trần Thanh Bình", "Offline" },
+                { "Lê Văn Hùng", "Online" }
         };
 
-        for (Object[] row : data) {
+        for (Object[] row : fiendList) {
             tableModel.addRow(row);
         }
     }
