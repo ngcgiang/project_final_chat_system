@@ -10,6 +10,8 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
+import components.shared.utils.*;
+
 public class FriendList {
     private JPanel panel;
     private JTextField txtSearch;

@@ -6,6 +6,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import components.shared.utils.Utilities;
+
 public class Message {
     private JPanel panel;
     private JList<Conversation> conversationList;

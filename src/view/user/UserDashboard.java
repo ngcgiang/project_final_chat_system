@@ -26,26 +26,10 @@ public class UserDashboard extends JFrame {
         // Tạo các giao diện khác
         Login loginGUI = new Login();
         Register registerGUI = new Register();
-        Management managementGUI = new Management();
-        UpdateAccountInfo updateAccountInfoGUI = new UpdateAccountInfo();
-        ResetPassword resetPasswordGUI = new ResetPassword();
-        UpdatePassword updatePasswordGUI = new UpdatePassword();
-        FriendList friendListGUI = new FriendList();
-        FriendRequest friendRequestGUI = new FriendRequest();
-        Message messageGUI = new Message();
-        FindUser findUserGUI = new FindUser();
 
         // Thêm các trang vào CardLayout
         mainPanel.add(loginGUI.getPanel(), "Login"); // Trang đăng nhập
         mainPanel.add(registerGUI.getPanel(), "Register"); // Trang đăng ký
-        mainPanel.add(managementGUI.getPanel(), "Management"); // Trang quản lý tài khoản
-        mainPanel.add(updateAccountInfoGUI.getPanel(), "Update Account Info"); // Trang cập nhật thông tin tài khoản
-        mainPanel.add(resetPasswordGUI.getPanel(), "Reset Password"); // Trang reset mật khẩu
-        mainPanel.add(updatePasswordGUI.getPanel(), "Update Password"); // Trang cập nhật mật khẩu
-        mainPanel.add(friendListGUI.getPanel(), "Friend List"); // Trang danh sách bạn bè
-        mainPanel.add(friendRequestGUI.getPanel(), "Friend Request"); // Trang danh sách yêu cầu kết bạn
-        mainPanel.add(messageGUI.getPanel(), "Message");
-        mainPanel.add(findUserGUI.getPanel(), "Find User");
 
         // Thêm mainPanel vào JFrame
         add(mainPanel);
@@ -63,31 +47,46 @@ public class UserDashboard extends JFrame {
                 setTitle("Register - User");
                 break;
             case "Management":
+                Management managementGUI = new Management();
+                mainPanel.add(managementGUI.getPanel(), "Management"); // Trang quản lý tài khoản
                 setTitle("Management - User");
                 break;
             case "Update Account Info":
+                UpdateAccountInfo updateAccountInfoGUI = new UpdateAccountInfo();
+                mainPanel.add(updateAccountInfoGUI.getPanel(), "Update Account Info"); // Trang cập nhật thông tin tài
+                                                                                       // khoản
                 setTitle("Update Account Info - User");
                 break;
             case "Reset Password":
+                ResetPassword resetPasswordGUI = new ResetPassword();
+                mainPanel.add(resetPasswordGUI.getPanel(), "Reset Password"); // Trang reset mật khẩu
                 setTitle("Reset Password - User");
                 break;
             case "Update Password":
+                UpdatePassword updatePasswordGUI = new UpdatePassword();
+                mainPanel.add(updatePasswordGUI.getPanel(), "Update Password"); // Trang cập nhật mật khẩu
                 setTitle("Update Password - User");
                 break;
             case "Friend List":
+                FriendList friendListGUI = new FriendList();
+                mainPanel.add(friendListGUI.getPanel(), "Friend List"); // Trang danh sách bạn bè
                 setTitle("Friend List - User");
                 break;
             case "Friend Request":
+                FriendRequest friendRequestGUI = new FriendRequest();
+                mainPanel.add(friendRequestGUI.getPanel(), "Friend Request"); // Trang danh sách yêu cầu kết bạn
                 setTitle("Friend Request - User");
                 break;
             case "Message":
+                Message messageGUI = new Message();
+                mainPanel.add(messageGUI.getPanel(), "Message");
                 setTitle("Message - User");
                 break;
             case "Find User":
+                FindUser findUserGUI = new FindUser();
+                mainPanel.add(findUserGUI.getPanel(), "Find User");
                 setTitle("Find User - User");
                 break;
-            default:
-                setTitle("User Dashboard - User");
         }
         cardLayout.show(mainPanel, panelName);
     }

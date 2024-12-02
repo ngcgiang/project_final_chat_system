@@ -9,6 +9,8 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.Highlighter.HighlightPainter;
 
+import components.shared.utils.Utilities;
+
 public class Chat extends JPanel {
     private JTextArea txtChat;
     private JTextField txtInput;

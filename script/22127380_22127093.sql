@@ -9,14 +9,16 @@ USE chat_system;
 CREATE TABLE Users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã người dùng
     Username VARCHAR(50) UNIQUE NOT NULL,  -- Tên đăng nhập
-    Password VARCHAR(255) NOT NULL,  -- Mật khẩu đã mã hóa
-    FullName VARCHAR(100),  -- Tên đầy đủ
+    Password VARCHAR(50) NOT NULL,  -- Mật khẩu đã mã hóa
+    FullName VARCHAR(50),  -- Tên đầy đủ
     Address VARCHAR(100),
-    DateOfBirth DATE,
-    Gender VARCHAR(10),
+    DateOfBirth DATE DEFAULT '2000-01-01',
+    Email varchar(50),
+    Phone varchar(10),
+    Gender ENUM('Male', 'Female', 'Other'),
     Status ENUM('online', 'offline') DEFAULT 'offline',  -- Trạng thái người dùng
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tạo tài khoản
-    Access ENUM('yes', 'no') DEFAULT 'yes' -- Quyền truy cập vào tài khoản (cho chức năng khóa tài khoản)
+    Access ENUM('yes', 'no') DEFAULT 'yes', -- Quyền truy cập vào tài khoản (cho chức năng khóa tài khoản)
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Thời gian tạo tài khoản
 );
 
 -- Bảng lưu thông tin quản trị viên

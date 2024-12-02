@@ -1,20 +1,21 @@
 package view.user;
 
+import components.shared.utils.*;
+import components.user.UserBUS;
 import java.awt.*;
 import javax.swing.*;
 
 public class UpdatePassword {
     private JPanel panel;
-    private JPasswordField txtOldPassword, txtPassword, txtConfirmPassword;
 
     public UpdatePassword() {
         panel = new JPanel();
         panel.setLayout(new GridBagLayout()); // Sử dụng GridBagLayout cho bố trí linh hoạt
 
         // Tạo trường nhập liệu
-        txtOldPassword = new JPasswordField(20);
-        txtPassword = new JPasswordField(20);
-        txtConfirmPassword = new JPasswordField(20);
+        JPasswordField txtOldPassword = new JPasswordField(20);
+        JPasswordField txtPassword = new JPasswordField(20);
+        JPasswordField txtConfirmPassword = new JPasswordField(20);
 
         // Sử dụng GridBagConstraints để bố trí linh hoạt
         GridBagConstraints gbc = new GridBagConstraints();
@@ -51,11 +52,27 @@ public class UpdatePassword {
 
         // Thiết lập hành động khi nhấn nút "Update"
         btnUpdate.addActionListener(e -> {
-            // Tìm JFrame chứa giao diện "Update Password" và yêu cầu chuyển đổi sang giao
-            // diện "Management"
-            Container topLevel = panel.getTopLevelAncestor();
-            if (topLevel instanceof UserDashboard) {
-                ((UserDashboard) topLevel).switchPanel("Management");
+            char[] oldPasswordChars = txtOldPassword.getPassword();
+            String oldPassword = new String(oldPasswordChars).trim();
+
+            char[] passwordChars = txtPassword.getPassword();
+            String newPassword = new String(passwordChars).trim();
+
+            char[] confirmPasswordChars = txtConfirmPassword.getPassword();
+            String confirmNewPassword = new String(confirmPasswordChars).trim();
+
+            UserBUS userBUS = new UserBUS();
+            String username = CurrentUser.getInstance().getUsername();
+            Response result = userBUS.updatePassword(username, oldPassword, newPassword, confirmNewPassword);
+            if (result.isSuccess()) {
+                JOptionPane.showMessageDialog(panel, result.getMessage());
+
+                Container topLevel = panel.getTopLevelAncestor();
+                if (topLevel instanceof UserDashboard) {
+                    ((UserDashboard) topLevel).switchPanel("Management");
+                }
+            } else {
+                JOptionPane.showMessageDialog(panel, result.getMessage());
             }
         });
     }

@@ -83,7 +83,7 @@ public class Register {
             String confirmPassword = new String(txtConfirmPassword.getPassword());
 
             UserBUS userBUS = new UserBUS();
-            ResponseDTO result = userBUS.register(username, password, confirmPassword);
+            Response result = userBUS.register(username, password, confirmPassword);
 
             if (!result.isSuccess()) {
                 JOptionPane.showMessageDialog(null, result.getMessage());

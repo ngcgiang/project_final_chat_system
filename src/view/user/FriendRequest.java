@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import components.shared.utils.Utilities;
+
 public class FriendRequest {
     private JPanel panel;
     private JTextField txtSearch;

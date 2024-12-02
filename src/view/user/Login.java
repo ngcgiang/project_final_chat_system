@@ -1,6 +1,6 @@
 package view.user;
 
-import components.shared.utils.ResponseDTO;
+import components.shared.utils.*;
 import components.user.*;
 import java.awt.*;
 import javax.swing.*;
@@ -75,7 +75,7 @@ class Login extends JFrame {
 
             // Xác thực đăng nhập
             UserBUS userBUS = new UserBUS();
-            ResponseDTO result = userBUS.login(username, password);
+            Response result = userBUS.login(username, password);
 
             if (!result.isSuccess()) {
                 JOptionPane.showMessageDialog(null, result.getMessage());

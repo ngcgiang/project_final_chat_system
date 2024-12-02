@@ -1,9 +1,5 @@
 {
     "java.project.referencedLibraries": {
-        "include": [
-            "lib/**/*.jar",
-            "c:\\Users\\ngocg\\Downloads\\mysql-connector-j-9.1.0.jar"
-        ],
-        "exclude": ["lib/dotenv-java-3.0.0.jar"]
+        "include": ["lib/**/*.jar"]
     }
 }

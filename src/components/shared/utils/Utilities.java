@@ -1,10 +1,10 @@
-package view.user;
+package components.shared.utils;
 
 import java.awt.*;
 import javax.swing.*;
 
 public class Utilities {
-    static JButton createButton(String text, int width, int height) {
+    public static JButton createButton(String text, int width, int height) {
         JButton button = new JButton(text);
         button.setFocusPainted(false);
         button.setBorderPainted(true);
@@ -13,7 +13,7 @@ public class Utilities {
         return button;
     }
 
-    static JButton createButton(String text) {
+    public static JButton createButton(String text) {
         JButton button = new JButton(text);
         button.setFocusPainted(false);
         button.setBorderPainted(true);
@@ -21,7 +21,7 @@ public class Utilities {
         return button;
     }
 
-    static JLabel createLabel(String text, String font, int size) {
+    public static JLabel createLabel(String text, String font, int size) {
         JLabel label = new JLabel(text);
         switch (font) {
             case "bold":

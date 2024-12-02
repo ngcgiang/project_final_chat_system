@@ -3,6 +3,8 @@ package view.user;
 import java.awt.*;
 import javax.swing.*;
 
+import components.shared.utils.Utilities;
+
 public class Management {
     private JPanel panel;
 
