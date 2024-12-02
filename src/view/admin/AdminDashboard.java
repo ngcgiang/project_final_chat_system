@@ -124,7 +124,7 @@ public class AdminDashboard extends JFrame {
             switchPanel(userFriendListManagementPanel);
         });
         userOnlineManagementButton.addActionListener(e -> {
-            UserOnlineManagement userOnlineManagementPanel = new UserOnlineManagement();
+            UserOnlineManagement userOnlineManagementPanel = new UserOnlineManagement(this);
             userOnlineManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(userOnlineManagementPanel);
         });
