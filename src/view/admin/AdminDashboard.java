@@ -87,8 +87,7 @@ public class AdminDashboard extends JFrame {
         userManagementButton.addActionListener(e -> {
             UserManagement userManagementPanel = new UserManagement();
             userManagementPanel.loadUserData(null, null);
-            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại giao
-                                                                                                        // diện chính
+            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); 
             switchPanel(userManagementPanel);
         });
         // to login management
@@ -100,10 +99,7 @@ public class AdminDashboard extends JFrame {
         // to group chat management
         groupChatManagementButton.addActionListener(e -> {
             GroupChatManagement groupChatManagementPanel = new GroupChatManagement(this);
-            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); // Quay lại
-                                                                                                             // giao
-                                                                                                             // diện
-                                                                                                             // chính
+            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); 
             switchPanel(groupChatManagementPanel);
         });
         // to report management
@@ -124,7 +120,7 @@ public class AdminDashboard extends JFrame {
             switchPanel(userFriendListManagementPanel);
         });
         userOnlineManagementButton.addActionListener(e -> {
-            UserOnlineManagement userOnlineManagementPanel = new UserOnlineManagement();
+            UserOnlineManagement userOnlineManagementPanel = new UserOnlineManagement(this);
             userOnlineManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(userOnlineManagementPanel);
         });
