@@ -86,7 +86,7 @@ public class AdminDashboard extends JFrame {
         // to user management
         userManagementButton.addActionListener(e -> {
             UserManagement userManagementPanel = new UserManagement();
-            userManagementPanel.loadUserData(null, null);
+            userManagementPanel.reloadUserData(null, null);
             userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); 
             switchPanel(userManagementPanel);
         });
