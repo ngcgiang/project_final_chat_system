@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
+
 
 
 public class UserManagement extends JPanel {
@@ -100,7 +102,7 @@ public class UserManagement extends JPanel {
             }
 
             // Reload data with search and filter criteria
-            loadUserData(searchValue, filterColumn);
+            reloadUserData(searchValue, filterColumn);
         });
 
        // Thêm ActionListener cho nút Update
@@ -148,7 +150,7 @@ public class UserManagement extends JPanel {
                     user.setStatus(status);
 
                     if (adminUserBUS.updateUser(user)) {
-                        loadUserData(null, null);
+                        reloadUserData(null, null);
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -178,25 +180,12 @@ public class UserManagement extends JPanel {
                 return;
             }
         
-            // Thực hiện câu lệnh DELETE
-            String query = "DELETE FROM Users WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement statement = connection.prepareStatement(query)) {
-        
-                statement.setInt(1, userId);
-                int rowsDeleted = statement.executeUpdate();
-        
-                if (rowsDeleted > 0) {
-                    JOptionPane.showMessageDialog(this, "User removed successfully.");
-                    // Cập nhật lại bảng
-                    loadUserData(null, null);
-                } else {
-                    JOptionPane.showMessageDialog(this, "No user found with the selected ID.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error removing user: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            if (adminUserBUS.deleteUser(userId)) {
+                reloadUserData(null, null);
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+
         });
 
         // Add ActionListener for lockButton
@@ -261,7 +250,7 @@ public class UserManagement extends JPanel {
                 if (rowsUpdated > 0) {
                     JOptionPane.showMessageDialog(this, "User " + (newAccess.equals("no") ? "locked" : "unlocked") + " successfully.");
                     // Làm mới bảng
-                    loadUserData(null, null);
+                    reloadUserData(null, null);
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to update user access.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -365,50 +354,31 @@ public class UserManagement extends JPanel {
         });
 
         // Load initial data
-        loadUserData(null, null);
+        reloadUserData(null, null);
     }
 
     public JButton getBackButton() {
         return backButton;
     }
 
-    public void loadUserData(String searchValue, String filterColumn) {
-        String query = "SELECT * FROM Users";
+    public void reloadUserData(String searchValue, String filterColumn) {
+        List<AdminUserDTO> userList = adminUserBUS.getUsers(searchValue, filterColumn);
+        
+        // Clear existing table data
+        tableModel.setRowCount(0);
 
-        // If search criteria are provided, add WHERE clause
-        if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
-            query += " WHERE " + filterColumn + " LIKE ?";
-        }
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-
-            // Set the search value if provided
-            if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
-                statement.setString(1, "%" + searchValue + "%");
-            }
-
-            ResultSet resultSet = statement.executeQuery();
-
-            // Clear existing table data
-            tableModel.setRowCount(0);
-
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                tableModel.addRow(new Object[]{
-                    resultSet.getString("UserID"),
-                    resultSet.getString("Username"),
-                    resultSet.getString("FullName"),
-                    resultSet.getString("Address"),
-                    resultSet.getDate("DateOfBirth"),
-                    resultSet.getString("Gender"),
-                    resultSet.getString("Email"),
-                    resultSet.getString("Status")
-                });
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
+        // Populate table with data from the userList
+        for (AdminUserDTO user : userList) {
+            tableModel.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getFullName(),
+                user.getAddress(),
+                user.getDateOfBirth(),
+                user.getGender(),
+                user.getEmail(),
+                user.getStatus()
+            });
         }
     }
-}
+

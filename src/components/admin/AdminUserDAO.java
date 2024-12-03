@@ -36,6 +36,46 @@ public class AdminUserDAO {
         return userList;
     }
 
+    //reload if has changes or search 
+    public List<AdminUserDTO> reloadUserData(String searchValue, String filterColumn) {
+        List<AdminUserDTO> userList = new ArrayList<>();
+        String query = "SELECT * FROM Users";
+
+        // If search criteria are provided, add WHERE clause
+        if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
+            query += " WHERE " + filterColumn + " LIKE ?";
+        }
+
+        try (Connection conn = new DbConnection().getConnection();
+             PreparedStatement statement = conn.prepareStatement(query)) {
+
+            // Set the search value if provided
+            if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
+                statement.setString(1, "%" + searchValue + "%");
+            }
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                AdminUserDTO user = new AdminUserDTO();
+                user.setUserId(resultSet.getInt("UserID"));
+                user.setUsername(resultSet.getString("Username"));
+                user.setFullName(resultSet.getString("FullName"));
+                user.setAddress(resultSet.getString("Address"));
+                user.setDateOfBirth(resultSet.getDate("DateOfBirth"));
+                user.setGender(resultSet.getString("Gender"));
+                user.setEmail(resultSet.getString("Email"));
+                user.setStatus(resultSet.getString("Status"));
+                userList.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return userList;
+    }
+
+
     public boolean updateUser(AdminUserDTO user) {
         String query = "UPDATE Users SET FullName = ?, Address = ?, DateOfBirth = ?, " +
                        "Gender = ?, Email = ?, Status = ? WHERE UserID = ?";

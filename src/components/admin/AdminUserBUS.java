@@ -13,6 +13,10 @@ public class AdminUserBUS {
         return userDAO.getAllUsers();
     }
 
+    public List<AdminUserDTO> getUsers(String searchValue, String filterColumn) {
+        return userDAO.reloadUserData(searchValue, filterColumn);
+    }
+
     public boolean updateUser(AdminUserDTO user) {
         // Business logic, e.g., validation, can be added here
         if (user.getFullName() == null || user.getFullName().isEmpty()) {
