@@ -1,10 +1,13 @@
+import components.admin.*;
 import java.awt.*;
 import java.sql.*;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+
 public class UserManagement extends JPanel {
+    private AdminUserBUS adminUserBUS;
     private JTable userTable;
     private DefaultTableModel tableModel;
     private JTextField searchField;
@@ -13,6 +16,9 @@ public class UserManagement extends JPanel {
     private JButton backButton;
 
     public UserManagement() {
+
+        adminUserBUS = new AdminUserBUS();
+
         // Container
         setLayout(new BorderLayout());
 
@@ -97,16 +103,14 @@ public class UserManagement extends JPanel {
             loadUserData(searchValue, filterColumn);
         });
 
-        // Add ActionListener for the update button
+       // Thêm ActionListener cho nút Update
         updateButton.addActionListener(e -> {
             int selectedRow = userTable.getSelectedRow();
-        
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(this, "Please select a user to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-        
-            // Lấy dữ liệu hiện tại từ bảng
+            
             int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
             String fullName = tableModel.getValueAt(selectedRow, 2).toString();
             String address = tableModel.getValueAt(selectedRow, 3).toString();
@@ -114,31 +118,42 @@ public class UserManagement extends JPanel {
             String gender = tableModel.getValueAt(selectedRow, 5).toString();
             String email = tableModel.getValueAt(selectedRow, 6).toString();
             String status = tableModel.getValueAt(selectedRow, 7).toString();
-        
+
             // Hiển thị hộp thoại cập nhật thông tin
             UpdateUserDialog dialog = new UpdateUserDialog((Frame) SwingUtilities.getWindowAncestor(this), fullName, address, dob, gender, email, status);
-            dialog.setVisible(true);
-        
-            if (dialog.isSaved()) {
-                try {
+                dialog.setVisible(true);
+
+                if (dialog.isSaved()) {
                     // Lấy dữ liệu mới từ hộp thoại
                     fullName = dialog.getFullName();
                     address = dialog.getAddress();
-                    Date newDob = dialog.getDateOfBirth();
+                    Date newDob = null;
+                    try {
+                        newDob = dialog.getDateOfBirth();
+                    } catch (Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                     gender = dialog.getGender();
                     email = dialog.getEmail();
                     status = dialog.getStatus();
-        
-                    // Cập nhật thông tin trong cơ sở dữ liệu
-                    updateUser(userId, fullName, address, newDob, gender, email, status);
-        
-                    // Reload dữ liệu sau khi cập nhật
-                    loadUserData(null, null);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid input: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+                    AdminUserDTO user = new AdminUserDTO();
+                    user.setUserId(userId);
+                    user.setFullName(fullName);
+                    user.setAddress(address);
+                    user.setDateOfBirth(newDob);
+                    user.setGender(gender);
+                    user.setEmail(email);
+                    user.setStatus(status);
+
+                    if (adminUserBUS.updateUser(user)) {
+                        loadUserData(null, null);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-            }
-        });
+            });
         
         // Add ActionListener for the remove button
         deleteButton.addActionListener(e -> {
@@ -351,31 +366,6 @@ public class UserManagement extends JPanel {
 
         // Load initial data
         loadUserData(null, null);
-    }
-
-    public void updateUser(int userId, String fullName, String address, Date dob, String gender, String email, String status) {
-        String query = "UPDATE Users SET FullName = ?, Address = ?, DateOfBirth = ?, Gender = ?, Email = ?, Status = ? WHERE UserID = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-    
-            statement.setString(1, fullName);
-            statement.setString(2, address);
-            statement.setDate(3, new java.sql.Date(dob.getTime()));
-            statement.setString(4, gender);
-            statement.setString(5, email);
-            statement.setString(6, status);
-            statement.setInt(7, userId);
-    
-            int rowsUpdated = statement.executeUpdate();
-            if (rowsUpdated > 0) {
-                System.out.println("User information updated successfully.");
-            } else {
-                System.out.println("User not found.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error updating user: " + e.getMessage());
-        }
     }
 
     public JButton getBackButton() {
