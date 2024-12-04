@@ -7,6 +7,8 @@ import java.util.List;
 
 public class UserFriendDAO {
     public List<UserFriendDTO> getAllUserFriends() throws SQLException {
+        List<UserFriendDTO> userFriends = new ArrayList<>();
+
         String query = """
                 SELECT u.UserID, u.Username, COUNT(f.FriendUserID) AS FriendCount
                 FROM Friends f
@@ -18,18 +20,21 @@ public class UserFriendDAO {
              Statement statement = conn.createStatement();
              ResultSet resultSet = statement.executeQuery(query)) {
 
-            List<UserFriendDTO> userFriends = new ArrayList<>();
             while (resultSet.next()) {
                 int userId = resultSet.getInt("UserID");
                 String username = resultSet.getString("Username");
                 int friendCount = resultSet.getInt("FriendCount");
                 userFriends.add(new UserFriendDTO(userId, username, friendCount, null));
             }
-            return userFriends;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return userFriends;
     }
 
     public List<UserFriendDTO> getUserFriendsByUserId(int userId) throws SQLException {
+        List<UserFriendDTO> userFriends = new ArrayList<>();
+
         String query = """
                 SELECT u.UserID, u.Username, MIN(f.CreatedAt) AS DateOfCreation
                 FROM Friends f
@@ -45,19 +50,22 @@ public class UserFriendDAO {
             statement.setInt(1, userId);
 
             try (ResultSet resultSet = statement.executeQuery()) {
-                List<UserFriendDTO> userFriends = new ArrayList<>();
                 while (resultSet.next()) {
                     int friendUserId = resultSet.getInt("UserID");
                     String friendUsername = resultSet.getString("Username");
                     String dateOfCreation = resultSet.getString("DateOfCreation");
                     userFriends.add(new UserFriendDTO(friendUserId, friendUsername, 0, dateOfCreation));
                 }
-                return userFriends;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return userFriends;
     }
 
     public List<UserFriendDTO> getFilteredUserFriends(String sortBy, String comparison, String compareTo, String username) throws SQLException {
+        List<UserFriendDTO> userFriends = new ArrayList<>();
+        
         StringBuilder query = new StringBuilder("""
                 SELECT u.UserID, u.Username, COUNT(f.FriendUserID) AS FriendCount
                 FROM Friends f
@@ -105,15 +113,17 @@ public class UserFriendDAO {
             }
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                List<UserFriendDTO> userFriends = new ArrayList<>();
+
                 while (resultSet.next()) {
                     int userId = resultSet.getInt("UserID");
                     String usernameResult = resultSet.getString("Username");
                     int friendCount = resultSet.getInt("FriendCount");
                     userFriends.add(new UserFriendDTO(userId, usernameResult, friendCount, null));
                 }
-                return userFriends;
-            }
+            } 
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return userFriends;
     }
 }
