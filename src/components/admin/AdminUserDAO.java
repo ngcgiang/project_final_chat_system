@@ -75,7 +75,6 @@ public class AdminUserDAO {
         return userList;
     }
 
-
     public boolean updateUser(AdminUserDTO user) {
         String query = "UPDATE Users SET FullName = ?, Address = ?, DateOfBirth = ?, " +
                        "Gender = ?, Email = ?, Status = ? WHERE UserID = ?";
@@ -115,4 +114,51 @@ public class AdminUserDAO {
         }
     }
 
+    public String getUserAccess(int userId) {
+        String query = "SELECT Access FROM Users WHERE UserID = ?";
+        try (Connection conn = new DbConnection().getConnection();
+             PreparedStatement statement = conn.prepareStatement(query)) {
+
+            statement.setInt(1, userId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("Access");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Return null if user not found or an error occurred
+    }
+
+    public boolean updateUserAccess(int userId, String newAccess) {
+        String query = "UPDATE Users SET Access = ? WHERE UserID = ?";
+        try (Connection conn = new DbConnection().getConnection();
+             PreparedStatement statement = conn.prepareStatement(query)) {
+
+            statement.setString(1, newAccess);
+            statement.setInt(2, userId);
+
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false; // Return false if update failed
+    }
+
+    public boolean updatePassword(int userId, String newPassword) {
+        String query = "UPDATE Users SET Password = ? WHERE UserID = ?";
+
+        try (Connection conn = new DbConnection().getConnection();
+             PreparedStatement statement = conn.prepareStatement(query)) {
+
+            statement.setString(1, newPassword);
+            statement.setInt(2, userId);
+
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

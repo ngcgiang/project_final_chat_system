@@ -191,72 +191,64 @@ public class UserManagement extends JPanel {
         // Add ActionListener for lockButton
         lockButton.addActionListener(e -> {
             int selectedRow = userTable.getSelectedRow();
-        
+
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Please select a user to lock/unlock.", "No Selection", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        
-            // Lấy UserID từ bảng
-            int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
-            String currentAccess = null;
-        
-            // Truy vấn trạng thái Access từ cơ sở dữ liệu
-            String selectQuery = "SELECT Access FROM Users WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement selectStatement = connection.prepareStatement(selectQuery)) {
-        
-                selectStatement.setInt(1, userId);
-                try (ResultSet resultSet = selectStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        currentAccess = resultSet.getString("Access");
-                    }
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error fetching user access: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        
-            // Kiểm tra trạng thái Access hiện tại
-            if (currentAccess == null) {
-                JOptionPane.showMessageDialog(this, "User not found in database.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        
-            String newAccess = currentAccess.equals("yes") ? "no" : "yes";
-        
-            // Xác nhận trước khi thay đổi
-            int confirm = JOptionPane.showConfirmDialog(
+                JOptionPane.showMessageDialog(
                     this,
-                    "Are you sure you want to " + (newAccess.equals("no") ? "lock" : "unlock") + " this user?",
-                    "Confirm Lock/Unlock",
-                    JOptionPane.YES_NO_OPTION);
-        
+                    "Please select a user to lock/unlock.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // get userid from table
+            int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+
+            // get currently access
+            String currentAccess = adminUserBUS.getUserAccess(userId);
+
+            if (currentAccess == null) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "User not found in database.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            String newAccess = currentAccess.equals("yes") ? "no" : "yes";
+
+            // Confirm before changes
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to " + (newAccess.equals("no") ? "lock" : "unlock") + " this user?",
+                "Confirm Lock/Unlock",
+                JOptionPane.YES_NO_OPTION
+            );
+
             if (confirm != JOptionPane.YES_OPTION) {
                 return;
             }
-        
-            // Cập nhật trạng thái Access trong cơ sở dữ liệu
-            String updateQuery = "UPDATE Users SET Access = ? WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
-        
-                updateStatement.setString(1, newAccess);
-                updateStatement.setInt(2, userId);
-        
-                int rowsUpdated = updateStatement.executeUpdate();
-        
-                if (rowsUpdated > 0) {
-                    JOptionPane.showMessageDialog(this, "User " + (newAccess.equals("no") ? "locked" : "unlocked") + " successfully.");
-                    // Làm mới bảng
-                    reloadUserData(null, null);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to update user access.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error updating user access: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            boolean success = adminUserBUS.lockOrUnlockUser(userId);
+
+            if (success) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "User " + (newAccess.equals("no") ? "locked" : "unlocked") + " successfully."
+                );
+
+                // Làm mới dữ liệu trong bảng (giả sử `reloadUserData()` là phương thức cập nhật lại bảng)
+                reloadUserData(null,null);
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to update user access.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 
@@ -274,34 +266,37 @@ public class UserManagement extends JPanel {
         
             // Hiển thị hộp thoại để nhập mật khẩu mới
             String newPassword = JOptionPane.showInputDialog(
-                    this,
-                    "Enter new password for UserID: " + userId,
-                    "Update Password",
-                    JOptionPane.PLAIN_MESSAGE);
-        
+                this,
+                "Enter new password for UserID: " + userId,
+                "Update Password",
+                JOptionPane.PLAIN_MESSAGE
+            );
+
             if (newPassword == null || newPassword.trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Password update cancelled or empty.", "No Input", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Password update cancelled or empty.",
+                    "No Input",
+                    JOptionPane.WARNING_MESSAGE
+                );
                 return;
             }
-        
-            // Cập nhật mật khẩu trong cơ sở dữ liệu
-            String updateQuery = "UPDATE Users SET Password = ? WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
-        
-                updateStatement.setString(1, newPassword);
-                updateStatement.setInt(2, userId);
-        
-                int rowsUpdated = updateStatement.executeUpdate();
-        
-                if (rowsUpdated > 0) {
-                    JOptionPane.showMessageDialog(this, "Password updated successfully.");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to update password. User might not exist.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error updating password: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            // Gọi BUS để cập nhật mật khẩu
+            boolean isUpdated = adminUserBUS.updatePassword(userId, newPassword);
+
+            if (isUpdated) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Password updated successfully."
+                );
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to update password. User might not exist.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 

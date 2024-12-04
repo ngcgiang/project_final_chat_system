@@ -11,6 +11,7 @@ public class AdminUserDTO {
     private String gender;
     private String email;
     private String status;
+    private String access;
 
     // Default constructor
     public AdminUserDTO() {
@@ -22,6 +23,7 @@ public class AdminUserDTO {
         this.gender = "";
         this.email = "";
         this.status = "";
+        this.access = "yes";
     }
 
     // Constructor
@@ -102,5 +104,12 @@ public class AdminUserDTO {
     public void setStatus(String status) {
         this.status = status;
     }
-    
+
+    public String getAccess() {
+        return access;
+    }
+
+    public void setAccess(String access) {
+        this.access = access;
+    }
 }

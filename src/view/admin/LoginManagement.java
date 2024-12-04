@@ -54,7 +54,6 @@ public class LoginManagement extends JPanel {
                 SELECT ua.LoginTime, u.UserID, u.Username, u.FullName
                 FROM UserActivities ua
                 JOIN Users u ON ua.UserID = u.UserID
-                WHERE ua.ActivityType = 'Login'
                 ORDER BY ua.LoginTime DESC
                 """;
 
@@ -125,6 +124,7 @@ public class LoginManagement extends JPanel {
 
         setVisible(true);
     }
+
 
     /**
      * Loads login history data for a specific user from the database and populates the table.
