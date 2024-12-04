@@ -1,12 +1,9 @@
 import components.admin.*;
 import java.awt.*;
-import java.sql.*;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
-
-
 
 public class UserManagement extends JPanel {
     private AdminUserBUS adminUserBUS;
@@ -315,15 +312,16 @@ public class UserManagement extends JPanel {
 
             // Mở giao diện LoginManagement với UserID đã chọn
             JFrame loginHistoryFrame = new JFrame("Login History - " + username);
-            LoginManagement loginManagement = new LoginManagement(userId); // Truyền UserID vào constructor
+            LoginManagement loginManagement = new LoginManagement(userId); // Truyền userId vào constructor
 
             loginHistoryFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             loginHistoryFrame.setSize(800, 600);
-            loginHistoryFrame.add(loginManagement);
+            loginHistoryFrame.add(loginManagement); // Thêm giao diện LoginManagement vào JFrame
             loginHistoryFrame.setLocationRelativeTo(null);
-            
+
             loginHistoryFrame.setVisible(true);
         });
+
 
         //add actionListener viewFriendsButton
         viewFriendsButton.addActionListener(e -> {
