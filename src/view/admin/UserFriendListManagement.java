@@ -3,6 +3,10 @@ import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import components.admin.user_friends.*;
+
+import java.util.List;
+
 public class UserFriendListManagement extends JPanel {
     private JTable reportTable;
     private DefaultTableModel tableModel;
@@ -12,8 +16,11 @@ public class UserFriendListManagement extends JPanel {
     private JComboBox<String> sortComboBox;
     private JButton applyFilterButton;
     private JButton backButton;
+    private UserFriendBUS userFriendBUS;
 
     public UserFriendListManagement() {
+
+        userFriendBUS = new UserFriendBUS();
         // Main window setup
         setLayout(new BorderLayout());
 
@@ -89,37 +96,38 @@ public class UserFriendListManagement extends JPanel {
     }
 
     private void loadDataFromDatabase() {
-        // Database query to fetch data
-        String query = """
-                SELECT u.UserID, u.Username, COUNT(f.FriendUserID) AS FriendCount
-                FROM Friends f
-                INNER JOIN Users u ON f.UserID = u.UserID
-                GROUP BY u.UserID, u.Username
-                ORDER BY u.UserID
-                """;
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-
-            // Clear the table before adding new data
+        try {
+            // Fetch data through the business logic layer
+            List<UserFriendDTO> userList = userFriendBUS.getAllUserFriends();
+            
+            // Check if the list is not null and has elements
+            if (userList == null || userList.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No user data available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+    
+            // Clear existing table data
             tableModel.setRowCount(0);
-
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userId = resultSet.getInt("UserID");
-                String username = resultSet.getString("Username");
-                int friendCount = resultSet.getInt("FriendCount");
-
-                tableModel.addRow(new Object[]{userId, username, friendCount});
+    
+            // Populate table with data from the userList
+            for (UserFriendDTO user : userList) {
+                tableModel.addRow(new Object[]{
+                    user.getUserId(),
+                    user.getUsername(),
+                    user.getFriendCount()
+                });
             }
         } catch (SQLException ex) {
+            // Log error details
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading data: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
 
     public UserFriendListManagement(int UserID) {
+
+        userFriendBUS = new UserFriendBUS();
         // Main window setup
         setLayout(new BorderLayout());
 
@@ -160,124 +168,60 @@ public class UserFriendListManagement extends JPanel {
     }
 
     private void loadDataFromDatabase(int userId) {
-        // Query to fetch friends for a specific user
-        String query = """
-                SELECT u.UserID, u.Username, MIN(f.CreatedAt) AS DateOfCreation
-                FROM Friends f
-                INNER JOIN Users u ON f.FriendUserID = u.UserID
-                WHERE f.UserID = ?
-                GROUP BY u.UserID, u.Username
-                ORDER BY u.UserID
-                """;
+        try {
+            // Fetch data through the business logic layer
+            List<UserFriendDTO> userList = userFriendBUS.getUserFriendsByUserId(userId);
+            
+            // Check if the list is not null and has elements
+            if (userList == null || userList.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No user data available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
     
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+            // Clear existing table data
+            tableModel.setRowCount(0);
     
-            // Set the userId parameter
-            statement.setInt(1, userId);
-    
-            try (ResultSet resultSet = statement.executeQuery()) {
-                // Clear the table before adding new data
-                tableModel.setRowCount(0);
-    
-                // Populate table with data from ResultSet
-                while (resultSet.next()) {
-                    int friendUserId = resultSet.getInt("UserID");
-                    String friendUsername = resultSet.getString("Username");
-                    String dateOfCreation = resultSet.getString("DateOfCreation");
-    
-                    tableModel.addRow(new Object[]{friendUserId, friendUsername, dateOfCreation});
-                }
+            // Populate table with data from the userList
+            for (UserFriendDTO user : userList) {
+                tableModel.addRow(new Object[]{
+                    user.getUserId(),
+                    user.getUsername(),
+                    user.getDateOfCreation()
+                });
             }
         } catch (SQLException ex) {
+            // Log error details
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading data: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
     private void loadDataFromDatabase(String sortBy, String comparison, String compareTo, String username) {
-        // Base query
-        StringBuilder query = new StringBuilder("""
-                SELECT u.UserID, u.Username, COUNT(f.FriendUserID) AS FriendCount
-                FROM Friends f
-                INNER JOIN Users u ON f.UserID = u.UserID
-                WHERE 1=1
-            """);
+        try {
+            // Fetch data through the business logic layer
+            List<UserFriendDTO> userList = userFriendBUS.getFilteredUserFriends(sortBy, comparison, compareTo, username);
+            
+            // Check if the list is not null and has elements
+            if (userList == null || userList.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No user data available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
     
-        // Dynamically adding WHERE clauses based on parameters
-        if (username != null && !username.isEmpty()) {
-            query.append(" AND u.Username LIKE ?");
-        }
-        
-        // Append GROUP BY clause
-        query.append(" GROUP BY u.UserID, u.Username");
-        
-        // Append HAVING clause for session count comparison
-        if (comparison != null && !comparison.isEmpty() && compareTo != null && !compareTo.isEmpty()) {
-            query.append(" HAVING FriendCount ");
-            switch (comparison) {
-                case "Equal to":
-                    query.append("= ?");
-                    break;
-                case "Greater than":
-                    query.append("> ?");
-                    break;
-                case "Less than":
-                    query.append("< ?");
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid comparison value: " + comparison);
-            }
-        }
-        
-        // Append ORDER BY clause for sorting
-        if (sortBy != null && !sortBy.isEmpty()) {
-            switch (sortBy) {
-                case "UserID":
-                    query.append(" ORDER BY u.UseriD");
-                    break;
-                case "Username":
-                    query.append(" ORDER BY u.Username");
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
-            }
-        }
-        
-        // Execute the query with parameters
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
-            
-            int paramIndex = 1;
-            
-            // Set username parameter if provided
-            if (username != null && !username.isEmpty()) {
-                preparedStatement.setString(paramIndex++, "%" + username + "%");
-            }
-            
-            // Set the comparison value for FriendCount if applicable
-            if (comparison != null && !comparison.isEmpty() && compareTo != null && !compareTo.isEmpty()) {
-                preparedStatement.setInt(paramIndex++, Integer.parseInt(compareTo));
-            }
-            
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-            
-            // Clear the table before adding new data
+            // Clear existing table data
             tableModel.setRowCount(0);
-            
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userID = resultSet.getInt("UserID");
-                String userName = resultSet.getString("Username");
-                int friendCount = resultSet.getInt("FriendCount");
-                
-                tableModel.addRow(new Object[]{userID, userName, friendCount});
-            }
-            
+    
+           // Populate table with data from the userList
+           for (UserFriendDTO user : userList) {
+            tableModel.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getFriendCount()
+            });
+        }
         } catch (SQLException ex) {
+            // Log error details
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading data: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

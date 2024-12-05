@@ -9,7 +9,8 @@ public class DbConnection {
     int portNumber = 3306;
     String dbName = "chat_system";
     String user = "root";
-    String password = "nguyenhuytan2004";
+    //String password = "nguyenhuytan2004";
+    String password = "ngcjang1803";
 
     public Connection getConnection() {
         Connection conn = null;

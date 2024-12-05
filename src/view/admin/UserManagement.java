@@ -1,10 +1,12 @@
+import components.admin.*;
 import java.awt.*;
-import java.sql.*;
 import java.util.Date;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 public class UserManagement extends JPanel {
+    private AdminUserBUS adminUserBUS;
     private JTable userTable;
     private DefaultTableModel tableModel;
     private JTextField searchField;
@@ -13,6 +15,9 @@ public class UserManagement extends JPanel {
     private JButton backButton;
 
     public UserManagement() {
+
+        adminUserBUS = new AdminUserBUS();
+
         // Container
         setLayout(new BorderLayout());
 
@@ -94,19 +99,17 @@ public class UserManagement extends JPanel {
             }
 
             // Reload data with search and filter criteria
-            loadUserData(searchValue, filterColumn);
+            reloadUserData(searchValue, filterColumn);
         });
 
-        // Add ActionListener for the update button
+       // Thêm ActionListener cho nút Update
         updateButton.addActionListener(e -> {
             int selectedRow = userTable.getSelectedRow();
-        
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(this, "Please select a user to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-        
-            // Lấy dữ liệu hiện tại từ bảng
+            
             int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
             String fullName = tableModel.getValueAt(selectedRow, 2).toString();
             String address = tableModel.getValueAt(selectedRow, 3).toString();
@@ -114,31 +117,42 @@ public class UserManagement extends JPanel {
             String gender = tableModel.getValueAt(selectedRow, 5).toString();
             String email = tableModel.getValueAt(selectedRow, 6).toString();
             String status = tableModel.getValueAt(selectedRow, 7).toString();
-        
+
             // Hiển thị hộp thoại cập nhật thông tin
             UpdateUserDialog dialog = new UpdateUserDialog((Frame) SwingUtilities.getWindowAncestor(this), fullName, address, dob, gender, email, status);
-            dialog.setVisible(true);
-        
-            if (dialog.isSaved()) {
-                try {
+                dialog.setVisible(true);
+
+                if (dialog.isSaved()) {
                     // Lấy dữ liệu mới từ hộp thoại
                     fullName = dialog.getFullName();
                     address = dialog.getAddress();
-                    Date newDob = dialog.getDateOfBirth();
+                    Date newDob = null;
+                    try {
+                        newDob = dialog.getDateOfBirth();
+                    } catch (Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                     gender = dialog.getGender();
                     email = dialog.getEmail();
                     status = dialog.getStatus();
-        
-                    // Cập nhật thông tin trong cơ sở dữ liệu
-                    updateUser(userId, fullName, address, newDob, gender, email, status);
-        
-                    // Reload dữ liệu sau khi cập nhật
-                    loadUserData(null, null);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid input: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+                    AdminUserDTO user = new AdminUserDTO();
+                    user.setUserId(userId);
+                    user.setFullName(fullName);
+                    user.setAddress(address);
+                    user.setDateOfBirth(newDob);
+                    user.setGender(gender);
+                    user.setEmail(email);
+                    user.setStatus(status);
+
+                    if (adminUserBUS.updateUser(user)) {
+                        reloadUserData(null, null);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
-            }
-        });
+            });
         
         // Add ActionListener for the remove button
         deleteButton.addActionListener(e -> {
@@ -163,96 +177,75 @@ public class UserManagement extends JPanel {
                 return;
             }
         
-            // Thực hiện câu lệnh DELETE
-            String query = "DELETE FROM Users WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement statement = connection.prepareStatement(query)) {
-        
-                statement.setInt(1, userId);
-                int rowsDeleted = statement.executeUpdate();
-        
-                if (rowsDeleted > 0) {
-                    JOptionPane.showMessageDialog(this, "User removed successfully.");
-                    // Cập nhật lại bảng
-                    loadUserData(null, null);
-                } else {
-                    JOptionPane.showMessageDialog(this, "No user found with the selected ID.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error removing user: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            if (adminUserBUS.deleteUser(userId)) {
+                reloadUserData(null, null);
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+
         });
 
         // Add ActionListener for lockButton
         lockButton.addActionListener(e -> {
             int selectedRow = userTable.getSelectedRow();
-        
+
             if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Please select a user to lock/unlock.", "No Selection", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-        
-            // Lấy UserID từ bảng
-            int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
-            String currentAccess = null;
-        
-            // Truy vấn trạng thái Access từ cơ sở dữ liệu
-            String selectQuery = "SELECT Access FROM Users WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement selectStatement = connection.prepareStatement(selectQuery)) {
-        
-                selectStatement.setInt(1, userId);
-                try (ResultSet resultSet = selectStatement.executeQuery()) {
-                    if (resultSet.next()) {
-                        currentAccess = resultSet.getString("Access");
-                    }
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error fetching user access: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        
-            // Kiểm tra trạng thái Access hiện tại
-            if (currentAccess == null) {
-                JOptionPane.showMessageDialog(this, "User not found in database.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        
-            String newAccess = currentAccess.equals("yes") ? "no" : "yes";
-        
-            // Xác nhận trước khi thay đổi
-            int confirm = JOptionPane.showConfirmDialog(
+                JOptionPane.showMessageDialog(
                     this,
-                    "Are you sure you want to " + (newAccess.equals("no") ? "lock" : "unlock") + " this user?",
-                    "Confirm Lock/Unlock",
-                    JOptionPane.YES_NO_OPTION);
-        
+                    "Please select a user to lock/unlock.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+
+            // get userid from table
+            int userId = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+
+            // get currently access
+            String currentAccess = adminUserBUS.getUserAccess(userId);
+
+            if (currentAccess == null) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "User not found in database.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            String newAccess = currentAccess.equals("yes") ? "no" : "yes";
+
+            // Confirm before changes
+            int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to " + (newAccess.equals("no") ? "lock" : "unlock") + " this user?",
+                "Confirm Lock/Unlock",
+                JOptionPane.YES_NO_OPTION
+            );
+
             if (confirm != JOptionPane.YES_OPTION) {
                 return;
             }
-        
-            // Cập nhật trạng thái Access trong cơ sở dữ liệu
-            String updateQuery = "UPDATE Users SET Access = ? WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
-        
-                updateStatement.setString(1, newAccess);
-                updateStatement.setInt(2, userId);
-        
-                int rowsUpdated = updateStatement.executeUpdate();
-        
-                if (rowsUpdated > 0) {
-                    JOptionPane.showMessageDialog(this, "User " + (newAccess.equals("no") ? "locked" : "unlocked") + " successfully.");
-                    // Làm mới bảng
-                    loadUserData(null, null);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to update user access.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error updating user access: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            boolean success = adminUserBUS.lockOrUnlockUser(userId);
+
+            if (success) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "User " + (newAccess.equals("no") ? "locked" : "unlocked") + " successfully."
+                );
+
+                // Làm mới dữ liệu trong bảng (giả sử `reloadUserData()` là phương thức cập nhật lại bảng)
+                reloadUserData(null,null);
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to update user access.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 
@@ -270,34 +263,37 @@ public class UserManagement extends JPanel {
         
             // Hiển thị hộp thoại để nhập mật khẩu mới
             String newPassword = JOptionPane.showInputDialog(
-                    this,
-                    "Enter new password for UserID: " + userId,
-                    "Update Password",
-                    JOptionPane.PLAIN_MESSAGE);
-        
+                this,
+                "Enter new password for UserID: " + userId,
+                "Update Password",
+                JOptionPane.PLAIN_MESSAGE
+            );
+
             if (newPassword == null || newPassword.trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Password update cancelled or empty.", "No Input", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Password update cancelled or empty.",
+                    "No Input",
+                    JOptionPane.WARNING_MESSAGE
+                );
                 return;
             }
-        
-            // Cập nhật mật khẩu trong cơ sở dữ liệu
-            String updateQuery = "UPDATE Users SET Password = ? WHERE UserID = ?";
-            try (Connection connection = DatabaseConnection.getConnection();
-                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
-        
-                updateStatement.setString(1, newPassword);
-                updateStatement.setInt(2, userId);
-        
-                int rowsUpdated = updateStatement.executeUpdate();
-        
-                if (rowsUpdated > 0) {
-                    JOptionPane.showMessageDialog(this, "Password updated successfully.");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to update password. User might not exist.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error updating password: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            // Gọi BUS để cập nhật mật khẩu
+            boolean isUpdated = adminUserBUS.updatePassword(userId, newPassword);
+
+            if (isUpdated) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Password updated successfully."
+                );
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to update password. User might not exist.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
             }
         });
 
@@ -316,15 +312,16 @@ public class UserManagement extends JPanel {
 
             // Mở giao diện LoginManagement với UserID đã chọn
             JFrame loginHistoryFrame = new JFrame("Login History - " + username);
-            LoginManagement loginManagement = new LoginManagement(userId); // Truyền UserID vào constructor
+            LoginManagement loginManagement = new LoginManagement(userId); // Truyền userId vào constructor
 
             loginHistoryFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             loginHistoryFrame.setSize(800, 600);
-            loginHistoryFrame.add(loginManagement);
+            loginHistoryFrame.add(loginManagement); // Thêm giao diện LoginManagement vào JFrame
             loginHistoryFrame.setLocationRelativeTo(null);
-            
+
             loginHistoryFrame.setVisible(true);
         });
+
 
         //add actionListener viewFriendsButton
         viewFriendsButton.addActionListener(e -> {
@@ -350,75 +347,31 @@ public class UserManagement extends JPanel {
         });
 
         // Load initial data
-        loadUserData(null, null);
-    }
-
-    public void updateUser(int userId, String fullName, String address, Date dob, String gender, String email, String status) {
-        String query = "UPDATE Users SET FullName = ?, Address = ?, DateOfBirth = ?, Gender = ?, Email = ?, Status = ? WHERE UserID = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-    
-            statement.setString(1, fullName);
-            statement.setString(2, address);
-            statement.setDate(3, new java.sql.Date(dob.getTime()));
-            statement.setString(4, gender);
-            statement.setString(5, email);
-            statement.setString(6, status);
-            statement.setInt(7, userId);
-    
-            int rowsUpdated = statement.executeUpdate();
-            if (rowsUpdated > 0) {
-                System.out.println("User information updated successfully.");
-            } else {
-                System.out.println("User not found.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error updating user: " + e.getMessage());
-        }
+        reloadUserData(null, null);
     }
 
     public JButton getBackButton() {
         return backButton;
     }
 
-    public void loadUserData(String searchValue, String filterColumn) {
-        String query = "SELECT * FROM Users";
+    public void reloadUserData(String searchValue, String filterColumn) {
+        List<AdminUserDTO> userList = adminUserBUS.getUsers(searchValue, filterColumn);
+        
+        // Clear existing table data
+        tableModel.setRowCount(0);
 
-        // If search criteria are provided, add WHERE clause
-        if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
-            query += " WHERE " + filterColumn + " LIKE ?";
-        }
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-
-            // Set the search value if provided
-            if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
-                statement.setString(1, "%" + searchValue + "%");
-            }
-
-            ResultSet resultSet = statement.executeQuery();
-
-            // Clear existing table data
-            tableModel.setRowCount(0);
-
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                tableModel.addRow(new Object[]{
-                    resultSet.getString("UserID"),
-                    resultSet.getString("Username"),
-                    resultSet.getString("FullName"),
-                    resultSet.getString("Address"),
-                    resultSet.getDate("DateOfBirth"),
-                    resultSet.getString("Gender"),
-                    resultSet.getString("Email"),
-                    resultSet.getString("Status")
-                });
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
+        // Populate table with data from the userList
+        for (AdminUserDTO user : userList) {
+            tableModel.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getFullName(),
+                user.getAddress(),
+                user.getDateOfBirth(),
+                user.getGender(),
+                user.getEmail(),
+                user.getStatus()
+            });
         }
     }
 }

@@ -1,15 +1,19 @@
-import java.awt.*;
-import java.sql.*;
+import components.admin.login_history.*;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
 
 public class LoginManagement extends JPanel {
     private JTable historyLoginTable;
     private DefaultTableModel tableModel;
     private JButton backButton;
+    private LoginHistoryBUS loginHistoryBUS;
 
     public LoginManagement() {
-        // Container
+        loginHistoryBUS = new LoginHistoryBUS();
+
         setLayout(new BorderLayout());
 
         // Header
@@ -20,16 +24,15 @@ public class LoginManagement extends JPanel {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setBackground(Color.LIGHT_GRAY);
 
-        // Label
         JLabel loginHisLabel = new JLabel("Login history management");
         loginHisLabel.setFont(new Font("Arial", Font.BOLD, 16));
         leftPanel.add(loginHisLabel);
         headerPanel.add(leftPanel, BorderLayout.WEST);
 
-        add(headerPanel, BorderLayout.NORTH); // Add header to frame
+        add(headerPanel, BorderLayout.NORTH);
 
         // Table for Login History
-        tableModel = new DefaultTableModel(new Object[]{"Login Time", "User ID", "User-name", "Full-name"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"Login Time", "User ID", "Username", "Full Name"}, 0);
         historyLoginTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(historyLoginTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -40,49 +43,17 @@ public class LoginManagement extends JPanel {
         buttonPanel.add(backButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        // Load data from database
+        // Load data
         loadLoginHistoryData();
 
         setVisible(true);
     }
 
-    /**
-     * Loads login history data from the database and populates the table.
-     */
-    private void loadLoginHistoryData() {
-        String query = """
-                SELECT ua.LoginTime, u.UserID, u.Username, u.FullName
-                FROM UserActivities ua
-                JOIN Users u ON ua.UserID = u.UserID
-                WHERE ua.ActivityType = 'Login'
-                ORDER BY ua.LoginTime DESC
-                """;
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            // Clear existing data in the table
-            tableModel.setRowCount(0);
-
-            // Add rows to the table from the result set
-            while (resultSet.next()) {
-                String loginTime = resultSet.getString("LoginTime");
-                String userId = resultSet.getString("UserID");
-                String username = resultSet.getString("Username");
-                String fullName = resultSet.getString("FullName");
-
-                tableModel.addRow(new Object[]{loginTime, userId, username, fullName});
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading login history: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     public LoginManagement(int userId) {
         // Container
         setLayout(new BorderLayout());
+
+        loginHistoryBUS = new LoginHistoryBUS();
 
         // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
@@ -93,7 +64,7 @@ public class LoginManagement extends JPanel {
         leftPanel.setBackground(Color.LIGHT_GRAY);
 
         // Label
-        JLabel loginHisLabel = new JLabel("Login history management");
+        JLabel loginHisLabel = new JLabel("Login history for UserID: " + userId);
         loginHisLabel.setFont(new Font("Arial", Font.BOLD, 16));
         leftPanel.add(loginHisLabel);
         headerPanel.add(leftPanel, BorderLayout.WEST);
@@ -126,40 +97,28 @@ public class LoginManagement extends JPanel {
         setVisible(true);
     }
 
-    /**
-     * Loads login history data for a specific user from the database and populates the table.
-     *
-     * @param userId The ID of the user to filter login history.
-     */
-    private void loadLoginHistoryData(int userId) {
-        String query = """
-                SELECT LoginTime, LogoutTime, ActivityType
-                FROM UserActivities
-                WHERE UserID = ?
-                ORDER BY LoginTime DESC
-                """;
+    private void loadLoginHistoryData() {
+        List<LoginHistoryDTO> loginHistories = loginHistoryBUS.getAllLoginHistory();
+        tableModel.setRowCount(0); // Clear existing data
+        for (LoginHistoryDTO history : loginHistories) {
+            tableModel.addRow(new Object[]{
+                history.getLoginTime(),
+                history.getUserId(),
+                history.getUsername(),
+                history.getFullName()
+            });
+        }
+    }
 
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
-
-            statement.setInt(1, userId);
-
-            try (ResultSet resultSet = statement.executeQuery()) {
-                // Clear existing data in the table
-                tableModel.setRowCount(0);
-
-                // Add rows to the table from the result set
-                while (resultSet.next()) {
-                    String loginTime = resultSet.getString("LoginTime");
-                    String logoutTime = resultSet.getString("LogoutTime");
-                    String activityType = resultSet.getString("ActivityType");
-
-                    tableModel.addRow(new Object[]{loginTime, logoutTime, activityType});
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading login history: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    private void loadLoginHistoryData(int userID) {
+        List<LoginHistoryDTO> loginHistories = loginHistoryBUS.getUserLoginHistory(userID);
+        tableModel.setRowCount(0); // Clear existing data
+        for (LoginHistoryDTO history : loginHistories) {
+            tableModel.addRow(new Object[]{
+                history.getLoginTime(),
+                history.getLogoutTime(),
+                history.getLogoutTime()
+            });
         }
     }
 
