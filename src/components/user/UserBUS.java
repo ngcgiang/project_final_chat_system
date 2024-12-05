@@ -3,6 +3,7 @@ package components.user;
 import components.shared.utils.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 public class UserBUS {
     private UserDAO userDAO;
@@ -124,4 +125,26 @@ public class UserBUS {
 
         return friendListObject;
     }
+
+    public Object[][] getUserList(String username) {
+        Map<UserDTO, String> userMap = userDAO.getUserList(username);
+
+        Object[][] userListObject = new Object[userMap.size()][3];
+
+        // Lặp qua từng entry trong userMap
+        int i = 0;
+        for (Map.Entry<UserDTO, String> entry : userMap.entrySet()) {
+            UserDTO friend = entry.getKey();
+            String status = entry.getValue();
+
+            userListObject[i][0] = friend.getUsername();
+            userListObject[i][1] = friend.getFullName();
+            userListObject[i][2] = status;
+
+            i++;
+        }
+
+        return userListObject;
+    }
+
 }

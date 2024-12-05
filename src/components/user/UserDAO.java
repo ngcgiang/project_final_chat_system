@@ -4,6 +4,8 @@ import components.shared.utils.*;
 import config.*;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserDAO {
     // Phương thức kiểm tra xem username đã tồn tại trong cơ sở dữ liệu chưa
@@ -113,6 +115,57 @@ public class UserDAO {
         }
 
         return friendList;
+    }
+
+    public Map<UserDTO, String> getUserList(String username) {
+        String query = """
+                SELECT
+                    u.Username,
+                    u.FullName,
+                    CASE
+                        WHEN f.FriendshipID IS NOT NULL THEN 3
+                        WHEN f_r_2.RequestID IS NOT NULL THEN 2
+                        WHEN f_r.RequestID IS NOT NULL THEN 1
+                        ELSE 0
+                    END AS Status
+                FROM users u
+                LEFT JOIN friends f
+                    ON (u.UserID = f.User1ID AND f.User2ID = (SELECT UserID FROM users WHERE Username = ?))
+                    OR (u.UserID = f.User2ID AND f.User1ID = (SELECT UserID FROM users WHERE Username = ?))
+                LEFT JOIN friend_requests f_r
+                    ON (u.UserID = f_r.ReceiverID AND f_r.SenderID = (SELECT UserID FROM users WHERE Username = ?))
+                LEFT JOIN friend_requests f_r_2
+                    ON (u.UserID = f_r_2.SenderID AND f_r_2.ReceiverID = (SELECT UserID FROM users WHERE Username = ?))
+                WHERE u.UserID NOT IN (
+                    SELECT b.BlockerID
+                    FROM block_list b
+                    WHERE b.BlockedID = (SELECT UserID FROM users WHERE Username = ?)
+                )
+                AND u.UserID != (SELECT UserID FROM users WHERE Username = ?);
+                                """;
+
+        Map<UserDTO, String> userMap = new HashMap<>();
+
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+            for (int i = 1; i < 7; i++) {
+                stmt.setString(i, username);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                UserDTO user = new UserDTO();
+                user.setUsername(rs.getString(1));
+                user.setFullName(rs.getString(2));
+                int status = rs.getInt(3);
+
+                userMap.put(user, String.valueOf(status));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return userMap;
     }
 
     public Response updateOne(String username, String password, String fullName, String address, java.util.Date dob,

@@ -1,5 +1,9 @@
 package view.user;
 
+import components.relationship.RelationshipBUS;
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,14 +14,12 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
-import components.shared.utils.Utilities;
-
 public class FindUser extends JPanel {
     private JPanel panel;
     private JTextField txtSearch;
     private JTable table;
-    private DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> rowSorter;
+    private DefaultTableModel tableModel;
 
     public FindUser() {
         panel = new JPanel(new BorderLayout());
@@ -50,7 +52,12 @@ public class FindUser extends JPanel {
 
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 2;
+                if (column == 2) {
+                    int modelRow = table.convertRowIndexToModel(row);
+                    String status = (String) tableModel.getValueAt(modelRow, tableModel.getColumnCount() - 1);
+                    return !"3".equals(status);
+                }
+                return false;
             }
         };
         rowSorter = new TableRowSorter<>(tableModel);
@@ -97,13 +104,7 @@ public class FindUser extends JPanel {
     }
 
     private void addSampleUser() {
-        Object[][] users = {
-                { "john_doe", "John Doe" },
-                { "jane_smith", "Jane Smith" },
-                { "alex_taylor", "Alex Taylor" },
-                { "emily_rose", "Emily Rose" },
-                { "michael_brown", "Michael Brown" }
-        };
+        Object[][] users = new UserBUS().getUserList(CurrentUser.getInstance().getUsername());
 
         for (Object[] user : users) {
             tableModel.addRow(user);
@@ -121,53 +122,164 @@ public class FindUser extends JPanel {
         }
     }
 
-    // Renderer và Editor cho nút "Add Friend" trong bảng
     private class AddRenderer extends JPanel implements TableCellRenderer {
+        private JButton btnAction;
+
         public AddRenderer() {
             setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
-            JButton btnAdd = Utilities.createButton("Add Friend", 100, 30);
-            add(btnAdd);
+            btnAction = Utilities.createButton("", 100, 30);
+            add(btnAction);
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+        public Component getTableCellRendererComponent(JTable table, Object status, boolean isSelected,
+                boolean hasFocus,
                 int row, int column) {
-            return this;
+
+            status = (String) table.getValueAt(row, 2);
+
+            if ("3".equals(status)) {
+                btnAction.setText("Friends");
+                btnAction.setEnabled(false);
+            } else {
+                String btnText = "";
+                switch ((String) status) {
+                    case "2":
+                        btnText = "Respond";
+                        break;
+                    case "1":
+                        btnText = "Cancel";
+                        break;
+                    case "0":
+                        btnText = "Add friend";
+                        break;
+                }
+                btnAction.setText(btnText);
+                btnAction.setEnabled(true);
+            }
+
+            return this; // Trả về panel chứa nút
         }
     }
 
     private class AddEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
         private JPanel panel;
-        private JButton btnAdd;
-        private int editingRow;
+        private JButton btnAction;
+        private int modelRow;
+        Object status;
 
         public AddEditor() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-            btnAdd = Utilities.createButton("Add Friend", 100, 30);
+            btnAction = Utilities.createButton("", 100, 30);
 
-            btnAdd.addActionListener(this);
+            btnAction.addActionListener(this);
 
-            panel.add(btnAdd);
+            panel.add(btnAction);
         }
 
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
-            editingRow = row;
+            modelRow = table.convertRowIndexToModel(row);
+
+            // Kiểm tra trạng thái của dòng này (cột cuối cùng)
+            status = (String) tableModel.getValueAt(modelRow, 2);
+
+            if ("3".equals(status)) {
+                btnAction.setText("Friends");
+                btnAction.setEnabled(false);
+            } else {
+                String btnText = "";
+                switch ((String) status) {
+                    case "2":
+                        btnText = "Respond";
+                        break;
+                    case "1":
+                        btnText = "Cancel";
+                        break;
+                    case "0":
+                        btnText = "Add friend";
+                        break;
+                }
+                btnAction.setText(btnText);
+                btnAction.setEnabled(true);
+            }
             return panel;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String name = (String) tableModel.getValueAt(editingRow, 1);
-            if (e.getSource() == btnAdd) {
-                JOptionPane.showMessageDialog(panel, "Send friend request to " + name);
+            String name = (String) tableModel.getValueAt(modelRow, 1); // Lấy tên từ cột 1
+            if (e.getSource() == btnAction) {
+                String username2 = (String) tableModel.getValueAt(modelRow, 0);
+                String username1 = CurrentUser.getInstance().getUsername();
+                RelationshipBUS relationshipBUS = new RelationshipBUS();
+
+                String notification = "";
+                boolean flag = true;
+
+                // Respond
+                if ("2".equals(status)) {
+                    String[] options = { "Accept", "Reject", "Cancel" };
+                    int confirm = JOptionPane.showOptionDialog(
+                            panel,
+                            "Do you want to \"Accept\" or \"Reject\" the friend request?",
+                            "Friend Request",
+                            JOptionPane.DEFAULT_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            options,
+                            options[2]);
+
+                    switch (confirm) {
+                        case 0 -> {
+                            // "Accept"
+                            relationshipBUS.acceptFriendRequest(username1, username2);
+                            status = "3";
+                            notification = "Accept " + name + "'s friend request";
+                        }
+                        case 1 -> {
+                            // "Reject"
+                            relationshipBUS.rejectOrCancelFriendRequest(username2, username1);
+                            status = "0";
+                            notification = "Reject " + name + "'s friend request";
+                        }
+                        default -> flag = false;
+                    }
+                }
+
+                // Cancel
+                else if ("1".equals(status)) {
+                    boolean success = relationshipBUS.rejectOrCancelFriendRequest(username1, username2);
+                    if (success) {
+                        status = "0";
+                        notification = "Cancel friend request to " + name;
+                    } else {
+                        notification = "Cancel request failed";
+                    }
+                }
+
+                // Add friend
+                else if ("0".equals(status)) {
+                    boolean success = relationshipBUS.addFriend(username1, username2);
+                    if (success) {
+                        status = "1";
+                        notification = "Send friend request to " + name;
+                    } else {
+                        notification = "Send request failed";
+                    }
+                }
+
+                notification += "!";
+                if (flag)
+                    JOptionPane.showMessageDialog(panel, notification);
             }
         }
 
         @Override
         public Object getCellEditorValue() {
-            return "";
+            System.out.println(status);
+            return status;
         }
     }
 

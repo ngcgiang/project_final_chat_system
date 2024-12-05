@@ -23,16 +23,16 @@ CREATE TABLE users (
 
 INSERT INTO users (Username, Password, FullName, Address, DateOfBirth, Email, Phone, Gender)
 VALUES
-('u1', '123', 'Nguyễn Văn A', 'Hà Nội, Việt Nam', '1990-01-01', 'nguyenvana@example.com', '0123456789', 'Male'),
-('u2', '123', 'Trần Thị B', 'TP.HCM, Việt Nam', '1992-02-02', 'tranthib@example.com', '0987654321', 'Female'),
-('u3', '123', 'Lê Minh C', 'Đà Nẵng, Việt Nam', '1985-03-03', 'leminhc@example.com', '0912345678', 'Male'),
-('u4', '123', 'Phạm Thị D', 'Hải Phòng, Việt Nam', '1995-04-04', 'phamthid@example.com', '0945123456', 'Female'),
-('u5', '123', 'Nguyễn Minh E', 'Cần Thơ, Việt Nam', '2000-05-05', 'nguyenmine@example.com', '0976123456', 'Male'),
-('u6', '123', 'Lê Thị F', 'Bình Dương, Việt Nam', '1994-06-06', 'lethif@example.com', '0986123456', 'Female'),
-('u7', '123', 'Trần Minh G', 'Vũng Tàu, Việt Nam', '1988-07-07', 'tranming@example.com', '0903123456', 'Male'),
-('u8', '123', 'Phạm Thị H', 'Quảng Ninh, Việt Nam', '1996-08-08', 'phamthih@example.com', '0965123456', 'Female'),
-('u9', '123', 'Nguyễn Minh I', 'Nam Định, Việt Nam', '1992-09-09', 'nguyenmini@example.com', '0916123456', 'Male'),
-('u10', '123', 'Lê Thị J', 'Hà Tĩnh, Việt Nam', '2001-10-10', 'lethij@example.com', '0932123456', 'Female');
+('e1', '123', 'Nguyễn Văn A', 'Hà Nội, Việt Nam', '1990-01-01', 'nguyenvana@example.com', '0123456789', 'Male'),
+('e2', '123', 'Trần Thị B', 'TP.HCM, Việt Nam', '1992-02-02', 'tranthib@example.com', '0987654321', 'Female'),
+('e3', '123', 'Lê Minh C', 'Đà Nẵng, Việt Nam', '1985-03-03', 'leminhc@example.com', '0912345678', 'Male'),
+('e4', '123', 'Phạm Thị D', 'Hải Phòng, Việt Nam', '1995-04-04', 'phamthid@example.com', '0945123456', 'Female'),
+('e5', '123', 'Nguyễn Minh E', 'Cần Thơ, Việt Nam', '2000-05-05', 'nguyenmine@example.com', '0976123456', 'Male'),
+('e6', '123', 'Lê Thị F', 'Bình Dương, Việt Nam', '1994-06-06', 'lethif@example.com', '0986123456', 'Female'),
+('e7', '123', 'Trần Minh G', 'Vũng Tàu, Việt Nam', '1988-07-07', 'tranming@example.com', '0903123456', 'Male'),
+('e8', '123', 'Phạm Thị H', 'Quảng Ninh, Việt Nam', '1996-08-08', 'phamthih@example.com', '0965123456', 'Female'),
+('e9', '123', 'Nguyễn Minh I', 'Nam Định, Việt Nam', '1992-09-09', 'nguyenmini@example.com', '0916123456', 'Male'),
+('e10', '123', 'Lê Thị J', 'Hà Tĩnh, Việt Nam', '2001-10-10', 'lethij@example.com', '0932123456', 'Female');
 
 
 -- Bảng lưu thông tin quản trị viên
@@ -44,7 +44,7 @@ CREATE TABLE administrators (
 );
 
 -- Bảng lưu danh sách người dùng bị chặn
-CREATE TABLE blockList (
+CREATE TABLE block_list (
     BlockID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã chặn
     BlockerID INT NOT NULL,  -- Người chặn
     BlockedID INT NOT NULL,  -- Người bị chặn
@@ -52,6 +52,9 @@ CREATE TABLE blockList (
     FOREIGN KEY (BlockerID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (BlockedID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+INSERT INTO block_list (BlockerID, BlockedID)
+VALUES
+(2, 1), (3, 1);
 
 -- Bảng danh sách bạn bè và trạng thái
 CREATE TABLE friends (
@@ -65,8 +68,16 @@ CREATE TABLE friends (
 
 INSERT INTO friends (User1ID, User2ID)
 VALUES
-(1, 2), (1, 3), (1, 4), (1, 5), (1, 7), (1, 8), (2, 3), (2, 4), (2, 5), (2, 7),
-(2, 8), (2, 9), (2, 10), (3, 1), (3, 2), (3, 4), (3, 5), (3, 6), (3, 9);
+(1,2),(1,3),(1,7),(1,8),
+(2,3),(2,5),
+(3,4),(3,5),(3,6),
+(4,5),
+(5,6),
+(6,4),
+(7,4),(7,5),
+(8,4),(8,6),
+(9,4),(9,5),
+(10,4),(10,6);
 
 
 -- Bảng lưu các yêu cầu kết bạn
@@ -74,11 +85,14 @@ CREATE TABLE friend_requests (
     RequestID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã yêu cầu
     SenderID INT NOT NULL,  -- Người gửi yêu cầu
     ReceiverID INT NOT NULL,  -- Người nhận yêu cầu
-    Status ENUM('Pending', 'Accepted', 'Declined') DEFAULT 'Pending',  -- Trạng thái
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian gửi yêu cầu
     FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ReceiverID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+
+INSERT INTO friend_requests (SenderID, ReceiverID)
+VALUES
+(8, 2), (2, 10);
 
 -- Bảng lưu tin nhắn cá nhân
 CREATE TABLE messages (
@@ -93,7 +107,7 @@ CREATE TABLE messages (
 );
 
 -- Bảng thông tin nhóm
-CREATE TABLE groupInfo (
+CREATE TABLE group_info (
     GroupID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã nhóm
     GroupName VARCHAR(100) NOT NULL,  -- Tên nhóm
     AdminID INT NOT NULL,  -- Quản trị viên nhóm
@@ -102,13 +116,13 @@ CREATE TABLE groupInfo (
 );
 
 -- Bảng thành viên nhóm
-CREATE TABLE groupMembers (
+CREATE TABLE group_members (
     MemberID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã thành viên
     GroupID INT NOT NULL,  -- Mã nhóm
     UserID INT NOT NULL,  -- Mã người dùng
     IsAdmin BOOLEAN DEFAULT FALSE,  -- Quản trị viên nhóm
     AddedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tham gia nhóm
-    FOREIGN KEY (GroupID) REFERENCES GroupInfo(GroupID) ON DELETE CASCADE,
+    FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
@@ -119,7 +133,7 @@ CREATE TABLE group_messages (
     SenderID INT NOT NULL,  -- Người gửi
     Content TEXT NOT NULL,  -- Nội dung tin nhắn
     SentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian gửi
-    FOREIGN KEY (GroupID) REFERENCES GroupInfo(GroupID) ON DELETE CASCADE,
+    FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,
     FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
@@ -153,5 +167,5 @@ CREATE TABLE chat_history (
     MessageTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian gửi tin nhắn
     IsGroupMessage BOOLEAN DEFAULT FALSE,  -- Tin nhắn nhóm hay cá nhân
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (GroupID) REFERENCES GroupInfo(GroupID)
+    FOREIGN KEY (GroupID) REFERENCES group_info(GroupID)
 );
