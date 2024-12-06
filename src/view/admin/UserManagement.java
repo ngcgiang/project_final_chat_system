@@ -215,12 +215,12 @@ public class UserManagement extends JPanel {
                 return;
             }
 
-            String newAccess = currentAccess.equals("yes") ? "no" : "yes";
+            String newAccess = currentAccess.equals("Yes") ? "No" : "Yes";
 
             // Confirm before changes
             int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to " + (newAccess.equals("no") ? "lock" : "unlock") + " this user?",
+                "Are you sure you want to " + (newAccess.equals("No") ? "lock" : "unlock") + " this user?",
                 "Confirm Lock/Unlock",
                 JOptionPane.YES_NO_OPTION
             );
@@ -234,7 +234,7 @@ public class UserManagement extends JPanel {
             if (success) {
                 JOptionPane.showMessageDialog(
                     this,
-                    "User " + (newAccess.equals("no") ? "locked" : "unlocked") + " successfully."
+                    "User " + (newAccess.equals("No") ? "locked" : "unlocked") + " successfully."
                 );
 
                 // Làm mới dữ liệu trong bảng (giả sử `reloadUserData()` là phương thức cập nhật lại bảng)

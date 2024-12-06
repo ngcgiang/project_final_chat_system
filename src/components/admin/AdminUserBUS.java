@@ -40,7 +40,7 @@ public class AdminUserBUS {
             return false; // User not found
         }
 
-        String newAccess = currentAccess.equals("yes") ? "no" : "yes";
+        String newAccess = currentAccess.equals("Yes") ? "No" : "Yes";
         return userDAO.updateUserAccess(userId, newAccess);
     }
 
