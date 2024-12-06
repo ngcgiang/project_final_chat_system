@@ -1,5 +1,6 @@
 package view.user;
 
+import components.relationship.RelationshipBUS;
 import components.shared.utils.*;
 import components.user.UserBUS;
 import java.awt.*;
@@ -45,38 +46,40 @@ public class FriendList {
         searchPanel.add(btnCreate);
 
         // Tạo bảng hiển thị danh sách bạn bè
-        String[] columns = { "Name", "Status", "Chat", "Action" };
+        String[] columns = { "Username", "Name", "Status", "Chat", "Action" };
         tableModel = new DefaultTableModel(columns, 0);
         table = new JTable(tableModel) {
             @Override
             public TableCellRenderer getCellRenderer(int row, int column) {
-                if (column == 2)
-                    return new ChatRender();
                 if (column == 3)
+                    return new ChatRender();
+                if (column == 4)
                     return new ActionRenderer();
                 return super.getCellRenderer(row, column);
             }
 
             @Override
             public TableCellEditor getCellEditor(int row, int column) {
-                if (column == 2)
-                    return new ChatEditor();
                 if (column == 3)
+                    return new ChatEditor();
+                if (column == 4)
                     return new ActionEditor();
                 return super.getCellEditor(row, column);
             }
 
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 2 || column == 3;
+                return column == 3 || column == 4;
             }
         };
         rowSorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(rowSorter);
         table.setRowHeight(35);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.getColumnModel().getColumn(1).setPreferredWidth(50);
-        table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(350);
+        table.getColumnModel().getColumn(2).setPreferredWidth(20);
+        table.getColumnModel().getColumn(3).setPreferredWidth(30);
+        table.getColumnModel().getColumn(4).setPreferredWidth(300);
 
         // Thêm dữ liệu mẫu vào bảng
         addSampleData();
@@ -221,23 +224,25 @@ public class FriendList {
         if (text.trim().isEmpty()) {
             rowSorter.setRowFilter(null);
         } else {
-            rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0));
+            rowSorter.setRowFilter(RowFilter.orFilter(Arrays.asList(
+                    RowFilter.regexFilter("(?i)" + text, 0),
+                    RowFilter.regexFilter("(?i)" + text, 1))));
         }
     }
 
     private void filterByStatus() {
         if (rbOnline.isSelected() && rbOffline.isSelected()) {
             rowSorter.setRowFilter(RowFilter.orFilter(Arrays.asList(
-                    RowFilter.regexFilter("Online", 1),
-                    RowFilter.regexFilter("Offline", 1))));
+                    RowFilter.regexFilter("Online", 2),
+                    RowFilter.regexFilter("Offline", 2))));
         } else if (rbOnline.isSelected()) {
-            rowSorter.setRowFilter(RowFilter.regexFilter("Online", 1));
+            rowSorter.setRowFilter(RowFilter.regexFilter("Online", 2));
         } else if (rbOffline.isSelected()) {
-            rowSorter.setRowFilter(RowFilter.regexFilter("Offline", 1));
+            rowSorter.setRowFilter(RowFilter.regexFilter("Offline", 2));
         } else {
             rowSorter.setRowFilter(RowFilter.orFilter(Arrays.asList(
-                    RowFilter.regexFilter("Online", 1),
-                    RowFilter.regexFilter("Offline", 1))));
+                    RowFilter.regexFilter("Online", 2),
+                    RowFilter.regexFilter("Offline", 2))));
         }
     }
 
@@ -245,15 +250,9 @@ public class FriendList {
         String username = CurrentUser.getInstance().getUsername();
 
         UserBUS userBUS = new UserBUS();
-        Object[][] fiendList = userBUS.getFriendList(username);
+        Object[][] friendList = userBUS.getFriendList(username);
 
-        Object[][] friendList = new Object[][] {
-                { "Nguyễn Huy Tấn", "Online" },
-                { "Trần Thanh Bình", "Offline" },
-                { "Lê Văn Hùng", "Online" }
-        };
-
-        for (Object[] row : fiendList) {
+        for (Object[] row : friendList) {
             tableModel.addRow(row);
         }
     }
@@ -275,7 +274,7 @@ public class FriendList {
     private class ChatEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
         private JPanel panel;
         private JButton btnChat;
-        private int editingRow;
+        private int modelRow;
 
         public ChatEditor() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -289,13 +288,13 @@ public class FriendList {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
                 int column) {
-            editingRow = row;
+            modelRow = table.convertRowIndexToModel(row);
             return panel;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String friendName = (String) tableModel.getValueAt(editingRow, 0); // Get the friend's name
+            String friendName = (String) tableModel.getValueAt(modelRow, 0); // Get the friend's name
 
             // Create a new JFrame for the chat window
             JFrame chatFrame = new JFrame(friendName);
@@ -341,7 +340,7 @@ public class FriendList {
     private class ActionEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
         private JPanel panel;
         private JButton btnReport, btnUnfriend, btnBlock;
-        private int editingRow;
+        private int modelRow;
 
         public ActionEditor() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -361,29 +360,51 @@ public class FriendList {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
                 int column) {
-            editingRow = row;
+            modelRow = table.convertRowIndexToModel(row);
             return panel;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String name = (String) tableModel.getValueAt(editingRow, 0);
+            RelationshipBUS relationshipBUS = new RelationshipBUS();
+
+            String username1 = CurrentUser.getInstance().getUsername();
+            String username2 = (String) tableModel.getValueAt(modelRow, 0);
+
+            String friendName = (String) tableModel.getValueAt(modelRow, 1);
+
+            String notification = "";
+            boolean flag = true;
             if (e.getSource() == btnReport) {
-                JOptionPane.showMessageDialog(panel, "Reported " + name);
+                JOptionPane.showMessageDialog(panel, "Reported " + friendName);
             } else if (e.getSource() == btnUnfriend) {
-                int confirm = JOptionPane.showConfirmDialog(panel, "Are you sure you want to unfriend " + name + "?");
+                int confirm = JOptionPane.showConfirmDialog(panel,
+                        "Are you sure you want to unfriend " + friendName + "?");
                 if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(editingRow);
-                    JOptionPane.showMessageDialog(panel, name + " has been unfriended.");
+                    boolean success = relationshipBUS.unfriend(username1, username2);
+                    if (success) {
+                        tableModel.removeRow(modelRow);
+                        notification = friendName + " has been unfriended";
+                    } else {
+                        notification = "Unfriend failure";
+                    }
                 }
             } else if (e.getSource() == btnBlock) {
                 int confirm = JOptionPane.showConfirmDialog(panel,
-                        "Are you sure you want to block and unfriend " + name + "?");
+                        "Are you sure you want to block and unfriend " + friendName + "?");
                 if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(editingRow);
-                    JOptionPane.showMessageDialog(panel, name + " has been blocked and unfriended.");
+                    boolean success = relationshipBUS.block(username1, username2);
+                    if (success) {
+                        tableModel.removeRow(modelRow);
+                        notification = friendName + " has been blocked and unfriended";
+                    } else {
+                        notification = "Block failure";
+                    }
                 }
             }
+            notification += "!";
+            if (flag)
+                JOptionPane.showMessageDialog(panel, notification);
         }
 
         @Override

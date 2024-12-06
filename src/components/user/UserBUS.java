@@ -115,12 +115,13 @@ public class UserBUS {
     public Object[][] getFriendList(String username) {
         ArrayList<UserDTO> friendList = userDAO.getFriendList(username);
 
-        Object[][] friendListObject = new Object[friendList.size()][2];
+        Object[][] friendListObject = new Object[friendList.size()][3];
 
         for (int i = 0; i < friendList.size(); i++) {
             UserDTO friend = friendList.get(i);
-            friendListObject[i][0] = friend.getFullName();
-            friendListObject[i][1] = friend.getStatus();
+            friendListObject[i][0] = friend.getUsername();
+            friendListObject[i][1] = friend.getFullName();
+            friendListObject[i][2] = friend.getStatus();
         }
 
         return friendListObject;
@@ -147,4 +148,17 @@ public class UserBUS {
         return userListObject;
     }
 
+    public Object[][] getFriendRequestList(String username) {
+        ArrayList<UserDTO> friendRequestList = userDAO.getFriendRequestList(username);
+
+        Object[][] friendRequestListObject = new Object[friendRequestList.size()][2];
+
+        for (int i = 0; i < friendRequestList.size(); i++) {
+            UserDTO friend = friendRequestList.get(i);
+            friendRequestListObject[i][0] = friend.getUsername();
+            friendRequestListObject[i][1] = friend.getFullName();
+        }
+
+        return friendRequestListObject;
+    }
 }
