@@ -1,7 +1,9 @@
+import components.admin.group_chat.*;
+
 import java.awt.*;
-import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
 
 public class GroupChatManagement extends JPanel {
     private JTable groupTable;
@@ -11,6 +13,7 @@ public class GroupChatManagement extends JPanel {
     private JButton searchButton;
     private JButton backButton;
     private JFrame parentFrame;
+    private GroupChatBUS groupChatBUS;
 
     public GroupChatManagement(JFrame parentFrame) {
         this.parentFrame = parentFrame; // Lưu tham chiếu đến JFrame cha
@@ -18,6 +21,7 @@ public class GroupChatManagement extends JPanel {
     }
     
     private void initComponents() {
+        groupChatBUS = new GroupChatBUS();
         // Setting main window properties
         setLayout(new BorderLayout());
 
@@ -143,101 +147,34 @@ public class GroupChatManagement extends JPanel {
         loadDataFromDatabase(searchValue, orderBy);
     }
 
-    private void loadDataFromDatabase(String searchValue, String orderBy) {
-        // Base query
-        String query = """
-            SELECT g.GroupID, g.GroupName, g.CreatedAt, COUNT(gm.UserID) AS AmountOfMember
-            FROM group_info g
-            INNER JOIN group_members gm ON gm.GroupID = g.GroupID
-            """;
-    
-        // Append WHERE clause if searchValue is provided
-        if (searchValue != null && !searchValue.isEmpty()) {
-            query += " WHERE g.GroupName LIKE ?";
-        }
-    
-        // Add GROUP BY clause
-        query += " GROUP BY g.GroupID, g.GroupName, g.CreatedAt";
-    
-        // Append ORDER BY clause if orderBy is provided
-        if (orderBy != null && !orderBy.isEmpty()) {
-            // Map filter options to database column names
-            switch (orderBy) {
-                case "GroupID":
-                case "GroupName":
-                case "CreatedAt":
-                    query += " ORDER BY " + orderBy;
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid orderBy value: " + orderBy);
-            }
-        }
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-    
-            // Set the search value if provided
-            if (searchValue != null && !searchValue.isEmpty()) {
-                preparedStatement.setString(1, "%" + searchValue + "%");
-            }
-    
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int groupID = resultSet.getInt("GroupID");
-                String groupName = resultSet.getString("GroupName");
-                String dateOfCreation = resultSet.getString("CreatedAt");
-                int amountOfMember = resultSet.getInt("AmountOfMember");
-    
-                tableModel.addRow(new Object[]{groupID, groupName, dateOfCreation, amountOfMember});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private void loadDataFromDatabase() {
-        // Base query
-        String query = """
-            SELECT g.GroupID, g.GroupName, g.CreatedAt, COUNT(gm.UserID) AS AmountOfMember
-            FROM group_info g
-            INNER JOIN group_members gm ON gm.GroupID = g.GroupID
-            Group by g.GroupID, g.GroupName, g.CreatedAt
-            Order by g.GroupID
-            """;
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        List<GroupChatDTO> groups = groupChatBUS.getAllGroups();
 
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int groupID = resultSet.getInt("GroupID");
-                String groupName = resultSet.getString("GroupName");
-                String dateOfCreation = resultSet.getString("CreatedAt");
-                int amountOfMember = resultSet.getInt("AmountOfMember");
-    
-                tableModel.addRow(new Object[]{groupID, groupName, dateOfCreation, amountOfMember});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        tableModel.setRowCount(0); // Clear the table
+        for (GroupChatDTO group : groups) {
+            tableModel.addRow(new Object[]{
+                group.getGroupId(),
+                group.getGroupName(),
+                group.getCreatedAt(),
+                group.getAmountOfMembers()
+            });
         }
     }
-    
+
+    private void loadDataFromDatabase(String searchValue, String orderBy) {
+        List<GroupChatDTO> groups = groupChatBUS.searchGroups(searchValue, orderBy);
+
+        tableModel.setRowCount(0); // Clear the table
+        for (GroupChatDTO group : groups) {
+            tableModel.addRow(new Object[]{
+                group.getGroupId(),
+                group.getGroupName(),
+                group.getCreatedAt(),
+                group.getAmountOfMembers()
+            });
+        }
+    }
+
     //Switch panel
     private void switchPanel(JPanel newPanel) {
         parentFrame.getContentPane().removeAll();

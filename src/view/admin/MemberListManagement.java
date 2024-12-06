@@ -1,14 +1,20 @@
+import components.admin.*;
+import components.admin.group_chat.*;
+
 import java.awt.*;
-import java.sql.*;
 import javax.swing.*;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class MemberListManagement extends JPanel {
     private JTable memberTable;
     private DefaultTableModel tableModel;
     private JButton backButton;
+    private GroupChatBUS groupChatBUS;
 
     public MemberListManagement(int groupID, String GroupName) {
+        groupChatBUS = new GroupChatBUS();
+
         // Setting main window properties
         setLayout(new BorderLayout());
 
@@ -51,45 +57,17 @@ public class MemberListManagement extends JPanel {
     }
 
     private void loadDataFromDatabase(int groupID) {
-        // Base query
-        String query = """
-            SELECT u.UserID, u.UserName, u.FullName
-            FROM Users u
-            INNER JOIN group_members gm ON gm.UserID = u.UserID
-            WHERE gm.GroupID = ?
-            GROUP BY u.UserID, u.UserName, u.FullName
-            ORDER BY u.UserID
-            """;
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-    
-            // Gán giá trị cho tham số dấu hỏi ?
-            preparedStatement.setInt(1, groupID);
-    
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userID = resultSet.getInt("UserID");
-                String userName = resultSet.getString("UserName");
-                String fullName = resultSet.getNString("FullName");
-    
-                // Thêm dòng vào tableModel
-                tableModel.addRow(new Object[]{userID, userName, fullName});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    List<AdminUserDTO> members = groupChatBUS.getGroupMembers(groupID);
+
+    tableModel.setRowCount(0); // Clear the table
+        for (AdminUserDTO user : members) {
+            tableModel.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getFullName()
+            });
         }
     }
-    
-    
 
     public JButton getBackButton() {
         return backButton;
