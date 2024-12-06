@@ -234,7 +234,7 @@ public class FindUser extends JPanel {
                     switch (confirm) {
                         case 0 -> {
                             // "Accept"
-                            relationshipBUS.acceptFriendRequest(username1, username2);
+                            relationshipBUS.acceptFriendRequest(username2, username1);
                             status = "3";
                             notification = "Accept " + name + "'s friend request";
                         }
@@ -278,7 +278,6 @@ public class FindUser extends JPanel {
 
         @Override
         public Object getCellEditorValue() {
-            System.out.println(status);
             return status;
         }
     }

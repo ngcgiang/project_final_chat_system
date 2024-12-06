@@ -1,11 +1,13 @@
 package view.user;
 
+import components.relationship.RelationshipBUS;
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.*;
-
-import components.shared.utils.Utilities;
 
 public class FriendRequest {
     private JPanel panel;
@@ -24,7 +26,7 @@ public class FriendRequest {
         searchPanel.add(txtSearch);
 
         // Tạo bảng hiển thị danh sách yêu cầu kết bạn
-        String[] columns = { "Name", "Status", "Action" };
+        String[] columns = { "Username", "Name", "Action" };
         tableModel = new DefaultTableModel(columns, 0);
         table = new JTable(tableModel) {
             @Override
@@ -100,22 +102,11 @@ public class FriendRequest {
     }
 
     private void addSampleData() {
-        // Dữ liệu mẫu gồm tên và trạng thái
-        Object[][] data = {
-                { "Alice", "Pending" }, { "Bob", "Pending" },
-                { "Charlie", "Pending" }, { "David", "Pending" },
-                { "Eve", "Pending" }, { "Frank", "Pending" },
-                { "Grace", "Pending" }, { "Hank", "Pending" },
-                { "Ivy", "Pending" }, { "Jack", "Pending" },
-                { "Kara", "Pending" }, { "Liam", "Pending" },
-                { "Mona", "Pending" }, { "Nate", "Pending" },
-                { "Olivia", "Pending" }, { "Paul", "Pending" },
-                { "Quinn", "Pending" }, { "Rose", "Pending" },
-                { "Steve", "Pending" }, { "Tina", "Pending" }
-        };
+        UserBUS userBUS = new UserBUS();
+        Object[][] data = userBUS.getFriendRequestList(CurrentUser.getInstance().getUsername());
 
         for (Object[] row : data) {
-            tableModel.addRow(new Object[] { row[0], row[1], "Action" });
+            tableModel.addRow(row);
         }
     }
 
@@ -141,7 +132,7 @@ public class FriendRequest {
         private JPanel panel;
         private JButton btnAccept;
         private JButton btnReject;
-        private int editingRow;
+        private int modelRow;
 
         public ActionEditor() {
             panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -158,25 +149,40 @@ public class FriendRequest {
         @Override
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
                 int column) {
-            editingRow = row;
+            modelRow = table.convertRowIndexToModel(row);
             return panel;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String name = (String) tableModel.getValueAt(editingRow, 0);
+            RelationshipBUS relationshipBUS = new RelationshipBUS();
+            String username1 = CurrentUser.getInstance().getUsername();
+            String username2 = (String) tableModel.getValueAt(modelRow, 0);
+            String friendName = (String) tableModel.getValueAt(modelRow, 1);
+
+            String notification = "";
             if (e.getSource() == btnAccept) {
-                tableModel.removeRow(editingRow); // Xóa yêu cầu
-                JOptionPane.showMessageDialog(panel, "Friend request from " + name + " accepted.");
+                boolean success = relationshipBUS.acceptFriendRequest(username2, username1);
+                if (success) {
+                    notification = "Accept " + friendName + "'s friend request";
+                    tableModel.removeRow(modelRow);
+                } else {
+                    notification = "Accept request failure";
+                }
             } else if (e.getSource() == btnReject) {
                 int confirm = JOptionPane.showConfirmDialog(panel,
-                        "Are you sure you want to reject the friend request from " + name + "?");
+                        "Are you sure you want to reject the friend request from " + friendName + "?");
                 if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(editingRow); // Xóa yêu cầu
-                    JOptionPane.showMessageDialog(panel, name + " has been rejected.");
+                    boolean success = relationshipBUS.rejectOrCancelFriendRequest(username2, username1);
+                    if (success) {
+                        notification = "Reject " + friendName + "'s friend request";
+                        tableModel.removeRow(modelRow);
+                    } else {
+                        notification = "Reject request failure";
+                    }
                 }
             }
-            fireEditingStopped();
+            JOptionPane.showMessageDialog(panel, notification);
         }
 
         @Override

@@ -1,8 +1,6 @@
 package components.relationship;
 
-import components.shared.utils.DbConnection;
 import config.DbConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -44,6 +42,42 @@ public class RelationshipDAO {
     public boolean addFriendship(String username1, String username2) {
         String query = """
                 INSERT INTO friends (User1ID, User2ID)
+                VALUES (
+                    (SELECT UserID FROM users WHERE Username = ?),
+                    (SELECT UserID FROM users WHERE Username = ?)
+                );
+                """;
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, username1);
+            stmt.setString(2, username2);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean removeFriendship(String username1, String username2) {
+        String query = """
+                DELETE FROM friends WHERE (User1ID = (SELECT UserID FROM users WHERE Username = ?) AND User2ID = (SELECT UserID FROM users WHERE Username = ?)) OR (User2ID = (SELECT UserID FROM users WHERE Username = ?) AND User1ID = (SELECT UserID FROM users WHERE Username = ?));
+                """;
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, username1);
+            stmt.setString(2, username2);
+            stmt.setString(3, username1);
+            stmt.setString(4, username2);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean addBlockingRelationship(String username1, String username2) {
+        String query = """
+                INSERT INTO block_list (BlockerID, BlockedID)
                 VALUES (
                     (SELECT UserID FROM users WHERE Username = ?),
                     (SELECT UserID FROM users WHERE Username = ?)

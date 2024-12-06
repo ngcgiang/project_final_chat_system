@@ -95,17 +95,20 @@ public class UserDAO {
 
     public ArrayList<UserDTO> getFriendList(String username) {
         String query = """
-                SELECT u.FullName, u.Status
+                SELECT u.Username, u.FullName, u.Status
                 FROM users u
-                JOIN friends f ON u.UserID = f.User2ID
-                WHERE f.User1ID = (SELECT UserID FROM users where Username = ?); """;
+                JOIN friends f ON u.UserID = f.User1ID OR u.UserID = f.User2ID
+                WHERE (f.User1ID = (SELECT UserID FROM users where Username = ?) OR f.User2ID = (SELECT UserID FROM users where Username = ?)) AND u.UserID != (SELECT UserID FROM users where Username = ?);""";
         ArrayList<UserDTO> friendList = new ArrayList<>();
         try (Connection conn = new DbConnection().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
+            stmt.setString(2, username);
+            stmt.setString(3, username);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 UserDTO friend = new UserDTO();
+                friend.setUsername(rs.getString("Username"));
                 friend.setFullName(rs.getString("FullName"));
                 friend.setStatus(rs.getString("Status"));
                 friendList.add(friend);
@@ -166,6 +169,31 @@ public class UserDAO {
         }
 
         return userMap;
+    }
+
+    public ArrayList<UserDTO> getFriendRequestList(String username) {
+        String query = """
+                SELECT u.Username, u.FullName
+                FROM users u
+                JOIN friend_requests f ON u.UserID = f.SenderID
+                WHERE f.ReceiverID = (SELECT UserID FROM users where Username = ?) AND u.UserID != (SELECT UserID FROM users where Username = ?);""";
+        ArrayList<UserDTO> friendList = new ArrayList<>();
+        try (Connection conn = new DbConnection().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            stmt.setString(2, username);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                UserDTO friend = new UserDTO();
+                friend.setUsername(rs.getString("Username"));
+                friend.setFullName(rs.getString("FullName"));
+                friendList.add(friend);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return friendList;
     }
 
     public Response updateOne(String username, String password, String fullName, String address, java.util.Date dob,
