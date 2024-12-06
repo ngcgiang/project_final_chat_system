@@ -1,5 +1,6 @@
 package components.admin.login_history;
 
+import config.DbConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,13 +8,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import config.DbConnection;
-
 public class LoginHistoryDAO {
     public List<LoginHistoryDTO> getAllLoginHistory() {
         String query = """
                 SELECT ua.LoginTime, u.UserID, u.Username, u.FullName
-                FROM UserActivities ua
+                FROM user_activities ua
                 JOIN Users u ON ua.UserID = u.UserID
                 ORDER BY ua.LoginTime DESC
                 """;
@@ -41,7 +40,7 @@ public class LoginHistoryDAO {
     public List<LoginHistoryDTO> getUserLoginHistory(int userId) {
         String query = """
                 SELECT LoginTime, LogoutTime, ActivityType
-                FROM UserActivities
+                FROM user_activities
                 WHERE UserID = ?
                 ORDER BY LoginTime DESC
                 """;

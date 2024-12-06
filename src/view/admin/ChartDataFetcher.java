@@ -37,7 +37,7 @@ public class ChartDataFetcher {
     // Get data by year
     public static int[] fetchUserOnlineCountsByMonth(int year) {
         String query = "SELECT MONTH(LoginTime) AS Month, COUNT(ActivityID) AS SessionsCount "
-                     + "FROM UserActivities "
+                     + "FROM user_activities "
                      + "WHERE YEAR(LoginTime) = ? "
                      + "GROUP BY MONTH(LoginTime) "
                      + "ORDER BY Month ASC";

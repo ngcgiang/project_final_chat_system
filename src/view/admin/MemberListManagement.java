@@ -55,7 +55,7 @@ public class MemberListManagement extends JPanel {
         String query = """
             SELECT u.UserID, u.UserName, u.FullName
             FROM Users u
-            INNER JOIN GroupMembers gm ON gm.UserID = u.UserID
+            INNER JOIN group_members gm ON gm.UserID = u.UserID
             WHERE gm.GroupID = ?
             GROUP BY u.UserID, u.UserName, u.FullName
             ORDER BY u.UserID

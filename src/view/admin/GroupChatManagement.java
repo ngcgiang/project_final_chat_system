@@ -43,7 +43,7 @@ public class GroupChatManagement extends JPanel {
         filterPanel.add(searchButton);
 
         filterComboBox = new JComboBox<>(new String[]{"Group ID", "Group name", "Creation time"});
-        filterPanel.add(new JLabel("Filter:"));
+        filterPanel.add(new JLabel("Sort by:"));
         filterPanel.add(filterComboBox);
 
         JButton applyButton = new JButton("Apply");
@@ -147,8 +147,8 @@ public class GroupChatManagement extends JPanel {
         // Base query
         String query = """
             SELECT g.GroupID, g.GroupName, g.CreatedAt, COUNT(gm.UserID) AS AmountOfMember
-            FROM GroupInfo g
-            INNER JOIN GroupMembers gm ON gm.GroupID = g.GroupID
+            FROM group_info g
+            INNER JOIN group_members gm ON gm.GroupID = g.GroupID
             """;
     
         // Append WHERE clause if searchValue is provided
@@ -207,8 +207,8 @@ public class GroupChatManagement extends JPanel {
         // Base query
         String query = """
             SELECT g.GroupID, g.GroupName, g.CreatedAt, COUNT(gm.UserID) AS AmountOfMember
-            FROM GroupInfo g
-            INNER JOIN GroupMembers gm ON gm.GroupID = g.GroupID
+            FROM group_info g
+            INNER JOIN group_members gm ON gm.GroupID = g.GroupID
             Group by g.GroupID, g.GroupName, g.CreatedAt
             Order by g.GroupID
             """;
