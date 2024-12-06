@@ -40,7 +40,7 @@ public class UserFriendListManagement extends JPanel {
         JPanel filterSortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         // Sorting Options
-        sortComboBox = new JComboBox<>(new String[]{"Username", "UserID"});
+        sortComboBox = new JComboBox<>(new String[]{"UserID", "Username"});
         filterSortPanel.add(new JLabel("Sort by:"));
         filterSortPanel.add(sortComboBox);
 

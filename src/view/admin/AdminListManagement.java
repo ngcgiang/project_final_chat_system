@@ -55,7 +55,7 @@ public class AdminListManagement extends JPanel {
         String query = """
                 SELECT u.UserID, u.UserName, u.FullName
                 FROM Users u
-                INNER JOIN GroupInfo g ON g.AdminID = u.UserID
+                INNER JOIN group_info g ON g.AdminID = u.UserID
                 WHERE g.GroupID = ?
                 GROUP BY u.UserID, u.UserName, u.FullName
                 ORDER BY u.UserID

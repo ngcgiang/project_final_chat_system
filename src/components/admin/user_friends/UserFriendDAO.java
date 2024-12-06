@@ -10,9 +10,9 @@ public class UserFriendDAO {
         List<UserFriendDTO> userFriends = new ArrayList<>();
 
         String query = """
-                SELECT u.UserID, u.Username, COUNT(f.FriendUserID) AS FriendCount
+                SELECT u.UserID, u.Username, COUNT(f.User2ID) AS FriendCount
                 FROM Friends f
-                INNER JOIN Users u ON f.UserID = u.UserID
+                INNER JOIN Users u ON f.User1ID = u.UserID
                 GROUP BY u.UserID, u.Username
                 ORDER BY u.UserID
                 """;
@@ -38,8 +38,8 @@ public class UserFriendDAO {
         String query = """
                 SELECT u.UserID, u.Username, MIN(f.CreatedAt) AS DateOfCreation
                 FROM Friends f
-                INNER JOIN Users u ON f.FriendUserID = u.UserID
-                WHERE f.UserID = ?
+                INNER JOIN Users u ON f.User2ID = u.UserID
+                WHERE f.User1ID = ?
                 GROUP BY u.UserID, u.Username
                 ORDER BY u.UserID
                 """;
@@ -67,9 +67,9 @@ public class UserFriendDAO {
         List<UserFriendDTO> userFriends = new ArrayList<>();
         
         StringBuilder query = new StringBuilder("""
-                SELECT u.UserID, u.Username, COUNT(f.FriendUserID) AS FriendCount
+                SELECT u.UserID, u.Username, COUNT(f.User2ID) AS FriendCount
                 FROM Friends f
-                INNER JOIN Users u ON f.UserID = u.UserID
+                INNER JOIN Users u ON f.User1ID = u.UserID
                 WHERE 1=1
             """);
 

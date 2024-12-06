@@ -109,23 +109,24 @@ public class UserOnlineManagement extends JPanel {
         // Base query
         String query = """
             SELECT 
-                u.UserID, 
-                u.UserName, 
-                COUNT(DISTINCT ua.ActivityID) AS SessionsCount, 
+                u.UserID,
+                u.Username,
+                COUNT(DISTINCT ua.ActivityID) AS SessionsCount,
                 COUNT(DISTINCT m.ReceiverID) AS UniqueUsersMessaged,
                 COUNT(DISTINCT gm.GroupID) AS UniqueGroupsMessaged,
-                DATE(u.CreatedAt) AS CreatedAt
+                u.CreatedAt
             FROM 
-                Users u
-            LEFT JOIN 
-                UserActivities ua ON u.UserID = ua.UserID
-            LEFT JOIN 
-                Messages m ON ua.ActivityID = m.ActivityID
-            LEFT JOIN 
-                GroupMessages gm ON ua.ActivityID = gm.ActivityID
+                users u
+            LEFT JOIN user_activities ua 
+                ON u.UserID = ua.UserID
+            LEFT JOIN messages m 
+                ON u.UserID = m.SenderID
+            LEFT JOIN group_messages gm 
+                ON u.UserID = gm.SenderID
             GROUP BY 
-                u.UserID, 
-                u.UserName
+                u.UserID, u.Username
+            ORDER BY 
+                u.UserID;
         """;
     
         try (Connection connection = DatabaseConnection.getConnection();
@@ -161,27 +162,27 @@ public class UserOnlineManagement extends JPanel {
             SELECT 
                 u.UserID, 
                 u.UserName, 
-                COUNT(DISTINCT ua.ActivityID) AS SessionsCount, 
+                COUNT(DISTINCT DATE(ua.LoginTime)) AS SessionsCount, 
                 COUNT(DISTINCT m.ReceiverID) AS UniqueUsersMessaged,
                 COUNT(DISTINCT gm.GroupID) AS UniqueGroupsMessaged,
                 DATE(u.CreatedAt) AS CreatedAt
             FROM 
                 Users u
             LEFT JOIN 
-                UserActivities ua ON u.UserID = ua.UserID
+                user_activities ua ON u.UserID = ua.UserID
             LEFT JOIN 
-                Messages m ON ua.ActivityID = m.ActivityID
+                Messages m ON u.UserID = m.SenderID
             LEFT JOIN 
-                GroupMessages gm ON ua.ActivityID = gm.ActivityID
+                group_messages gm ON u.UserID = gm.SenderID
             WHERE 1=1
         """);
     
         // Dynamically adding WHERE clauses based on parameters
-        if (username != null && !username.isEmpty()) {
-            query.append(" AND u.UserName like ?");
+        if (username != null && !username.trim().isEmpty()) {
+            query.append(" AND u.UserName LIKE ?");
         }
     
-        // Append WHERE clause for time filter based on dateRange
+        // Filter by date range
         switch (dateRange) {
             case "Today":
                 query.append(" AND ua.LoginTime >= CURDATE()");
@@ -194,66 +195,60 @@ public class UserOnlineManagement extends JPanel {
                 break;
             case "All":
             default:
-                // No filter needed for "All"
                 break;
         }
-        
     
-        // Append GROUP BY clause
+        // Add GROUP BY clause
         query.append(" GROUP BY u.UserID, u.UserName");
     
-        // Append HAVING clause for session count comparison
-        if(compareTo != null && !compareTo.isEmpty()){
-            if (comparison != null && !comparison.isEmpty()) {
-                query.append(" HAVING SessionsCount ");
-                switch (comparison) {
-                    case "Equal to":
-                        query.append("= ?");
-                        break;
-                    case "Greater than":
-                        query.append("> ?");
-                        break;
-                    case "Less than":
-                        query.append("< ?");
-                        break;
-                    default:
-                        throw new AssertionError();
-                }
+        // Add HAVING clause for session count comparison
+        if (comparison != null && !comparison.trim().isEmpty() && compareTo != null && !compareTo.trim().isEmpty()) {
+            query.append(" HAVING SessionsCount ");
+            switch (comparison) {
+                case "Equal to":
+                    query.append("= ?");
+                    break;
+                case "Greater than":
+                    query.append("> ?");
+                    break;
+                case "Less than":
+                    query.append("< ?");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid comparison operator: " + comparison);
             }
         }
     
-        // Append ORDER BY clause for sorting
-        if (sortBy != null && !sortBy.isEmpty()) {
+        // Add ORDER BY clause
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
             switch (sortBy) {
                 case "Date Creation":
                     query.append(" ORDER BY CreatedAt DESC");
                     break;
                 case "Username":
-                    query.append(" ORDER BY u.UserName");
+                    query.append(" ORDER BY u.UserName ASC");
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
             }
         }
     
-        // Execute the query with parameters
+        // Execute query
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
     
-            // Set parameters dynamically based on input
             int paramIndex = 1;
     
             // Set username parameter if provided
-            if (username != null && !username.isEmpty()) {
-                preparedStatement.setString(paramIndex++, "%" + username + "%");
+            if (username != null && !username.trim().isEmpty()) {
+                preparedStatement.setString(paramIndex++, "%" + username.trim() + "%");
             }
     
-            // Set the comparison value for SessionsCount if applicable
-            if (comparison != null && !comparison.isEmpty() && compareTo != null && !compareTo.isEmpty()) {
-                preparedStatement.setInt(paramIndex++, Integer.parseInt(compareTo));
+            // Set session count comparison parameter
+            if (comparison != null && !comparison.trim().isEmpty() && compareTo != null && !compareTo.trim().isEmpty()) {
+                preparedStatement.setInt(paramIndex++, Integer.parseInt(compareTo.trim()));
             }
     
-            // Execute query and fetch results
             ResultSet resultSet = preparedStatement.executeQuery();
     
             // Clear the table before adding new data
@@ -276,18 +271,22 @@ public class UserOnlineManagement extends JPanel {
             JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
     private void applyFilters() {
         String username = usernameFilterField.getText();
-        String sortBy = sortComboBox.getSelectedItem().toString();
-        String time = timeFilterComboBox.getSelectedItem().toString();
-        String comparison = activityFilterComboBox.getSelectedItem().toString();
+        String sortBy = (String) sortComboBox.getSelectedItem();
+        String dateRange = (String) timeFilterComboBox.getSelectedItem();
+        String comparison = (String) activityFilterComboBox.getSelectedItem();
         String compareTo = activityCountField.getText();
     
-        if (!isValidNonNegativeInteger(compareTo)) {
+        // Validate activity count input
+        if (compareTo != null && !compareTo.trim().isEmpty() && !isValidNonNegativeInteger(compareTo)) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid non-negative integer for activity count.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        loadDataFromDatabase(sortBy, time, comparison, compareTo, username);
+    
+        // Load data from database with filters
+        loadDataFromDatabase(sortBy, dateRange, comparison, compareTo, username);
     }
     
     private boolean isValidNonNegativeInteger(String input) {

@@ -180,7 +180,7 @@ public class SpamReportManagement extends JPanel {
         // Base query
         String query = """
                 SELECT u.UserID, u.Username, rp.UserID AS ReporterID, sp.ReportTime, sp.Reason, u.Access
-                FROM SpamReports sp
+                FROM spam_reports sp
                 INNER JOIN Users u ON u.UserID = sp.UserID
                 INNER JOIN Users rp ON rp.UserID = sp.ReportedBy
                 WHERE 1=1
@@ -259,7 +259,7 @@ public class SpamReportManagement extends JPanel {
         // Base query
         String query = """
                 SELECT u.UserID, u.Username, rp.UserID AS ReporterID, sp.ReportTime, sp.Reason, u.Access
-                FROM SpamReports sp
+                FROM spam_reports sp
                 INNER JOIN Users u ON u.UserID = sp.UserID
                 INNER JOIN Users rp ON rp.UserID = sp.ReportedBy
                 ORDER BY sp.ReportTime DESC;
