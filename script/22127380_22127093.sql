@@ -152,7 +152,6 @@ CREATE TABLE spam_reports (
 CREATE TABLE user_activities (
     ActivityID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã hoạt động
     UserID INT NOT NULL,  -- Mã người dùng
-    ActivityType VARCHAR(50),  -- Loại hoạt động (Login, Message, ...)
     LoginTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian đăng nhập
     LogoutTime TIMESTAMP NULL,  -- Thời gian đăng xuất (nếu có)
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
@@ -169,3 +168,46 @@ CREATE TABLE chat_history (
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
     FOREIGN KEY (GroupID) REFERENCES group_info(GroupID)
 );
+
+-- Tạo dữ liệu giả cho bảng administrators
+INSERT INTO administrators (UserID) VALUES
+(1), (2);
+
+-- Tạo dữ liệu giả cho bảng group_info
+INSERT INTO group_info (GroupName, AdminID) VALUES
+('Nhóm IT', 1),
+('Nhóm Sách', 2),
+('Nhóm Du Lịch', 3);
+
+-- Tạo dữ liệu giả cho bảng group_members
+INSERT INTO group_members (GroupID, UserID, IsAdmin) VALUES
+(1, 1, TRUE), (1, 2, FALSE), (1, 3, FALSE), (1, 4, FALSE),
+(2, 2, TRUE), (2, 5, FALSE), (2, 6, FALSE),
+(3, 3, TRUE), (3, 7, FALSE), (3, 8, FALSE), (3, 9, FALSE);
+
+-- Tạo dữ liệu giả cho bảng group_messages
+INSERT INTO group_messages (GroupID, SenderID, Content) VALUES
+(1, 1, 'Chào mừng mọi người đến với nhóm IT!'),
+(1, 2, 'Cảm ơn admin!'),
+(2, 2, 'Ai có sách nào hay giới thiệu nhé!'),
+(2, 5, 'Tôi mới đọc xong một quyển rất hay.'),
+(3, 3, 'Chuyến du lịch tháng tới mọi người sắp xếp nhé.');
+
+-- Tạo dữ liệu giả cho bảng spam_reports
+INSERT INTO spam_reports (UserID, ReportedBy, Reason) VALUES
+(1, 3, 'Spam tin nhắn không cần thiết.'),
+(2, 4, 'Quảng cáo liên tục trong nhóm.');
+
+-- Tạo dữ liệu giả cho bảng user_activities
+INSERT INTO user_activities (UserID, LoginTime, LogoutTime) VALUES
+(1, '2024-12-06 08:00:00', '2024-12-06 10:00:00'),
+(2, '2024-12-06 09:00:00', NULL),
+(3, '2024-12-06 08:30:00', '2024-12-06 09:30:00'),
+(4, '2024-12-06 10:00:00', NULL);
+
+-- Tạo dữ liệu giả cho bảng chat_history
+INSERT INTO chat_history (UserID, GroupID, MessageContent, IsGroupMessage) VALUES
+(1, NULL, 'Hello! Bạn đang làm gì vậy?', FALSE),
+(2, 1, 'Mọi người đã chuẩn bị bài tập nhóm chưa?', TRUE),
+(3, 2, 'Tôi đang tìm hiểu sách cho chủ đề tuần này.', TRUE),
+(4, 3, 'Hẹn gặp mọi người ở điểm tập trung nhé.', TRUE);
