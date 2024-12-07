@@ -72,7 +72,7 @@ public class LoginManagement extends JPanel {
         add(headerPanel, BorderLayout.NORTH); // Add header to frame
 
         // Table for Login History
-        tableModel = new DefaultTableModel(new Object[]{"Login Time", "Logout Time", "Activity Type"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"Username", "Login Time", "Logout Time"}, 0);
         historyLoginTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(historyLoginTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -115,8 +115,8 @@ public class LoginManagement extends JPanel {
         tableModel.setRowCount(0); // Clear existing data
         for (LoginHistoryDTO history : loginHistories) {
             tableModel.addRow(new Object[]{
+                history.getUsername(),
                 history.getLoginTime(),
-                history.getLogoutTime(),
                 history.getLogoutTime()
             });
         }

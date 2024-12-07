@@ -36,10 +36,11 @@ public class LoginHistoryDAO {
 
     public List<LoginHistoryDTO> getUserLoginHistory(int userId) {
         String query = """
-                SELECT LoginTime, LogoutTime, ActivityType
-                FROM user_activities
-                WHERE UserID = ?
-                ORDER BY LoginTime DESC
+                SELECT u.username, ua.LoginTime, ua.LogoutTime
+                FROM user_activities ua
+                Join Users u ON u.UserId = ua.UserId
+                WHERE ua.UserID = ?
+                ORDER BY ua.LoginTime DESC
                 """;
         List<LoginHistoryDTO> loginHistories = new ArrayList<>();
 
@@ -51,9 +52,9 @@ public class LoginHistoryDAO {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     LoginHistoryDTO history = new LoginHistoryDTO();
+                    history.setUsername(resultSet.getString("username"));
                     history.setLoginTime(resultSet.getString("LoginTime"));
                     history.setLogoutTime(resultSet.getString("LogoutTime"));
-                    history.setActivityType(resultSet.getString("ActivityType"));
                     loginHistories.add(history);
                 }
             }

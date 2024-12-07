@@ -1,3 +1,5 @@
+import components.admin.*;
+
 import java.awt.*;
 import java.time.LocalDate;
 import javax.swing.*;
@@ -9,8 +11,10 @@ public class NewRegistrationChartView extends JPanel {
     private JButton backButton;
     private ChartPanel chartPanel; // Declare chartPanel at class level
     private int[] userCounts; // Declare userCounts as an instance variable
+    private AdminUserBUS adminUserBUS;
 
     public NewRegistrationChartView() {
+        adminUserBUS = new AdminUserBUS();
         // Main window setup
         setLayout(new BorderLayout());
 
@@ -52,7 +56,7 @@ public class NewRegistrationChartView extends JPanel {
         // Fetch initial data for the current year
         String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        userCounts = ChartDataFetcher.fetchUserCountsByMonth(defaultYear); // Initialize userCounts
+        userCounts = adminUserBUS.getUserCountsByMonth(defaultYear); // Initialize userCounts
 
         // Initialize the ChartPanel with fetched data
         chartPanel = new ChartPanel(userCounts, months);
@@ -65,7 +69,7 @@ public class NewRegistrationChartView extends JPanel {
                 int year = Integer.parseInt(yearText);
 
                 // Fetch new data for the selected year
-                userCounts = ChartDataFetcher.fetchUserCountsByMonth(year);
+                userCounts =  adminUserBUS.getUserCountsByMonth(year);
 
                 // Update chart data and repaint
                 chartPanel.setData(userCounts, months); // Update data and repaint the chart

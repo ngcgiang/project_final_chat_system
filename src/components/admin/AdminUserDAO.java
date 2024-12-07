@@ -25,7 +25,8 @@ public class AdminUserDAO {
                     resultSet.getDate("DateOfBirth"),
                     resultSet.getString("Gender"),
                     resultSet.getString("Email"),
-                    resultSet.getString("Status")
+                    resultSet.getString("Status"),
+                    resultSet.getTimestamp("createdAt")
                 );
                 userList.add(user);
             }
@@ -75,6 +76,102 @@ public class AdminUserDAO {
         return userList;
     }
 
+    public List<AdminUserDTO> loadNewUserData(String sortBy, String time, String username) {
+        List<AdminUserDTO> newUserList = new ArrayList<>();
+        StringBuilder query = new StringBuilder("""
+                SELECT u.UserID, u.Username, u.CreatedAt
+                FROM Users u
+                WHERE 1=1
+            """);
+    
+        // Append WHERE clause for username search
+        if (username != null && !username.isEmpty()) {
+            query.append(" AND u.Username LIKE ?");
+        }
+    
+        // Append WHERE clause for time filter
+        if (time != null) {
+            switch (time) {
+                case "Today" -> query.append(" AND u.CreatedAt >= CURDATE()");
+                case "Last 7 Days" -> query.append(" AND u.CreatedAt >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
+                case "Last 30 Days" -> query.append(" AND u.CreatedAt >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+                case "All" -> { /* No additional condition */ }
+                default -> throw new IllegalArgumentException("Invalid time value: " + time);
+            }
+        }
+    
+        // Append ORDER BY clause for sorting
+        if (sortBy != null && !sortBy.isEmpty()) {
+            switch (sortBy) {
+                case "Registration time" -> query.append(" ORDER BY u.CreatedAt DESC");
+                case "Username" -> query.append(" ORDER BY u.Username");
+                default -> throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
+            }
+        }
+    
+        try (Connection conn = new DbConnection().getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(query.toString())) {
+    
+            // Set parameters for username search
+            int paramIndex = 1;
+            if (username != null && !username.isEmpty()) {
+                preparedStatement.setString(paramIndex++, "%" + username + "%");
+            }
+    
+            // Execute query and fetch results
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    AdminUserDTO user = new AdminUserDTO();
+                    user.setUserId(resultSet.getInt("UserID"));
+                    user.setUsername(resultSet.getString("Username"));
+                    user.setCreatedAt(resultSet.getTimestamp("CreatedAt"));
+                    newUserList.add(user);
+                }
+            }
+    
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    
+        return newUserList;
+    }
+
+    public int[] fetchUserCountsByMonth(int year) {
+        String query = """
+                SELECT MONTH(CreatedAt) AS Month, COUNT(UserID) AS NewRegistrations
+                FROM Users
+                WHERE YEAR(CreatedAt) = ?
+                GROUP BY MONTH(CreatedAt)
+                ORDER BY Month ASC
+            """;
+    
+        int[] userCounts = new int[12]; // Mặc định có 12 tháng (0-11 cho các tháng), khởi tạo giá trị 0
+    
+        try (Connection conn = new DbConnection().getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+    
+            // Set parameter cho năm cần thống kê
+            preparedStatement.setInt(1, year);
+    
+            // Thực thi câu truy vấn
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                // Xử lý kết quả trả về
+                while (rs.next()) {
+                    int month = rs.getInt("Month"); // Lấy tháng (1-12)
+                    int count = rs.getInt("NewRegistrations"); // Lấy số lượng đăng ký mới
+                    userCounts[month - 1] = count; // Đưa giá trị vào mảng, chuyển về chỉ số (0-11)
+                }
+            }
+    
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Nếu có log, có thể thêm ghi log thay vì chỉ in lỗi ra console
+        }
+    
+        return userCounts;
+    }
+    
+    
     public boolean updateUser(AdminUserDTO user) {
         String query = "UPDATE Users SET FullName = ?, Address = ?, DateOfBirth = ?, " +
                        "Gender = ?, Email = ?, Status = ? WHERE UserID = ?";
@@ -161,4 +258,6 @@ public class AdminUserDAO {
             return false;
         }
     }
+
+
 }

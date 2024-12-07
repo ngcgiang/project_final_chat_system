@@ -1,5 +1,6 @@
 package components.admin;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class AdminUserDTO {
@@ -12,6 +13,7 @@ public class AdminUserDTO {
     private String email;
     private String status;
     private String access;
+    private Timestamp createdAt;
 
     // Default constructor
     public AdminUserDTO() {
@@ -24,11 +26,13 @@ public class AdminUserDTO {
         this.email = "";
         this.status = "";
         this.access = "yes";
+        this.access = "";
+        this.createdAt = null;
     }
 
     // Constructor
     public AdminUserDTO(int userId, String username, String fullName, String address, 
-                        Date dateOfBirth, String gender, String email, String status) {
+                        Date dateOfBirth, String gender, String email, String status, Timestamp createdAt) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -37,6 +41,7 @@ public class AdminUserDTO {
         this.gender = gender;
         this.email = email;
         this.status = status;
+        this.createdAt = createdAt;
     }
 
     // Getters and setters
@@ -112,4 +117,13 @@ public class AdminUserDTO {
     public void setAccess(String access) {
         this.access = access;
     }
+
+    public Timestamp getCreatedAt(){
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt){
+        this.createdAt = createdAt;
+    }
 }
+

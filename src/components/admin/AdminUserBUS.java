@@ -17,6 +17,10 @@ public class AdminUserBUS {
         return userDAO.reloadUserData(searchValue, filterColumn);
     }
 
+    public List<AdminUserDTO> getNewUsers(String sortBy, String time, String username){
+        return userDAO.loadNewUserData(sortBy, time, username);
+    }
+
     public boolean updateUser(AdminUserDTO user) {
         // Business logic, e.g., validation, can be added here
         if (user.getFullName() == null || user.getFullName().isEmpty()) {
@@ -24,6 +28,10 @@ public class AdminUserBUS {
         }
         return userDAO.updateUser(user);
     }
+
+    public int[] getUserCountsByMonth(int year) {
+        return userDAO.fetchUserCountsByMonth(year);
+    }    
 
     public boolean deleteUser(int userId) {
         // Add additional checks if needed

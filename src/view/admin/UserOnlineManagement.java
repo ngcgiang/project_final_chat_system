@@ -1,6 +1,8 @@
+import components.admin.user_activity.*;
+
 import java.awt.*;
-import java.sql.*;
 import javax.swing.*;
+import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 public class UserOnlineManagement extends JPanel {
@@ -15,8 +17,10 @@ public class UserOnlineManagement extends JPanel {
     private JButton backButton;
     private JButton showChartButton;
     private JFrame parentFrame;
+    private UserActivityBUS userActivityBUS;
 
     public UserOnlineManagement(JFrame parentFrame) {
+        userActivityBUS = new UserActivityBUS();
         this.parentFrame = parentFrame; // Lưu tham chiếu đến JFrame cha
         initComponents();
     }
@@ -101,174 +105,29 @@ public class UserOnlineManagement extends JPanel {
         activityCountField.addActionListener(e -> applyFilters());
         usernameFilterField.addActionListener(e -> applyFilters());
 
-        loadDataFromDatabase();
+        applyFilterButton.addActionListener(e -> applyFilters());
 
-    }
+        String usernameDef = null;
+        String sortByDef = "Date Creation";
+        String dateRangeDef = "All";
+        String comparisonDef = "Equal to";
+        String compareToDef = null;
+        loadDataFromDatabase(sortByDef, dateRangeDef, comparisonDef, compareToDef, usernameDef);
 
-    private void loadDataFromDatabase() {
-        // Base query
-        String query = """
-            SELECT 
-                u.UserID,
-                u.Username,
-                COUNT(DISTINCT ua.ActivityID) AS SessionsCount,
-                COUNT(DISTINCT m.ReceiverID) AS UniqueUsersMessaged,
-                COUNT(DISTINCT gm.GroupID) AS UniqueGroupsMessaged,
-                u.CreatedAt
-            FROM 
-                users u
-            LEFT JOIN user_activities ua 
-                ON u.UserID = ua.UserID
-            LEFT JOIN messages m 
-                ON u.UserID = m.SenderID
-            LEFT JOIN group_messages gm 
-                ON u.UserID = gm.SenderID
-            GROUP BY 
-                u.UserID, u.Username
-            ORDER BY 
-                u.UserID;
-        """;
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userID = resultSet.getInt("UserID");
-                String username = resultSet.getString("Username");
-                int sessionsCount = resultSet.getInt("SessionsCount");
-                int uniqueUsersMessaged = resultSet.getInt("UniqueUsersMessaged");
-                int uniqueGroupsMessaged = resultSet.getInt("UniqueGroupsMessaged");
-                java.util.Date createdAt = resultSet.getDate("CreatedAt");
-
-                tableModel.addRow(new Object[]{userID, username, sessionsCount, uniqueUsersMessaged, uniqueGroupsMessaged, createdAt});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private void loadDataFromDatabase(String sortBy, String dateRange, String comparison, String compareTo, String username) {
-        // Base query
-        StringBuilder query = new StringBuilder("""
-            SELECT 
-                u.UserID, 
-                u.UserName, 
-                COUNT(DISTINCT DATE(ua.LoginTime)) AS SessionsCount, 
-                COUNT(DISTINCT m.ReceiverID) AS UniqueUsersMessaged,
-                COUNT(DISTINCT gm.GroupID) AS UniqueGroupsMessaged,
-                DATE(u.CreatedAt) AS CreatedAt
-            FROM 
-                Users u
-            LEFT JOIN 
-                user_activities ua ON u.UserID = ua.UserID
-            LEFT JOIN 
-                Messages m ON u.UserID = m.SenderID
-            LEFT JOIN 
-                group_messages gm ON u.UserID = gm.SenderID
-            WHERE 1=1
-        """);
-    
-        // Dynamically adding WHERE clauses based on parameters
-        if (username != null && !username.trim().isEmpty()) {
-            query.append(" AND u.UserName LIKE ?");
-        }
-    
-        // Filter by date range
-        switch (dateRange) {
-            case "Today":
-                query.append(" AND ua.LoginTime >= CURDATE()");
-                break;
-            case "Last 7 Days":
-                query.append(" AND ua.LoginTime >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
-                break;
-            case "Last 30 Days":
-                query.append(" AND ua.LoginTime >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
-                break;
-            case "All":
-            default:
-                break;
-        }
-    
-        // Add GROUP BY clause
-        query.append(" GROUP BY u.UserID, u.UserName");
-    
-        // Add HAVING clause for session count comparison
-        if (comparison != null && !comparison.trim().isEmpty() && compareTo != null && !compareTo.trim().isEmpty()) {
-            query.append(" HAVING SessionsCount ");
-            switch (comparison) {
-                case "Equal to":
-                    query.append("= ?");
-                    break;
-                case "Greater than":
-                    query.append("> ?");
-                    break;
-                case "Less than":
-                    query.append("< ?");
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid comparison operator: " + comparison);
-            }
-        }
-    
-        // Add ORDER BY clause
-        if (sortBy != null && !sortBy.trim().isEmpty()) {
-            switch (sortBy) {
-                case "Date Creation":
-                    query.append(" ORDER BY CreatedAt DESC");
-                    break;
-                case "Username":
-                    query.append(" ORDER BY u.UserName ASC");
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
-            }
-        }
-    
-        // Execute query
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query.toString())) {
-    
-            int paramIndex = 1;
-    
-            // Set username parameter if provided
-            if (username != null && !username.trim().isEmpty()) {
-                preparedStatement.setString(paramIndex++, "%" + username.trim() + "%");
-            }
-    
-            // Set session count comparison parameter
-            if (comparison != null && !comparison.trim().isEmpty() && compareTo != null && !compareTo.trim().isEmpty()) {
-                preparedStatement.setInt(paramIndex++, Integer.parseInt(compareTo.trim()));
-            }
-    
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userID = resultSet.getInt("UserID");
-                String userName = resultSet.getString("UserName");
-                int sessionsCount = resultSet.getInt("SessionsCount");
-                int uniqueUsersMessaged = resultSet.getInt("UniqueUsersMessaged");
-                int uniqueGroupsMessaged = resultSet.getInt("UniqueGroupsMessaged");
-                java.util.Date createdAt = resultSet.getDate("CreatedAt");
-    
-                tableModel.addRow(new Object[]{userID, userName, sessionsCount, uniqueUsersMessaged, uniqueGroupsMessaged, createdAt});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        List<UserActivityDTO> activities = userActivityBUS.getUserActivities(sortBy, dateRange, comparison, compareTo, username);
+        tableModel.setRowCount(0);
+        for (UserActivityDTO activity : activities) {
+            tableModel.addRow(new Object[]{
+                activity.getUserID(),
+                activity.getUserName(),
+                activity.getSessionsCount(),
+                activity.getUniqueUsersMessaged(),
+                activity.getUniqueGroupsMessaged(),
+                activity.getCreatedAt()
+            });
         }
     }
     

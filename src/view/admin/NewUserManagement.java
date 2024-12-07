@@ -1,7 +1,9 @@
 import java.awt.*;
-import java.sql.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
+
+import components.admin.*;
 
 public class NewUserManagement extends JPanel {
     private JTable userTable;
@@ -13,8 +15,11 @@ public class NewUserManagement extends JPanel {
     private JButton showChartButton;
     private JButton backButton;
     private JFrame parentFrame;
+    private AdminUserBUS adminUserBUS;
 
     public NewUserManagement(JFrame parentFrame) {
+        adminUserBUS = new AdminUserBUS();
+
         this.parentFrame = parentFrame; // Lưu tham chiếu đến JFrame cha
         initComponents();
     }
@@ -49,7 +54,7 @@ public class NewUserManagement extends JPanel {
 
         // Filter by Username
         nameFilterField = new JTextField(15);
-        filterSortPanel.add(new JLabel("Filter by Username:"));
+        filterSortPanel.add(new JLabel("Search by Username:"));
         filterSortPanel.add(nameFilterField);
 
         // Apply Filter Button
@@ -115,112 +120,22 @@ public class NewUserManagement extends JPanel {
             loadDataFromDatabase(sortBy, time, username);
         });
 
-        loadDataFromDatabase();
+        String usernameDef = null;
+        String sortByDef = "Registration time";
+        String timeDef = "All";
+
+        loadDataFromDatabase(sortByDef, timeDef, usernameDef);
     }
 
     private void loadDataFromDatabase(String sortBy, String time, String username) {
-        // Base query
-        String query = """
-                SELECT u.UserID, u.Username, u.CreatedAt
-                FROM Users u
-                WHERE 1=1
-            """;
-    
-        // Append WHERE clause for username search
-        if (username != null && !username.isEmpty()) {
-            query += " AND u.Username LIKE ?";
-        }
-    
-        // Append WHERE clause for time filter
-        switch (time) {
-            case "Today":
-                query += " AND u.CreatedAt >= CURDATE()";
-                break;
-            case "Last 7 Days":
-                query += " AND u.CreatedAt >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
-                break;
-            case "Last 30 Days":
-                query += " AND u.CreatedAt >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
-                break;
-            case "All":
-            default:
-                // No additional condition for "All"
-                break;
-        }
-    
-        // Append ORDER BY clause for sorting
-        if (sortBy != null && !sortBy.isEmpty()) {
-            switch (sortBy) {
-                case "Registration time":
-                    query += " ORDER BY u.CreatedAt DESC";
-                    break;
-                case "Username":
-                    query += " ORDER BY u.Username";
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
-            }
-        }
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-    
-            // Set parameters for username search
-            int paramIndex = 1;
-            if (username != null && !username.isEmpty()) {
-                preparedStatement.setString(paramIndex++, "%" + username + "%");
-            }
-    
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userID = resultSet.getInt("UserID");
-                String userName = resultSet.getString("Username");
-                Timestamp createdAt = resultSet.getTimestamp("CreatedAt");
-
-                tableModel.addRow(new Object[]{userID, userName, createdAt});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void loadDataFromDatabase() {
-        // Base query
-        String query = """
-                SELECT u.UserID, u.Username, u.CreatedAt
-                FROM Users u
-                ORDER BY u.CreatedAt DESC;
-            """;
-    
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-            // Execute query and fetch results
-            ResultSet resultSet = preparedStatement.executeQuery();
-    
-            // Clear the table before adding new data
-            tableModel.setRowCount(0);
-    
-            // Populate table with data from ResultSet
-            while (resultSet.next()) {
-                int userID = resultSet.getInt("UserID");
-                String username = resultSet.getString("Username");
-                Timestamp createdAt = resultSet.getTimestamp("CreatedAt");
-
-                tableModel.addRow(new Object[]{userID, username, createdAt});
-            }
-    
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading data from database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        List<AdminUserDTO> newUserList = adminUserBUS.getNewUsers(sortBy, time, username);
+        tableModel.setRowCount(0);
+        for (AdminUserDTO user : newUserList) {
+            tableModel.addRow(new Object[]{
+                user.getUserId(),
+                user.getUsername(),
+                user.getCreatedAt(),
+            });
         }
     }
 

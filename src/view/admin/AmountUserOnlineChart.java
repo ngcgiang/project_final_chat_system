@@ -1,3 +1,5 @@
+import components.admin.user_activity.*;
+
 import java.awt.*;
 import java.time.LocalDate;
 import javax.swing.*;
@@ -9,8 +11,11 @@ public class AmountUserOnlineChart extends JPanel {
     private JButton backButton;
     private int[] userOnlineCounts; 
     ChartPanel chartPanel;
+    private UserActivityBUS userActivityBUS;
 
     public AmountUserOnlineChart() {
+        userActivityBUS = new UserActivityBUS();
+
         // Main window setup
         setLayout(new BorderLayout());
 
@@ -52,7 +57,7 @@ public class AmountUserOnlineChart extends JPanel {
         // Fetch initial data for the current year
         String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-        userOnlineCounts = ChartDataFetcher.fetchUserOnlineCountsByMonth(defaultYear); 
+        userOnlineCounts = userActivityBUS.getUserOnlineCountsByMonth(defaultYear);
         
         // Initialize the ChartPanel with fetched data
         chartPanel = new ChartPanel(userOnlineCounts, months);
@@ -65,7 +70,7 @@ public class AmountUserOnlineChart extends JPanel {
                 int year = Integer.parseInt(yearText);
 
                 // Fetch new data for the selected year
-                userOnlineCounts = ChartDataFetcher.fetchUserOnlineCountsByMonth(year);
+                userOnlineCounts = userActivityBUS.getUserOnlineCountsByMonth(year);
 
                 // Update chart data and repaint
                 chartPanel.setData(userOnlineCounts, months);// Update data and repaint the chart
