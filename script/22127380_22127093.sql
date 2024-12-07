@@ -52,9 +52,9 @@ CREATE TABLE block_list (
     FOREIGN KEY (BlockerID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (BlockedID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
-INSERT INTO block_list (BlockerID, BlockedID)
-VALUES
-(2, 1), (3, 1);
+-- INSERT INTO block_list (BlockerID, BlockedID)
+-- VALUES
+-- (2, 1), (3, 1);
 
 -- Bảng danh sách bạn bè và trạng thái
 CREATE TABLE friends (
@@ -105,6 +105,19 @@ CREATE TABLE messages (
     FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ReceiverID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+
+-- Bảng các cuộc trò chuyện
+CREATE TABLE conversations (
+    ConversationID INT AUTO_INCREMENT PRIMARY KEY, -- Mã cuộc hội thoại
+    UserID INT NOT NULL,                           -- Mã người dùng
+    FriendID INT NOT NULL,                         -- Mã bạn bè
+    LastMessage TEXT,                              -- Tin nhắn gần nhất
+    LastMessageTime TIMESTAMP,                     -- Thời gian của tin nhắn gần nhất
+    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (FriendID) REFERENCES users(UserID) ON DELETE CASCADE,
+    UNIQUE(UserID, FriendID)                       -- Đảm bảo mỗi cặp UserID-FriendID chỉ có một cuộc hội thoại
+);
+
 
 -- Bảng thông tin nhóm
 CREATE TABLE group_info (

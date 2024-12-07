@@ -3,6 +3,7 @@ package components.user;
 import java.util.Date;
 
 public class UserDTO {
+    private int ID;
     private String username, password, fullName, address;
     private Date dob;
     private String email, phone, gender;
@@ -32,20 +33,16 @@ public class UserDTO {
         this.gender = "";
     }
 
-    // // Full parameterized constructor
-    // public UserDTO(String username, String password, String fullName, String
-    // address, Date dob, String email, String phone, String gender) {
-    // this.username = username;
-    // this.password = password;
-    // this.fullName = fullName;
-    // this.address = address;
-    // this.dob = dob;
-    // this.email = email;
-    // this.phone = phone;
-    // this.gender = gender;
-    // }
-
     // Getter and Setter for username
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
+
     public String getUsername() {
         return username;
     }

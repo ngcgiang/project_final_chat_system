@@ -53,6 +53,13 @@ public class UserDashboard extends JFrame {
         setVisible(true);
     }
 
+    public void switchPanel(String accessFrom, String username, String fullName) {
+        Chat chatGUI = new Chat(username, accessFrom);
+        mainPanel.add(chatGUI.getPanel(), fullName);
+        setTitle(fullName);
+        cardLayout.show(mainPanel, fullName);
+    }
+
     public void switchPanel(String panelName) {
         switch (panelName) {
             case "Login":

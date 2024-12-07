@@ -12,6 +12,10 @@ public class UserBUS {
         this.userDAO = new UserDAO();
     }
 
+    public String getUsernameByID(int userId) {
+        return userDAO.getUsernameById(userId);
+    }
+
     // Thêm nhà cung cấp vào cơ sở dữ liệu
     public Response register(String username, String password, String confirmPassword) {
         // Kiểm tra xem tên đăng nhập đã tồn tại chưa

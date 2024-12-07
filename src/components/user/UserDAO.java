@@ -8,6 +8,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserDAO {
+    public String getUsernameById(int userId) {
+        String query = "SELECT Username FROM users WHERE UserID = ?";
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            stmt.setInt(1, userId); // Đặt giá trị UserID vào câu truy vấn
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Username"); // Trả về Username nếu tìm thấy
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Ghi lại lỗi nếu có
+        }
+        return null; // Trả về null nếu không tìm thấy hoặc có lỗi
+    }
+
     // Phương thức kiểm tra xem username đã tồn tại trong cơ sở dữ liệu chưa
     public boolean checkUsernameExists(String username) {
         String query = "SELECT COUNT(*) FROM users WHERE Username = ?";
@@ -61,7 +78,7 @@ public class UserDAO {
     }
 
     public UserDTO getOne(String username) {
-        String query = "SELECT Password, FullName, Address, Email, Phone, Gender, DateOfBirth FROM users WHERE Username = ?";
+        String query = "SELECT UserID, Username, Password, FullName, Address, Email, Phone, Gender, DateOfBirth FROM users WHERE Username = ?";
         UserDTO user = null;
 
         try (Connection conn = new DbConnection().getConnection();
@@ -76,6 +93,8 @@ public class UserDAO {
                     // Tạo đối tượng UserDTO và ánh xạ dữ liệu từ ResultSet
                     user = new UserDTO();
                     user.setUsername(username);
+                    user.setID(rs.getInt("UserID"));
+                    user.setUsername(rs.getString("Username"));
                     user.setPassword(rs.getString("Password"));
                     user.setFullName(rs.getString("FullName"));
                     user.setAddress(rs.getString("Address"));

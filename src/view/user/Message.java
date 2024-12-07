@@ -1,12 +1,14 @@
 package view.user;
 
+import components.conversation.ConversationBUS;
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
 import java.awt.*;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import components.shared.utils.Utilities;
 
 public class Message {
     private JPanel panel;
@@ -56,7 +58,11 @@ public class Message {
             if (!e.getValueIsAdjusting()) {
                 Conversation selectedConversation = conversationList.getSelectedValue();
                 if (selectedConversation != null) {
-                    openChatWindow(selectedConversation.getFriendName());
+                    Container topLevel = panel.getTopLevelAncestor();
+                    if (topLevel instanceof UserDashboard) {
+                        ((UserDashboard) topLevel).switchPanel("Message", selectedConversation.getFriendUsername(),
+                                selectedConversation.getFriendName());
+                    }
                     conversationList.clearSelection();
                 }
             }
@@ -103,26 +109,14 @@ public class Message {
         }
     }
 
-    // Phương thức để mở cửa sổ chat với bạn bè
-    private void openChatWindow(String friendName) {
-        JFrame chatFrame = new JFrame(friendName);
-        chatFrame.setSize(600, 400);
-        chatFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        chatFrame.setLocationRelativeTo(null);
-
-        Chat chatPanel = new Chat(); // Chat là giao diện chat của bạn
-        chatFrame.add(chatPanel);
-
-        chatFrame.setVisible(true);
-    }
-
     // Thêm dữ liệu mẫu vào danh sách cuộc hội thoại
     private void addSampleConversations() {
-        listModel.addElement(new Conversation("Alice", "Hello! How are you?", "10:45 AM"));
-        listModel.addElement(new Conversation("Bob", "Let's meet up tomorrow.", "Yesterday"));
-        listModel.addElement(new Conversation("Charlie", "Can you send me the files?", "10:10 AM"));
-        listModel.addElement(new Conversation("David", "Good morning!", "2 days ago"));
-        listModel.addElement(new Conversation("Eve", "Happy Birthday!", "3 days ago"));
+        ConversationBUS conversationBUS = new ConversationBUS();
+        ArrayList<Conversation> conversations = conversationBUS
+                .getConversations(CurrentUser.getInstance().getUsername());
+        for (int i = 0; i < conversations.size(); i++) {
+            listModel.addElement(conversations.get(i));
+        }
     }
 
     // Getter cho panel chính
@@ -131,10 +125,18 @@ public class Message {
     }
 
     // Class để lưu thông tin cuộc hội thoại
-    private static class Conversation {
+    public static class Conversation {
+        private String friendUsername;
         private String friendName;
         private String lastMessage;
         private String time;
+
+        public Conversation() {
+            this.friendUsername = "";
+            this.friendName = "";
+            this.lastMessage = "";
+            this.time = "";
+        }
 
         public Conversation(String friendName, String lastMessage, String time) {
             this.friendName = friendName;
@@ -142,12 +144,32 @@ public class Message {
             this.time = time;
         }
 
+        public void setFriendUsername(String friend) {
+            this.friendUsername = friend;
+        }
+
+        public String getFriendUsername() {
+            return friendUsername;
+        }
+
+        public void setFriendName(String friend) {
+            this.friendName = friend;
+        }
+
         public String getFriendName() {
             return friendName;
         }
 
+        public void setLastMessage(String lastMessage) {
+            this.lastMessage = lastMessage;
+        }
+
         public String getLastMessage() {
             return lastMessage;
+        }
+
+        public void setTime(String time) {
+            this.time = time;
         }
 
         public String getTime() {

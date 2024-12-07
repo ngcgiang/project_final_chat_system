@@ -188,18 +188,12 @@ public class FriendList {
                     String friendName = selectedFriends.toString();
                     friendName = friendName.substring(0, friendName.length() - 2); // Loại bỏ dấu phẩy cuối cùng
 
-                    // Tạo JFrame mới cho cửa sổ chat
-                    JFrame chatFrame = new JFrame(friendName);
-                    chatFrame.setSize(600, 400);
-                    chatFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    chatFrame.setLocationRelativeTo(null);
-
-                    // Thêm panel Chat vào JFrame mới
-                    Chat chatPanel = new Chat();
-                    chatFrame.add(chatPanel);
-
-                    // Hiển thị cửa sổ chat
-                    chatFrame.setVisible(true);
+                    // Container topLevel = panel.getTopLevelAncestor();
+                    // if (topLevel instanceof UserDashboard) {
+                    // ((UserDashboard) topLevel).switchPanel("Message",
+                    // selectedConversation.getFriendUsername(),
+                    // selectedConversation.getFriendName());
+                    // }
 
                     // Đóng cửa sổ "Create New Chat Group"
                     createGroupFrame.dispose();
@@ -294,20 +288,13 @@ public class FriendList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            String friendName = (String) tableModel.getValueAt(modelRow, 0); // Get the friend's name
+            String friendUsername = (String) tableModel.getValueAt(modelRow, 0); // Get the friend's name
+            String friendName = (String) tableModel.getValueAt(modelRow, 1);
 
-            // Create a new JFrame for the chat window
-            JFrame chatFrame = new JFrame(friendName);
-            chatFrame.setSize(600, 400);
-            chatFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            chatFrame.setLocationRelativeTo(null);
-
-            // Add the Chat panel to the new frame
-            Chat chatPanel = new Chat();
-            chatFrame.add(chatPanel);
-
-            // Show the new chat window
-            chatFrame.setVisible(true);
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel("Friend List", friendUsername, friendName);
+            }
 
             // Stop editing the cell
             fireEditingStopped();

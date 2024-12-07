@@ -1,7 +1,14 @@
 package view.user;
 
+import components.conversation.ConversationBUS;
+import components.message.*;
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
+import components.user.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,22 +16,21 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-import components.shared.utils.Utilities;
-
 public class Chat extends JPanel {
+    private JPanel panel;
     private JTextArea txtChat;
     private JTextField txtInput;
-    private JButton btnSend, btnClearHistory, btnDeleteSelected, btnSearchChat;
-    private ArrayList<String> chatHistory;
+    private JButton btnSend, btnClearHistory, btnDeleteSelected, btnSearchChat, btnBack;
+    private ArrayList<MessageDTO> chatHistory;
 
     // Các thành phần quản lý nhóm
     private JTextField txtGroupName;
     private JButton btnRenameGroup, btnAddMember, btnAssignAdmin, btnRemoveMember;
     private String currentGroupName = "Chat Group"; // Tên nhóm ban đầu
 
-    public Chat() {
-        chatHistory = new ArrayList<>();
-        setLayout(new BorderLayout());
+    public Chat(String receiver, String accessFrom) {
+        panel = new JPanel();
+        panel.setLayout(new BorderLayout());
 
         // Thiết lập phông chữ cho toàn bộ chat
         Font chatFont = new Font("Segoe UI", Font.PLAIN, 14);
@@ -36,26 +42,33 @@ public class Chat extends JPanel {
         txtChat.setWrapStyleWord(true);
         txtChat.setFont(chatFont);
         JScrollPane scrollPane = new JScrollPane(txtChat);
-        add(scrollPane, BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Load messages
+        MessageBUS messageBUS = new MessageBUS();
+        chatHistory = messageBUS.getMessages(CurrentUser.getInstance().getUsername(), receiver);
+        loadMessages(chatHistory, receiver);
 
         // Khu vực nhập tin nhắn và nút gửi
         JPanel inputPanel = new JPanel(new BorderLayout());
         txtInput = new JTextField();
-        txtInput.setFont(new Font("Segoe UI", Font.PLAIN, 12)); // Phông chữ cho ô nhập tin nhắn
+        txtInput.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         btnSend = Utilities.createButton("Send");
-        btnClearHistory = Utilities.createButton("Clear History");
-        btnDeleteSelected = Utilities.createButton("Delete Selected Messages");
-        btnSearchChat = Utilities.createButton("Search in Chat");
+        txtInput.setPreferredSize(new Dimension(400, 30)); // Kích thước ô nhập tin nhắn
+        btnSend.setPreferredSize(new Dimension(140, 30)); // Kích thước nút "Send"
 
         inputPanel.add(txtInput, BorderLayout.CENTER);
         inputPanel.add(btnSend, BorderLayout.EAST);
-        add(inputPanel, BorderLayout.SOUTH);
+        panel.add(inputPanel, BorderLayout.SOUTH);
 
+        btnClearHistory = Utilities.createButton("Clear History");
+        btnDeleteSelected = Utilities.createButton("Delete Selected Messages");
+        btnSearchChat = Utilities.createButton("Search in Chat");
         JPanel optionsPanel = new JPanel();
         optionsPanel.add(btnClearHistory);
         optionsPanel.add(btnDeleteSelected);
         optionsPanel.add(btnSearchChat);
-        add(optionsPanel, BorderLayout.NORTH);
+        panel.add(optionsPanel, BorderLayout.NORTH);
 
         // Thiết lập phông chữ cho các nút
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
@@ -65,15 +78,25 @@ public class Chat extends JPanel {
         btnSearchChat.setFont(buttonFont);
 
         // Thêm khung quản lý nhóm ở bên phải
-        add(createGroupManagementPanel(), BorderLayout.EAST);
+        panel.add(createGroupManagementPanel(), BorderLayout.EAST);
 
         // Hành động gửi tin nhắn
-        btnSend.addActionListener(e -> sendMessage());
+        btnSend.addActionListener(e -> {
+            try {
+                sendMessage(receiver);
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+            }
+        });
         txtInput.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    sendMessage();
+                    try {
+                        sendMessage(receiver);
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -82,10 +105,17 @@ public class Chat extends JPanel {
         btnClearHistory.addActionListener(e -> clearChatHistory());
 
         // Xoá các dòng đã chọn trong lịch sử
-        btnDeleteSelected.addActionListener(e -> deleteSelectedMessages());
+        // btnDeleteSelected.addActionListener(e -> deleteSelectedMessages());
 
         // Tìm kiếm chuỗi trong lịch sử chat với một người
         btnSearchChat.addActionListener(e -> searchInChat());
+
+        btnBack.addActionListener(e -> {
+            Container topLevel = panel.getTopLevelAncestor();
+            if (topLevel instanceof UserDashboard) {
+                ((UserDashboard) topLevel).switchPanel(accessFrom);
+            }
+        });
     }
 
     private JPanel createGroupManagementPanel() {
@@ -110,12 +140,17 @@ public class Chat extends JPanel {
         btnRemoveMember = Utilities.createButton("Remove Member");
         btnRemoveMember.addActionListener(e -> removeMember());
 
+        btnBack = Utilities.createButton("Back");
+        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        backPanel.add(btnBack);
+
         // Thêm các thành phần vào panel quản lý nhóm
         groupPanel.add(btnRenameGroup);
         groupPanel.add(txtGroupName);
         groupPanel.add(btnAddMember);
         groupPanel.add(btnAssignAdmin);
         groupPanel.add(btnRemoveMember);
+        groupPanel.add(backPanel, BorderLayout.SOUTH);
 
         return groupPanel;
     }
@@ -168,15 +203,45 @@ public class Chat extends JPanel {
         }
     }
 
-    private void sendMessage() {
-        String message = txtInput.getText();
-        if (!message.trim().isEmpty()) {
-            String timeStamp = new SimpleDateFormat("HH:mm").format(new Date());
-            String displayMessage = "Me: " + message + "     [" + timeStamp + "]";
+    private void loadMessages(ArrayList<MessageDTO> chatHistory, String receiver) {
+        UserBUS userBUS = new UserBUS();
+        UserDTO user1 = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername());
+        UserDTO user2 = userBUS.getAccountInfo(receiver);
+        for (int i = 0; i < chatHistory.size(); i++) {
+            String displayText = "";
+            displayText += chatHistory.get(i).getSenderID() == user1.getID() ? user1.getFullName()
+                    : user2.getFullName();
+            displayText += ": " + chatHistory.get(i).getContent();
+            displayText += "     [" + chatHistory.get(i).getSentAt() + "]";
+            txtChat.append(displayText + '\n');
+        }
+    }
+
+    private void sendMessage(String receiver) throws ParseException {
+        String content = txtInput.getText();
+        if (!content.trim().isEmpty()) {
+            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+
+            UserBUS userBUS = new UserBUS();
+            UserDTO user1 = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername());
+            UserDTO user2 = userBUS.getAccountInfo(receiver);
+
+            String displayMessage = user1.getFullName() + ": " + content + "     [" + timeStamp + "]";
             txtChat.append(displayMessage + "\n");
-            chatHistory.add(displayMessage); // Lưu vào lịch sử chat
+
+            Timestamp sendAt = new Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(timeStamp).getTime());
+            MessageDTO message = new MessageDTO(0, user1.getID(), user2.getID(), content, sendAt);
+
+            chatHistory.add(message);
             txtInput.setText("");
             txtChat.setCaretPosition(txtChat.getDocument().getLength());
+
+            String sender = CurrentUser.getInstance().getUsername();
+            MessageBUS messageBUS = new MessageBUS();
+            messageBUS.saveMessage(sender, receiver, content);
+
+            ConversationBUS conversationBUS = new ConversationBUS();
+            conversationBUS.addOrUpdateConversation(sender, receiver, content);
         }
     }
 
@@ -186,16 +251,16 @@ public class Chat extends JPanel {
         JOptionPane.showMessageDialog(this, "Chat history cleared.");
     }
 
-    private void deleteSelectedMessages() {
-        String selectedText = txtChat.getSelectedText();
-        if (selectedText != null && !selectedText.isEmpty()) {
-            txtChat.setText(txtChat.getText().replace(selectedText, ""));
-            chatHistory.removeIf(line -> line.contains(selectedText));
-            JOptionPane.showMessageDialog(this, "Selected messages deleted.");
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select text to delete.");
-        }
-    }
+    // private void deleteSelectedMessages() {
+    // String selectedText = txtChat.getSelectedText();
+    // if (selectedText != null && !selectedText.isEmpty()) {
+    // txtChat.setText(txtChat.getText().replace(selectedText, ""));
+    // chatHistory.removeIf(line -> line.contains(selectedText));
+    // JOptionPane.showMessageDialog(this, "Selected messages deleted.");
+    // } else {
+    // JOptionPane.showMessageDialog(this, "Please select text to delete.");
+    // }
+    // }
 
     private void searchInChat() {
         String searchQuery = JOptionPane.showInputDialog(this, "Enter text to search:");
@@ -215,5 +280,9 @@ public class Chat extends JPanel {
                 }
             }
         }
+    }
+
+    public JPanel getPanel() {
+        return panel;
     }
 }
