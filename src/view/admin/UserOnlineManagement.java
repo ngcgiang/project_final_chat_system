@@ -1,3 +1,5 @@
+package view.admin;
+
 import components.admin.user_activity.*;
 
 import java.awt.*;

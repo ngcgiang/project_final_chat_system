@@ -1,3 +1,5 @@
+package view.admin;
+
 import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -123,8 +125,9 @@ public class AdminDashboard extends JFrame {
         revalidate();
         repaint();
     }
-
+     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new AdminDashboard());
     }
+
 }

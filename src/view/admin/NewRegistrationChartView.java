@@ -1,3 +1,5 @@
+package view.admin;
+
 import components.admin.*;
 
 import java.awt.*;

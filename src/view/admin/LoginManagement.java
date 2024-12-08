@@ -1,3 +1,5 @@
+package view.admin;
+
 import components.admin.login_history.*;
 
 import javax.swing.*;

@@ -1,4 +1,6 @@
-import components.admin.spam_reports.*;
+package view.admin;
+
+mport components.admin.spam_reports.*;
 
 import java.awt.*;
 import javax.swing.*;
