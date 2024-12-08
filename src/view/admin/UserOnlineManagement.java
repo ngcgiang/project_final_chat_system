@@ -140,7 +140,6 @@ public class UserOnlineManagement extends JPanel {
     
         // Validate activity count input
         if (compareTo != null && !compareTo.trim().isEmpty() && !isValidNonNegativeInteger(compareTo)) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid non-negative integer for activity count.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
             return;
         }
     
