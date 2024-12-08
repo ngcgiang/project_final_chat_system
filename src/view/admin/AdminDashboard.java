@@ -1,8 +1,8 @@
 import java.awt.*;
-import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
+
 
 public class AdminDashboard extends JFrame {
     private JPanel headerPanel;
@@ -22,12 +22,6 @@ public class AdminDashboard extends JFrame {
         // Logo web
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setBackground(Color.LIGHT_GRAY);
-
-        // Logo web
-        ImageIcon webLogoIcon = new ImageIcon("..\\img\\webLogo.jpg");
-        Image scaledWebLogo = webLogoIcon.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
-        JLabel webLogoLabel = new JLabel(new ImageIcon(scaledWebLogo)); // Tạo JLabel từ ImageIcon đã chỉnh kích thước
-        leftPanel.add(webLogoLabel);
 
         // Date
         JLabel dateLabel = new JLabel(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
@@ -143,13 +137,6 @@ public class AdminDashboard extends JFrame {
     }
 
     public static void main(String[] args) {
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            if (connection != null) {
-                System.out.println("Database connection successful!");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         SwingUtilities.invokeLater(() -> new AdminDashboard());
     }
 }

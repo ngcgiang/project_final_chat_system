@@ -130,11 +130,10 @@ CREATE TABLE group_info (
 
 -- Bảng thành viên nhóm
 CREATE TABLE group_members (
-    MemberID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã thành viên
-    GroupID INT NOT NULL,  -- Mã nhóm
-    UserID INT NOT NULL,  -- Mã người dùng
-    IsAdmin BOOLEAN DEFAULT FALSE,  -- Quản trị viên nhóm
+    GroupID INT NOT NULL,                  -- Mã nhóm
+    UserID INT NOT NULL,                  -- Mã người dùng
     AddedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tham gia nhóm
+    PRIMARY KEY (GroupID, UserID),        -- Đặt (GroupID, UserID) làm khóa chính
     FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
@@ -193,10 +192,10 @@ INSERT INTO group_info (GroupName, AdminID) VALUES
 ('Nhóm Du Lịch', 3);
 
 -- Tạo dữ liệu giả cho bảng group_members
-INSERT INTO group_members (GroupID, UserID, IsAdmin) VALUES
-(1, 1, TRUE), (1, 2, FALSE), (1, 3, FALSE), (1, 4, FALSE),
-(2, 2, TRUE), (2, 5, FALSE), (2, 6, FALSE),
-(3, 3, TRUE), (3, 7, FALSE), (3, 8, FALSE), (3, 9, FALSE);
+INSERT INTO group_members (GroupID, UserID) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4),
+(2, 2), (2, 5), (2, 6),
+(3, 3), (3, 7), (3, 8), (3, 9);
 
 -- Tạo dữ liệu giả cho bảng group_messages
 INSERT INTO group_messages (GroupID, SenderID, Content) VALUES
