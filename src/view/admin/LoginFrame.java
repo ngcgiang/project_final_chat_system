@@ -97,8 +97,4 @@ public class LoginFrame extends JFrame {
             JOptionPane.showMessageDialog(null, "Login Failed: " + response.getMessage());
         }
     }
-
-    public static void main(String[] args) {
-        new LoginFrame();
-    }
 }
