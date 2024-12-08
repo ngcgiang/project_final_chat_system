@@ -1,3 +1,5 @@
+package view.admin;
+
 import components.admin.*;
 import java.awt.*;
 import java.util.Date;
@@ -333,9 +335,8 @@ public class UserManagement extends JPanel {
             }
 
             int userID = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
-            String username = tableModel.getValueAt(selectedRow, 1).toString();
 
-            JFrame friendListFrame = new JFrame("User friend list of " + username);
+            JFrame friendListFrame = new JFrame("User friend list management");
             UserFriendListManagement userFriendListManagement = new UserFriendListManagement(userID);
             
             friendListFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

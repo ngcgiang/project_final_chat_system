@@ -1,3 +1,5 @@
+package view.admin;
+
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

@@ -140,10 +140,10 @@ CREATE TABLE group_info (
 
 -- Bảng thành viên nhóm
 CREATE TABLE group_members (
-    GroupID INT NOT NULL,  -- Mã nhóm
-    UserID INT NOT NULL,  -- Mã người dùng
+    GroupID INT NOT NULL,                  -- Mã nhóm
+    UserID INT NOT NULL,                  -- Mã người dùng
     AddedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tham gia nhóm
-    PRIMARY KEY (GroupID, UserID),
+    PRIMARY KEY (GroupID, UserID),        -- Đặt (GroupID, UserID) làm khóa chính
     FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );

@@ -1,8 +1,10 @@
+package view.admin;
+
 import java.awt.*;
-import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.*;
+
 
 public class AdminDashboard extends JFrame {
     private JPanel headerPanel;
@@ -23,12 +25,6 @@ public class AdminDashboard extends JFrame {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.setBackground(Color.LIGHT_GRAY);
 
-        // Logo web
-        ImageIcon webLogoIcon = new ImageIcon("..\\img\\webLogo.jpg");
-        Image scaledWebLogo = webLogoIcon.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
-        JLabel webLogoLabel = new JLabel(new ImageIcon(scaledWebLogo)); // Tạo JLabel từ ImageIcon đã chỉnh kích thước
-        leftPanel.add(webLogoLabel);
-
         // Date
         JLabel dateLabel = new JLabel(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -44,18 +40,6 @@ public class AdminDashboard extends JFrame {
         JLabel adminNameLabel = new JLabel("ngcjang");
         adminNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         rightPanel.add(adminNameLabel);
-
-        // Setting logo admin also button
-        ImageIcon adminLogoIcon = new ImageIcon(".\\img\\profile-user.png");
-        Image scaledAdminLogo = adminLogoIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        JButton adminButton = new JButton(new ImageIcon(scaledAdminLogo));
-        adminButton.setFocusPainted(false);
-        adminButton.setContentAreaFilled(false);
-        adminButton.setBorderPainted(false);
-
-        // Add event handle for admin button
-        adminButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Mở cài đặt"));
-        rightPanel.add(adminButton);
 
         headerPanel.add(rightPanel, BorderLayout.EAST);
 
@@ -81,6 +65,14 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(newUserManagementButton);
         mainContainer.add(userFriendListButton);
         mainContainer.add(userOnlineManagementButton);
+
+        // Add the logout button to the bottom-right corner of the main container
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton logoutButton = new JButton("Logout");
+
+        buttonPanel.add(logoutButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
 
         // handle event click button
         // to user management
@@ -124,6 +116,14 @@ public class AdminDashboard extends JFrame {
             userOnlineManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(userOnlineManagementPanel);
         });
+        // Handle logout button click
+        logoutButton.addActionListener(e -> {
+            // Logic to handle logout, e.g., redirect to login screen
+            JFrame topLevelFrame = (JFrame) SwingUtilities.getWindowAncestor(mainContainer);
+            topLevelFrame.dispose(); // Close the current window
+            // Open the login screen (assuming you have a Login class)
+            new LoginFrame().setVisible(true);
+        });
 
         // Add header to main window
         add(headerPanel, BorderLayout.NORTH);
@@ -141,15 +141,9 @@ public class AdminDashboard extends JFrame {
         revalidate();
         repaint();
     }
-
+     
     public static void main(String[] args) {
-        try (Connection connection = DatabaseConnection.getConnection()) {
-            if (connection != null) {
-                System.out.println("Database connection successful!");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         SwingUtilities.invokeLater(() -> new AdminDashboard());
     }
+
 }

@@ -1,3 +1,5 @@
+package view.admin;
+
 import java.awt.*;
 import java.sql.*;
 import javax.swing.*;
@@ -137,7 +139,7 @@ public class UserFriendListManagement extends JPanel {
         headerPanel.setPreferredSize(new Dimension(800, 40));
         headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JLabel titleLabel = new JLabel("User Friends List Management");
+        JLabel titleLabel = new JLabel("User Friends List Of UserID: " + UserID);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         headerPanel.add(titleLabel);
 

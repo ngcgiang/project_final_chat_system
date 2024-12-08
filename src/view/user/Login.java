@@ -4,6 +4,7 @@ import components.shared.utils.*;
 import components.user.*;
 import java.awt.*;
 import javax.swing.*;
+import view.appDashboard;
 
 class Login extends JFrame {
     private JPanel panel;
@@ -16,7 +17,7 @@ class Login extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Tạo các trường nhập liệu
-        txtUsername = new JTextField(20); // Giới hạn chiều dài
+        txtUsername = new JTextField(20); 
         txtPassword = new JPasswordField(20);
 
         // Thay đổi kích thước font chữ
@@ -26,21 +27,21 @@ class Login extends JFrame {
 
         // Sử dụng GridBagConstraints để bố trí linh hoạt
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); // Khoảng cách giữa các thành phần
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; // Cột 0
-        gbc.gridy = 0; // Dòng 0
+        gbc.gridx = 0; 
+        gbc.gridy = 0; 
         panel.add(Utilities.createLabel("Username:", "bold", 16), gbc);
 
-        gbc.gridx = 1; // Cột 1
+        gbc.gridx = 1;
         panel.add(txtUsername, gbc);
 
-        gbc.gridx = 0; // Cột 0
-        gbc.gridy = 1; // Dòng 1
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         panel.add(Utilities.createLabel("Password:", "bold", 16), gbc);
 
-        gbc.gridx = 1; // Cột 1
+        gbc.gridx = 1;
         panel.add(txtPassword, gbc);
 
         // Nút đăng nhập
@@ -52,11 +53,11 @@ class Login extends JFrame {
         btnLogin.setBorderPainted(true);
         btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        gbc.gridx = 1; // Cột 1
-        gbc.gridy = 2; // Dòng 2
+        gbc.gridx = 1;
+        gbc.gridy = 2;
         panel.add(btnLogin, gbc);
 
-        // Thêm nút "Register" để chuyển qua trang đăng ký
+        // Thêm nút "Register"
         JButton btnRegister = new JButton("Register");
         btnRegister.setFont(font);
         btnRegister.setBackground(Color.GRAY);
@@ -65,15 +66,34 @@ class Login extends JFrame {
         btnRegister.setBorderPainted(true);
         btnRegister.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        gbc.gridy = 4; // Dòng 3
+        gbc.gridy = 4;
         panel.add(btnRegister, gbc);
 
-        // Thiết lập hành động khi nhấn nút "Login"
+        // Thêm nút "Back"
+        JButton btnBack = new JButton("Back");
+        btnBack.setFont(font);
+        btnBack.setBackground(Color.ORANGE);
+        btnBack.setForeground(Color.WHITE);
+        btnBack.setFocusPainted(false);
+        btnBack.setBorderPainted(true);
+        btnBack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        gbc.gridy = 5;
+        panel.add(btnBack, gbc);
+        
+        // Logic cho nút Back
+        btnBack.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> {
+                dispose(); // Đóng cửa sổ hiện tại
+                new appDashboard(); // Tạo màn hình chính mới
+            });
+        });
+        
+        // Thêm logic cho nút Login
         btnLogin.addActionListener(e -> {
             String username = txtUsername.getText();
             String password = new String(txtPassword.getPassword());
 
-            // Xác thực đăng nhập
             UserBUS userBUS = new UserBUS();
             Response result = userBUS.login(username, password);
 
@@ -83,16 +103,15 @@ class Login extends JFrame {
             }
 
             JOptionPane.showMessageDialog(null, result.getMessage());
-            // Chuyển đổi sang giao diện "Management"
+
             Container topLevel = panel.getTopLevelAncestor();
             if (topLevel instanceof UserDashboard) {
                 ((UserDashboard) topLevel).switchPanel("Management");
             }
         });
 
-        // Thiết lập hành động khi nhấn nút "Register"
+        // Thêm logic cho nút Register
         btnRegister.addActionListener(e -> {
-            // Tìm JFrame chứa "Login" và yêu cầu chuyển đổi sang giao diện "Register"
             Container topLevel = panel.getTopLevelAncestor();
             if (topLevel instanceof UserDashboard) {
                 ((UserDashboard) topLevel).switchPanel("Register");

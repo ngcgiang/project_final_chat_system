@@ -1,3 +1,5 @@
+package view.admin;
+
 import java.awt.*;
 import java.util.Date;
 import javax.swing.*;
