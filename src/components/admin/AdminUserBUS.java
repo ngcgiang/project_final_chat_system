@@ -1,5 +1,6 @@
 package components.admin;
 
+import components.shared.utils.Response;
 import java.util.List;
 
 public class AdminUserBUS {
@@ -7,6 +8,34 @@ public class AdminUserBUS {
 
     public AdminUserBUS() {
         userDAO = new AdminUserDAO();
+    }
+
+    public boolean isUsernameExist(String username) {
+        return userDAO.checkUsernameExists(username);
+    }
+
+    /**
+     * Kiểm tra thông tin đăng nhập (username + password) hợp lệ.
+     */
+    public Response login(String username, String password) {
+        // Kiểm tra xem username có tồn tại hay không
+        if (!isUsernameExist(username)) {
+            return new Response(false, "Username does not exist.");
+        }
+
+        // Kiểm tra mật khẩu
+        Response response = userDAO.checkPassword(username, password);
+
+        if (response.isSuccess()) {
+            // Kiểm tra xem có phải là admin hay không
+            if (userDAO.isAdmin(username)) {
+                return new Response(true, "Login successful as admin.");
+            } else {
+                return new Response(false, "You are not authorized as an admin.");
+            }
+        }
+
+        return response;
     }
 
     public List<AdminUserDTO> getAllUsers() {

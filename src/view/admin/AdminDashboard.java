@@ -66,6 +66,14 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(userFriendListButton);
         mainContainer.add(userOnlineManagementButton);
 
+        // Add the logout button to the bottom-right corner of the main container
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton logoutButton = new JButton("Logout");
+
+        buttonPanel.add(logoutButton);
+
+        add(buttonPanel, BorderLayout.SOUTH);
+
         // handle event click button
         // to user management
         userManagementButton.addActionListener(e -> {
@@ -107,6 +115,14 @@ public class AdminDashboard extends JFrame {
             UserOnlineManagement userOnlineManagementPanel = new UserOnlineManagement(this);
             userOnlineManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(userOnlineManagementPanel);
+        });
+        // Handle logout button click
+        logoutButton.addActionListener(e -> {
+            // Logic to handle logout, e.g., redirect to login screen
+            JFrame topLevelFrame = (JFrame) SwingUtilities.getWindowAncestor(mainContainer);
+            topLevelFrame.dispose(); // Close the current window
+            // Open the login screen (assuming you have a Login class)
+            new LoginFrame().setVisible(true);
         });
 
         // Add header to main window

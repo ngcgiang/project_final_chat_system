@@ -1,5 +1,6 @@
 package components.admin;
 
+import components.shared.utils.Response;
 import config.*;
 import java.sql.*;
 import java.util.ArrayList;
@@ -7,6 +8,61 @@ import java.util.List;
 
 
 public class AdminUserDAO {
+
+    // Phương thức kiểm tra xem username đã tồn tại trong cơ sở dữ liệu chưa
+    public boolean checkUsernameExists(String username) {
+        String query = "SELECT COUNT(*) FROM users WHERE Username = ?";
+        try (Connection conn = new DbConnection().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
+    }
+
+     // Phương thức kiểm tra password được nhập vào có khớp với password của username
+    // trong database không
+    public Response checkPassword(String username, String password) {
+        String query = "SELECT Password FROM users WHERE Username = ?";
+        try (Connection conn = new DbConnection().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String dbPassword = rs.getString("Password");
+                if (password.equals(dbPassword)) {
+                    return new Response(true, "Login successful!");
+                }
+            }
+
+            return new Response(false, "Wrong password!");
+        } catch (SQLException e) {
+            return new Response(false, e.getMessage());
+        }
+    }
+
+    public boolean isAdmin(String username) {
+        String query = """
+                SELECT a.UserID
+                FROM Administrators a
+                Join Users u ON a.UserID = u.UserID
+                WHERE u.Username = ? 
+            """;
+        try (Connection conn = new DbConnection().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, username);
+                ResultSet rs = stmt.executeQuery();
+                return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public List<AdminUserDTO> getAllUsers() {
         List<AdminUserDTO> userList = new ArrayList<>();

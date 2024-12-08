@@ -1,9 +1,6 @@
 package components.admin.group_chat;
 import components.admin.*;
-import components.user.UserDTO;
 import config.DbConnection;
-import view.admin.DatabaseConnection;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

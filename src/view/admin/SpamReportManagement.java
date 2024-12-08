@@ -1,10 +1,9 @@
 package view.admin;
 
-mport components.admin.spam_reports.*;
-
+import components.admin.spam_reports.*;
 import java.awt.*;
-import javax.swing.*;
 import java.util.List;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class SpamReportManagement extends JPanel {
