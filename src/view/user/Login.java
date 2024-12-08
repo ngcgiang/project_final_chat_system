@@ -77,10 +77,10 @@ class Login extends JFrame {
         btnBack.setFocusPainted(false);
         btnBack.setBorderPainted(true);
         btnBack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+        
         gbc.gridy = 5;
         panel.add(btnBack, gbc);
-
+        
         // Logic cho nút Back
         btnBack.addActionListener(e -> {
             SwingUtilities.invokeLater(() -> {
@@ -88,7 +88,7 @@ class Login extends JFrame {
                 new appDashboard(); // Tạo màn hình chính mới
             });
         });
-
+        
         // Thêm logic cho nút Login
         btnLogin.addActionListener(e -> {
             String username = txtUsername.getText();
