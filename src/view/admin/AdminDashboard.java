@@ -39,18 +39,6 @@ public class AdminDashboard extends JFrame {
         adminNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         rightPanel.add(adminNameLabel);
 
-        // Setting logo admin also button
-        ImageIcon adminLogoIcon = new ImageIcon(".\\img\\profile-user.png");
-        Image scaledAdminLogo = adminLogoIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        JButton adminButton = new JButton(new ImageIcon(scaledAdminLogo));
-        adminButton.setFocusPainted(false);
-        adminButton.setContentAreaFilled(false);
-        adminButton.setBorderPainted(false);
-
-        // Add event handle for admin button
-        adminButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Mở cài đặt"));
-        rightPanel.add(adminButton);
-
         headerPanel.add(rightPanel, BorderLayout.EAST);
 
         // Container chính cho các nút quản lý
