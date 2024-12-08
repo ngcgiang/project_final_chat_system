@@ -1,5 +1,6 @@
 package view.user;
 
+import components.group.GroupDTO;
 import components.shared.utils.CurrentUser;
 import components.user.UserBUS;
 import java.awt.*;
@@ -51,6 +52,13 @@ public class UserDashboard extends JFrame {
 
         // Hiển thị cửa sổ JFrame
         setVisible(true);
+    }
+
+    public void switchPanel(String accessFrom, GroupDTO groupDTO) {
+        GroupChat groupChatGUI = new GroupChat(accessFrom, groupDTO);
+        mainPanel.add(groupChatGUI.getPanel(), groupDTO.getGroupName());
+        setTitle(groupDTO.getGroupName());
+        cardLayout.show(mainPanel, groupDTO.getGroupName());
     }
 
     public void switchPanel(String accessFrom, String username, String fullName) {

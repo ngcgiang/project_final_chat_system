@@ -1,10 +1,14 @@
 package view.user;
 
 import components.conversation.ConversationBUS;
+import components.group.GroupBUS;
+import components.group.GroupDTO;
 import components.shared.utils.CurrentUser;
 import components.shared.utils.Utilities;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -60,8 +64,15 @@ public class Message {
                 if (selectedConversation != null) {
                     Container topLevel = panel.getTopLevelAncestor();
                     if (topLevel instanceof UserDashboard) {
-                        ((UserDashboard) topLevel).switchPanel("Message", selectedConversation.getFriendUsername(),
-                                selectedConversation.getFriendName());
+                        if (selectedConversation.getIsGroup()) {
+                            GroupBUS groupBUS = new GroupBUS();
+                            GroupDTO groupDTO = groupBUS
+                                    .getGroup(Integer.parseInt(selectedConversation.getFriendUsername()));
+                            ((UserDashboard) topLevel).switchPanel("Message", groupDTO);
+                        } else {
+                            ((UserDashboard) topLevel).switchPanel("Message", selectedConversation.getFriendUsername(),
+                                    selectedConversation.getFriendName());
+                        }
                     }
                     conversationList.clearSelection();
                 }
@@ -114,6 +125,19 @@ public class Message {
         ConversationBUS conversationBUS = new ConversationBUS();
         ArrayList<Conversation> conversations = conversationBUS
                 .getConversations(CurrentUser.getInstance().getUsername());
+        ArrayList<Conversation> groupConversations = conversationBUS
+                .getGrouConversations(CurrentUser.getInstance().getUsername());
+        for (Conversation conversation : groupConversations) {
+            conversations.add(conversation);
+        }
+
+        Collections.sort(conversations, new Comparator<Conversation>() {
+            @Override
+            public int compare(Conversation c1, Conversation c2) {
+                return c2.getTime().compareTo(c1.getTime());
+            }
+        });
+
         for (int i = 0; i < conversations.size(); i++) {
             listModel.addElement(conversations.get(i));
         }
@@ -130,12 +154,14 @@ public class Message {
         private String friendName;
         private String lastMessage;
         private String time;
+        private boolean isGroup;
 
         public Conversation() {
             this.friendUsername = "";
             this.friendName = "";
             this.lastMessage = "";
             this.time = "";
+            this.isGroup = false;
         }
 
         public Conversation(String friendName, String lastMessage, String time) {
@@ -174,6 +200,14 @@ public class Message {
 
         public String getTime() {
             return time;
+        }
+
+        public void setIsGroup(boolean isGroup) {
+            this.isGroup = isGroup;
+        }
+
+        public boolean getIsGroup() {
+            return isGroup;
         }
     }
 

@@ -109,13 +109,23 @@ CREATE TABLE messages (
 -- Bảng các cuộc trò chuyện
 CREATE TABLE conversations (
     ConversationID INT AUTO_INCREMENT PRIMARY KEY, -- Mã cuộc hội thoại
-    UserID INT NOT NULL,                           -- Mã người dùng
-    FriendID INT NOT NULL,                         -- Mã bạn bè
+    User1ID INT NOT NULL,                           -- Mã người dùng
+    User2ID INT NOT NULL,                         -- Mã bạn bè
     LastMessage TEXT,                              -- Tin nhắn gần nhất
-    LastMessageTime TIMESTAMP,                     -- Thời gian của tin nhắn gần nhất
-    FOREIGN KEY (UserID) REFERENCES users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (FriendID) REFERENCES users(UserID) ON DELETE CASCADE,
-    UNIQUE(UserID, FriendID)                       -- Đảm bảo mỗi cặp UserID-FriendID chỉ có một cuộc hội thoại
+    LastMessageTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    -- Thời gian của tin nhắn gần nhất
+    FOREIGN KEY (User1ID) REFERENCES users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (User2ID) REFERENCES users(UserID) ON DELETE CASCADE,
+    UNIQUE(User1ID, User2ID)                       -- Đảm bảo mỗi cặp UserID-FriendID chỉ có một cuộc hội thoại
+);
+
+CREATE TABLE group_conversations (
+    ConversationID INT AUTO_INCREMENT PRIMARY KEY,   -- Mã cuộc hội thoại
+    GroupID INT NOT NULL,                            -- Mã nhóm
+    LastMessage TEXT NOT NULL,                       -- Tin nhắn gần nhất
+    LastMessageTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian của tin nhắn gần nhất
+    SenderID INT NOT NULL,                           -- Người gửi tin nhắn
+    FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,  -- Liên kết tới bảng nhóm
+    FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE   -- Liên kết tới bảng người dùng
 );
 
 
@@ -130,11 +140,10 @@ CREATE TABLE group_info (
 
 -- Bảng thành viên nhóm
 CREATE TABLE group_members (
-    MemberID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã thành viên
     GroupID INT NOT NULL,  -- Mã nhóm
     UserID INT NOT NULL,  -- Mã người dùng
-    IsAdmin BOOLEAN DEFAULT FALSE,  -- Quản trị viên nhóm
     AddedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tham gia nhóm
+    PRIMARY KEY (GroupID, UserID),
     FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
@@ -193,10 +202,10 @@ INSERT INTO group_info (GroupName, AdminID) VALUES
 ('Nhóm Du Lịch', 3);
 
 -- Tạo dữ liệu giả cho bảng group_members
-INSERT INTO group_members (GroupID, UserID, IsAdmin) VALUES
-(1, 1, TRUE), (1, 2, FALSE), (1, 3, FALSE), (1, 4, FALSE),
-(2, 2, TRUE), (2, 5, FALSE), (2, 6, FALSE),
-(3, 3, TRUE), (3, 7, FALSE), (3, 8, FALSE), (3, 9, FALSE);
+INSERT INTO group_members (GroupID, UserID) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4),
+(2, 2), (2, 5), (2, 6),
+(3, 3), (3, 7), (3, 8), (3, 9);
 
 -- Tạo dữ liệu giả cho bảng group_messages
 INSERT INTO group_messages (GroupID, SenderID, Content) VALUES

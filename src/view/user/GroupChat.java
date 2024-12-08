@@ -1,8 +1,11 @@
 package view.user;
 
 import components.conversation.ConversationBUS;
+import components.group.GroupBUS;
+import components.group.GroupDTO;
 import components.message.*;
 import components.shared.utils.CurrentUser;
+import components.shared.utils.Response;
 import components.shared.utils.Utilities;
 import components.user.*;
 import java.awt.*;
@@ -16,7 +19,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-public class Chat extends JPanel {
+public class GroupChat extends JPanel {
     private JPanel panel;
     private JTextArea txtChat;
     private JTextField txtInput;
@@ -26,9 +29,8 @@ public class Chat extends JPanel {
     // Các thành phần quản lý nhóm
     private JTextField txtGroupName;
     private JButton btnRenameGroup, btnAddMember, btnAssignAdmin, btnRemoveMember;
-    private String currentGroupName = "Chat Group"; // Tên nhóm ban đầu
 
-    public Chat(String receiver, String accessFrom) {
+    public GroupChat(String accessFrom, GroupDTO groupDTO) {
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -46,8 +48,8 @@ public class Chat extends JPanel {
 
         // Load messages
         MessageBUS messageBUS = new MessageBUS();
-        chatHistory = messageBUS.getMessages(CurrentUser.getInstance().getUsername(), receiver);
-        loadMessages(chatHistory, receiver);
+        chatHistory = messageBUS.getGroupMessages(groupDTO.getGroupID());
+        loadMessages(chatHistory);
 
         // Khu vực nhập tin nhắn và nút gửi
         JPanel inputPanel = new JPanel(new BorderLayout());
@@ -78,12 +80,12 @@ public class Chat extends JPanel {
         btnSearchChat.setFont(buttonFont);
 
         // Thêm khung quản lý nhóm ở bên phải
-        panel.add(createGroupManagementPanel(), BorderLayout.EAST);
+        panel.add(createGroupManagementPanel(accessFrom, groupDTO), BorderLayout.EAST);
 
         // Hành động gửi tin nhắn
         btnSend.addActionListener(e -> {
             try {
-                sendMessage(receiver);
+                sendMessage(groupDTO);
             } catch (ParseException e1) {
                 e1.printStackTrace();
             }
@@ -93,7 +95,7 @@ public class Chat extends JPanel {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     try {
-                        sendMessage(receiver);
+                        sendMessage(groupDTO);
                     } catch (ParseException e1) {
                         e1.printStackTrace();
                     }
@@ -104,13 +106,12 @@ public class Chat extends JPanel {
         // Xoá toàn bộ lịch sử chat
         btnClearHistory.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this, "Do you want to clear all messages");
-            if (confirm == JOptionPane.YES_OPTION) {
-                clearChatHistory(receiver);
-            }
+            if (confirm == JOptionPane.YES_OPTION)
+                clearChatHistory(groupDTO);
         });
 
         // Xoá các dòng đã chọn trong lịch sử
-        btnDeleteSelected.addActionListener(e -> deleteSelectedMessages(receiver));
+        btnDeleteSelected.addActionListener(e -> deleteSelectedMessages(groupDTO));
 
         // Tìm kiếm chuỗi trong lịch sử chat với một người
         btnSearchChat.addActionListener(e -> searchInChat());
@@ -123,25 +124,113 @@ public class Chat extends JPanel {
         });
     }
 
-    private JPanel createGroupManagementPanel() {
+    private JPanel createGroupManagementPanel(String accessFrom, GroupDTO groupDTO) {
         JPanel groupPanel = new JPanel(new GridLayout(7, 1, 5, 5));
+        groupPanel.setBorder(BorderFactory.createTitledBorder("Group Management"));
+
+        // Đổi tên nhóm
+        txtGroupName = new JTextField(); // Tên nhóm ban đầu
+        txtGroupName.setVisible(false);
+        btnRenameGroup = Utilities.createButton("Rename Group");
+        btnRenameGroup.addActionListener(e -> renameGroup(accessFrom, groupDTO));
+
+        // Thêm thành viên
+        btnAddMember = Utilities.createButton("Add Member");
+        btnAddMember.addActionListener(e -> addMember(groupDTO));
+
+        // Gán quyền admin
+        btnAssignAdmin = Utilities.createButton("Assign Admin");
+        btnAssignAdmin.addActionListener(e -> {
+            UserBUS userBUS = new UserBUS();
+            if (userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID() != groupDTO.getAdminID()) {
+                JOptionPane.showMessageDialog(this, "Only admin has this right!");
+                return;
+            }
+            assignAdmin(groupDTO);
+        });
+
+        // Xoá thành viên (chỉ dành cho admin)
+        btnRemoveMember = Utilities.createButton("Remove Member");
+        btnRemoveMember.addActionListener(e -> {
+            UserBUS userBUS = new UserBUS();
+            if (userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID() != groupDTO.getAdminID()) {
+                JOptionPane.showMessageDialog(this, "Only admin has this right!");
+                return;
+            }
+            removeMember(groupDTO);
+        });
 
         btnBack = Utilities.createButton("Back");
         JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         backPanel.add(btnBack);
+
+        // Thêm các thành phần vào panel quản lý nhóm
+        groupPanel.add(btnRenameGroup);
+        groupPanel.add(txtGroupName);
+        groupPanel.add(btnAddMember);
+        groupPanel.add(btnAssignAdmin);
+        groupPanel.add(btnRemoveMember);
         groupPanel.add(backPanel, BorderLayout.SOUTH);
 
         return groupPanel;
     }
 
-    private void loadMessages(ArrayList<MessageDTO> chatHistory, String receiver) {
+    private void renameGroup(String accessFrom, GroupDTO groupDTO) {
+        txtGroupName.setVisible(true);
+        txtGroupName.setText(groupDTO.getGroupName());
+        int option = JOptionPane.showConfirmDialog(this, txtGroupName, "Enter new group name",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION) {
+            String newName = txtGroupName.getText().trim();
+            if (!newName.isEmpty()) {
+                txtGroupName.setVisible(false); // Ẩn lại ô nhập tên nhóm
+                GroupBUS groupBUS = new GroupBUS();
+                groupDTO.setGroupName(newName);
+                groupBUS.updateGroup(groupDTO);
+                Container topLevel = panel.getTopLevelAncestor();
+                if (topLevel instanceof UserDashboard) {
+                    ((UserDashboard) topLevel).switchPanel(accessFrom, groupDTO);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a valid group name.");
+            }
+        }
+    }
+
+    private void addMember(GroupDTO groupDTO) {
+        String username = JOptionPane.showInputDialog(this, "Enter username to add:");
+        if (username != null && !username.trim().isEmpty()) {
+            GroupBUS groupBUS = new GroupBUS();
+            Response result = groupBUS.addMember(groupDTO.getGroupID(), username);
+            JOptionPane.showMessageDialog(panel, result.getMessage());
+        }
+    }
+
+    private void assignAdmin(GroupDTO groupDTO) {
+        String username = JOptionPane.showInputDialog(this, "Enter username to assign as admin:");
+        if (username != null && !username.trim().isEmpty()) {
+            GroupBUS groupBUS = new GroupBUS();
+            Response result = groupBUS.assignAdmin(groupDTO, username);
+            JOptionPane.showMessageDialog(panel, result.getMessage());
+        }
+    }
+
+    private void removeMember(GroupDTO groupDTO) {
+        String username = JOptionPane.showInputDialog(this, "Enter username to remove:");
+        if (username != null && !username.trim().isEmpty()) {
+            GroupBUS groupBUS = new GroupBUS();
+            Response result = groupBUS.removeMember(groupDTO.getGroupID(), username);
+            JOptionPane.showMessageDialog(panel, result.getMessage());
+        }
+    }
+
+    private void loadMessages(ArrayList<MessageDTO> chatHistory) {
         UserBUS userBUS = new UserBUS();
-        UserDTO user1 = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername());
-        UserDTO user2 = userBUS.getAccountInfo(receiver);
         for (int i = 0; i < chatHistory.size(); i++) {
             String displayText = "";
-            displayText += chatHistory.get(i).getSenderID() == user1.getID() ? user1.getFullName()
-                    : user2.getFullName();
+            String senderUsername = userBUS.getUsernameByID(chatHistory.get(i).getSenderID());
+            String senderName = userBUS.getAccountInfo(senderUsername).getFullName();
+            displayText += senderName;
             displayText += ": " + chatHistory.get(i).getContent();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             String formattedDate = sdf.format(chatHistory.get(i).getSentAt());
@@ -150,45 +239,43 @@ public class Chat extends JPanel {
         }
     }
 
-    private void sendMessage(String receiver) throws ParseException {
+    private void sendMessage(GroupDTO groupDTO) throws ParseException {
         String content = txtInput.getText();
         if (!content.trim().isEmpty()) {
             String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
 
             UserBUS userBUS = new UserBUS();
-            UserDTO user1 = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername());
-            UserDTO user2 = userBUS.getAccountInfo(receiver);
+            UserDTO user = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername());
 
-            String displayMessage = user1.getFullName() + ": " + content + "     [" + timeStamp + "]";
+            String displayMessage = user.getFullName() + ": " + content + "     [" + timeStamp + "]";
             txtChat.append(displayMessage + "\n");
 
             Timestamp sendAt = new Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(timeStamp).getTime());
-            MessageDTO message = new MessageDTO(0, user1.getID(), user2.getID(), content, sendAt);
+            MessageDTO message = new MessageDTO(0, user.getID(), groupDTO.getGroupID(), content, sendAt);
 
             chatHistory.add(message);
             txtInput.setText("");
             txtChat.setCaretPosition(txtChat.getDocument().getLength());
 
-            String sender = CurrentUser.getInstance().getUsername();
             MessageBUS messageBUS = new MessageBUS();
-            messageBUS.saveMessage(sender, receiver, content);
+            messageBUS.saveGroupMessage(CurrentUser.getInstance().getUsername(), groupDTO.getGroupID(), content);
 
             ConversationBUS conversationBUS = new ConversationBUS();
-            conversationBUS.addOrUpdateConversation(sender, receiver, content);
+            conversationBUS.addOrUpdateGroupConversation(user.getID(), groupDTO.getGroupID(), content);
         }
     }
 
-    private void clearChatHistory(String receiver) {
+    private void clearChatHistory(GroupDTO groupDTO) {
         txtChat.setText("");
         chatHistory.clear();
         MessageBUS messageBUS = new MessageBUS();
         ConversationBUS conversationBUS = new ConversationBUS();
-        messageBUS.deleteAllMessages(CurrentUser.getInstance().getUsername(), receiver);
-        conversationBUS.deleteConversation(CurrentUser.getInstance().getUsername(), receiver);
-        JOptionPane.showMessageDialog(this, "Chat history cleared!");
+        messageBUS.deleteAllGroupMessages(groupDTO.getGroupID());
+        conversationBUS.deleteGroupConversation(groupDTO.getGroupID());
+        JOptionPane.showMessageDialog(this, "Chat history cleared.");
     }
 
-    private void deleteSelectedMessages(String receiver) {
+    private void deleteSelectedMessages(GroupDTO groupDTO) {
         // Lấy vị trí con trỏ trong văn bản
         int caretPosition = txtChat.getCaretPosition();
 
@@ -218,17 +305,19 @@ public class Chat extends JPanel {
         }
 
         MessageBUS messageBUS = new MessageBUS();
-        messageBUS.deleteMessage(chatHistory.get(count).getMessageID());
+        messageBUS.deleteGroupMessage(chatHistory.get(count).getMessageID());
         chatHistory.remove(count);
         ConversationBUS conversationBUS = new ConversationBUS();
         if (chatHistory.isEmpty()) {
-            conversationBUS.deleteConversation(CurrentUser.getInstance().getUsername(), receiver);
+            conversationBUS.deleteGroupConversation(groupDTO.getGroupID());
         } else {
-            conversationBUS.addOrUpdateConversation(CurrentUser.getInstance().getUsername(), receiver,
+            conversationBUS.addOrUpdateGroupConversation(chatHistory.get(chatHistory.size() - 1).getSenderID(),
+                    groupDTO.getGroupID(),
                     chatHistory.get(chatHistory.size() - 1).getContent());
         }
     }
 
+    // Search message
     private int currentSearchIndex = -1;
     private String lastSearchQuery = "";
 

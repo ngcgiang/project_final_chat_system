@@ -1,11 +1,13 @@
 package view.user;
 
-import components.relationship.RelationshipBUS;
+import components.group.*;
+import components.relationship.*;
 import components.shared.utils.*;
-import components.user.UserBUS;
+import components.user.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -142,7 +144,8 @@ public class FriendList {
             createGroupFrame.setLocationRelativeTo(null);
 
             // Tạo bảng hiển thị danh sách bạn bè
-            DefaultTableModel createGroupTableModel = new DefaultTableModel(new Object[] { "Select", "Name", "Status" },
+            DefaultTableModel createGroupTableModel = new DefaultTableModel(
+                    new Object[] { "Select", "Username", "FullName" },
                     0);
             JTable createGroupTable = new JTable(createGroupTableModel) {
                 @Override
@@ -174,26 +177,39 @@ public class FriendList {
             JButton btnCreateGroup = Utilities.createButton("Create Group");
             btnCreateGroup.addActionListener(evt -> {
                 // Lấy danh sách những người bạn đã chọn
-                StringBuilder selectedFriends = new StringBuilder();
+                ArrayList<String> usernameList = new ArrayList<>();
+                StringBuilder fullNames = new StringBuilder();
                 for (int i = 0; i < createGroupTable.getRowCount(); i++) {
                     Boolean isSelected = (Boolean) createGroupTable.getValueAt(i, 0); // Cột Select chứa checkbox
                     if (isSelected) {
-                        selectedFriends.append(createGroupTable.getValueAt(i, 1)).append(", "); // Cột Name chứa tên
-                                                                                                // người bạn
+                        usernameList.add((String) createGroupTable.getValueAt(i, 1));
+                        fullNames.append(createGroupTable.getValueAt(i, 2)).append(", ");
                     }
                 }
 
                 // Kiểm tra xem có người bạn nào được chọn không
-                if (selectedFriends.length() > 0) {
-                    String friendName = selectedFriends.toString();
-                    friendName = friendName.substring(0, friendName.length() - 2); // Loại bỏ dấu phẩy cuối cùng
+                if (fullNames.length() > 0) {
+                    UserBUS userBUS = new UserBUS();
+                    fullNames.append(userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getFullName())
+                            .append(", ");
+                    String friendNames = fullNames.toString();
+                    friendNames = friendNames.substring(0, friendNames.length() - 2);
 
-                    // Container topLevel = panel.getTopLevelAncestor();
-                    // if (topLevel instanceof UserDashboard) {
-                    // ((UserDashboard) topLevel).switchPanel("Message",
-                    // selectedConversation.getFriendUsername(),
-                    // selectedConversation.getFriendName());
-                    // }
+                    int adminID = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID();
+                    GroupBUS groupBUS = new GroupBUS();
+                    GroupDTO groupDTO = new GroupDTO(friendNames, adminID);
+                    ArrayList<Integer> memberIDList = new ArrayList<>();
+                    memberIDList.add(adminID);
+                    for (int i = 0; i < usernameList.size(); i++) {
+                        memberIDList.add(userBUS.getAccountInfo(usernameList.get(i)).getID());
+                    }
+                    int groupID = groupBUS.addGroup(groupDTO, memberIDList);
+                    groupDTO = groupBUS.getGroup(groupID);
+
+                    Container topLevel = panel.getTopLevelAncestor();
+                    if (topLevel instanceof UserDashboard) {
+                        ((UserDashboard) topLevel).switchPanel("Friend List", groupDTO);
+                    }
 
                     // Đóng cửa sổ "Create New Chat Group"
                     createGroupFrame.dispose();
