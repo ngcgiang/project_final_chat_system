@@ -43,4 +43,8 @@ public class MessageBUS {
     public boolean deleteAllGroupMessages(int groupID) {
         return messageDAO.deleteAllGroupMessages(groupID);
     }
+
+    public ArrayList<MessageDTO> getNewMessages(String username, String receiver) {
+        return messageDAO.getNewMessages(username, receiver);
+    }
 }

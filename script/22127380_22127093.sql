@@ -101,7 +101,6 @@ CREATE TABLE messages (
     ReceiverID INT NOT NULL,  -- Người nhận
     Content TEXT NOT NULL,  -- Nội dung tin nhắn
     SentAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian gửi
-    IsRead BOOLEAN DEFAULT FALSE,  -- Trạng thái đã đọc
     FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE,
     FOREIGN KEY (ReceiverID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
@@ -140,10 +139,10 @@ CREATE TABLE group_info (
 
 -- Bảng thành viên nhóm
 CREATE TABLE group_members (
-    GroupID INT NOT NULL,                  -- Mã nhóm
-    UserID INT NOT NULL,                  -- Mã người dùng
+    GroupID INT NOT NULL,  -- Mã nhóm
+    UserID INT NOT NULL,  -- Mã người dùng
     AddedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tham gia nhóm
-    PRIMARY KEY (GroupID, UserID),        -- Đặt (GroupID, UserID) làm khóa chính
+    PRIMARY KEY (GroupID, UserID),
     FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );

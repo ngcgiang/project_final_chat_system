@@ -29,6 +29,7 @@ public class Chat extends JPanel {
     private String currentGroupName = "Chat Group"; // Tên nhóm ban đầu
 
     public Chat(String receiver, String accessFrom) {
+        startPolling(receiver);
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -292,4 +293,39 @@ public class Chat extends JPanel {
     public JPanel getPanel() {
         return panel;
     }
+
+    private Timer timer;
+
+    private void startPolling(String receiver) {
+        MessageBUS messageBUS = new MessageBUS();
+        timer = new Timer(2000, e -> checkForNewMessages(receiver, messageBUS)); // Polling mỗi 2 giây
+        timer.start();
+    }
+
+    private void checkForNewMessages(String receiver, MessageBUS messageBUS) {
+        ArrayList<MessageDTO> newMessages = messageBUS.getNewMessages(CurrentUser.getInstance().getUsername(),
+                receiver);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        for (MessageDTO message : newMessages) {
+            UserBUS userBUS = new UserBUS();
+            if (message.getSenderID() == userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID())
+                return;
+
+            UserDTO currentUser = userBUS.getAccountInfo(CurrentUser.getInstance().getUsername());
+            UserDTO anotherUser = userBUS.getAccountInfo(receiver);
+
+            String senderName = message.getSenderID() == currentUser.getID() ? currentUser.getFullName()
+                    : anotherUser.getFullName();
+
+            // Format thời gian
+            String formattedDate = sdf.format(message.getSentAt());
+
+            String formattedMessage = senderName + ": " + message.getContent() + "     [" + formattedDate + "]";
+            txtChat.append(formattedMessage + "\n");
+            chatHistory.add(message);
+        }
+    }
+
 }

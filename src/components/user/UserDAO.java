@@ -78,7 +78,7 @@ public class UserDAO {
     }
 
     public UserDTO getOne(String username) {
-        String query = "SELECT UserID, Username, Password, FullName, Address, Email, Phone, Gender, DateOfBirth FROM users WHERE Username = ?";
+        String query = "SELECT UserID, Username, Password, FullName, Address, Email, Phone, Gender, DateOfBirth, Status FROM users WHERE Username = ?";
         UserDTO user = null;
 
         try (Connection conn = new DbConnection().getConnection();
@@ -102,6 +102,7 @@ public class UserDAO {
                     user.setPhone(rs.getString("Phone"));
                     user.setGender(rs.getString("Gender"));
                     user.setDob(rs.getDate("DateOfBirth"));
+                    user.setStatus(rs.getString("Status"));
                 }
             }
 

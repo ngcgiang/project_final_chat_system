@@ -9,6 +9,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class MessageDAO {
+    private Timestamp lastLoadedTimestamp;
+
+    public MessageDAO() {
+        this.lastLoadedTimestamp = new Timestamp(System.currentTimeMillis());
+    }
+
     public boolean saveMessage(String sender, String receiver, String content) {
         String query = """
                 INSERT INTO messages (SenderID, ReceiverID, Content)
@@ -212,4 +218,34 @@ public class MessageDAO {
         return false;
     }
 
+    public ArrayList<MessageDTO> getNewMessages(String username, String receiver) {
+        // Lấy tin nhắn mới hơn thời gian cuối cùng đã load
+        String query = "SELECT * FROM messages WHERE ((SenderID = (SELECT UserID FROM users WHERE Username = ?) AND ReceiverID = (SELECT UserID FROM users WHERE Username = ?)) OR (SenderID = (SELECT UserID FROM users WHERE Username = ?) AND ReceiverID = (SELECT UserID FROM users WHERE Username = ?))) AND SentAt > ?";
+        ArrayList<MessageDTO> newMessages = new ArrayList<>();
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, username);
+            stmt.setString(2, receiver);
+            stmt.setString(3, receiver);
+            stmt.setString(4, username);
+            stmt.setTimestamp(5, lastLoadedTimestamp);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                MessageDTO message = new MessageDTO(
+                        rs.getInt("MessageID"),
+                        rs.getInt("SenderID"),
+                        rs.getInt("ReceiverID"),
+                        rs.getString("Content"),
+                        rs.getTimestamp("SentAt"));
+                newMessages.add(message);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if (!newMessages.isEmpty()) {
+            lastLoadedTimestamp = newMessages.get(newMessages.size() - 1).getSentAt();
+        }
+        return newMessages;
+    }
 }
