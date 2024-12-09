@@ -8,6 +8,8 @@ import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
     private JPanel headerPanel;
+    private JPanel logoutJPanel;
+
 
     public AdminDashboard() {
         // Setting main windows
@@ -67,12 +69,12 @@ public class AdminDashboard extends JFrame {
         mainContainer.add(userOnlineManagementButton);
 
         // Add the logout button to the bottom-right corner of the main container
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        logoutJPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton logoutButton = new JButton("Logout");
 
-        buttonPanel.add(logoutButton);
+        logoutJPanel.add(logoutButton);
 
-        add(buttonPanel, BorderLayout.SOUTH);
+        add(logoutJPanel, BorderLayout.SOUTH);
 
         // handle event click button
         // to user management
@@ -138,6 +140,9 @@ public class AdminDashboard extends JFrame {
         getContentPane().removeAll();
         add(headerPanel, BorderLayout.NORTH); // Giữ header
         add(newPanel, BorderLayout.CENTER);
+        if (newPanel instanceof JPanel && newPanel.getLayout() instanceof GridLayout) {
+            add(logoutJPanel, BorderLayout.SOUTH); 
+        }
         revalidate();
         repaint();
     }
