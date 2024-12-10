@@ -4,3 +4,4 @@ report.docx
 report.pdf
 .vscode
 target
+.env

@@ -1,10 +1,23 @@
 package view.admin;
 
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
 import components.admin.AdminUserBUS;
 import components.shared.utils.Response;
-import java.awt.*;
-import javax.swing.*;
-import view.appDashboard;
+import view.App;
 
 public class LoginFrame extends JFrame {
 
@@ -74,7 +87,7 @@ public class LoginFrame extends JFrame {
         // Logic xử lý cho nút Back
         btnBack.addActionListener(e -> {
             dispose();
-            new appDashboard();
+            new App();
         });
 
         add(mainPanel, BorderLayout.CENTER);

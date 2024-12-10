@@ -1,12 +1,19 @@
 package view;
 
-import java.awt.*;
-import javax.swing.*;
-import view.admin.*;
-import view.user.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
-public class appDashboard extends JFrame {
-    public appDashboard() {
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+import view.admin.LoginFrame;
+import view.user.UserDashboard;
+
+public class App extends JFrame {
+    public App() {
         // Cài đặt giao diện cơ bản
         setTitle("Login - User");
         setSize(400, 200);
@@ -50,6 +57,6 @@ public class appDashboard extends JFrame {
     }
 
     public static void main(String[] args) {
-        new appDashboard();
+        new App();
     }
 }

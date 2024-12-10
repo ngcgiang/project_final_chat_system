@@ -122,7 +122,7 @@ public class UserDashboard extends JFrame {
     }
 
     // Phương thức main để chạy chương trình
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new UserDashboard()); // Khởi tạo cửa sổ UserDashboard
-    }
+    // public static void main(String[] args) {
+    //     SwingUtilities.invokeLater(() -> new UserDashboard()); // Khởi tạo cửa sổ UserDashboard
+    // }
 }

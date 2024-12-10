@@ -1,10 +1,26 @@
 package view.user;
 
-import components.shared.utils.*;
-import components.user.*;
-import java.awt.*;
-import javax.swing.*;
-import view.appDashboard;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import components.shared.utils.Response;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
+import view.App;
 
 class Login extends JFrame {
     private JPanel panel;
@@ -85,7 +101,7 @@ class Login extends JFrame {
         btnBack.addActionListener(e -> {
             SwingUtilities.invokeLater(() -> {
                 dispose(); // Đóng cửa sổ hiện tại
-                new appDashboard(); // Tạo màn hình chính mới
+                new App(); // Tạo màn hình chính mới
             });
         });
         

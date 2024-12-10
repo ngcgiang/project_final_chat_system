@@ -147,8 +147,8 @@ public class AdminDashboard extends JFrame {
         repaint();
     }
      
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AdminDashboard());
-    }
+    // public static void main(String[] args) {
+    //     SwingUtilities.invokeLater(() -> new AdminDashboard());
+    // }
 
 }
