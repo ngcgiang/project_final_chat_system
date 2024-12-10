@@ -1,23 +1,43 @@
 package view.user;
 
-import components.conversation.ConversationBUS;
-import components.group.GroupBUS;
-import components.group.GroupDTO;
-import components.message.*;
-import components.shared.utils.CurrentUser;
-import components.shared.utils.Response;
-import components.shared.utils.Utilities;
-import components.user.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import javax.swing.*;
-import javax.swing.text.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.Timer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
+
+import components.conversation.ConversationBUS;
+import components.group.GroupBUS;
+import components.group.GroupDTO;
+import components.message.MessageBUS;
+import components.message.MessageDTO;
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Response;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
+import components.user.UserDTO;
 
 public class GroupChat extends JPanel {
     private JPanel panel;
@@ -30,7 +50,11 @@ public class GroupChat extends JPanel {
     private JTextField txtGroupName;
     private JButton btnRenameGroup, btnAddMember, btnAssignAdmin, btnRemoveMember;
 
+    // Bộ đếm thời gian
+    private Timer timer;
+
     public GroupChat(String accessFrom, GroupDTO groupDTO) {
+        startPolling(groupDTO);
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
@@ -39,7 +63,7 @@ public class GroupChat extends JPanel {
 
         // Khu vực hiển thị tin nhắn
         txtChat = new JTextArea();
-        txtChat.setEditable(false);
+        txtChat.setEditable(true);
         txtChat.setLineWrap(true);
         txtChat.setWrapStyleWord(true);
         txtChat.setFont(chatFont);
@@ -305,8 +329,10 @@ public class GroupChat extends JPanel {
         }
 
         MessageBUS messageBUS = new MessageBUS();
-        messageBUS.deleteGroupMessage(chatHistory.get(count).getMessageID());
-        chatHistory.remove(count);
+        if (chatHistory.size() > count) {
+            messageBUS.deleteGroupMessage(chatHistory.get(count).getMessageID());
+            chatHistory.remove(count);
+        }
         ConversationBUS conversationBUS = new ConversationBUS();
         if (chatHistory.isEmpty()) {
             conversationBUS.deleteGroupConversation(groupDTO.getGroupID());
@@ -380,5 +406,32 @@ public class GroupChat extends JPanel {
 
     public JPanel getPanel() {
         return panel;
+    }
+
+    private void startPolling(GroupDTO groupDTO) {
+        MessageBUS messageBUS = new MessageBUS();
+        timer = new Timer(2000, e -> checkForNewGroupMessages(groupDTO, messageBUS)); // Polling mỗi 2 giây
+        timer.start();
+    }
+
+    private void checkForNewGroupMessages(GroupDTO groupDTO, MessageBUS messageBUS) {
+        ArrayList<MessageDTO> newMessages = messageBUS.getNewGroupMessages(groupDTO.getGroupID());
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        for (MessageDTO message : newMessages) {
+            UserBUS userBUS = new UserBUS();
+            if (message.getSenderID() == userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID())
+                return;
+
+            String senderName = userBUS.getAccountInfo(userBUS.getUsernameByID(message.getSenderID())).getFullName();
+
+            // Format thời gian
+            String formattedDate = sdf.format(message.getSentAt());
+
+            String formattedMessage = senderName + ": " + message.getContent() + "     [" + formattedDate + "]";
+            txtChat.append(formattedMessage + "\n");
+            chatHistory.add(message);
+        }
     }
 }

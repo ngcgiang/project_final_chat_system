@@ -1,11 +1,15 @@
 package view.user;
 
+import java.awt.CardLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import components.group.GroupDTO;
 import components.shared.utils.CurrentUser;
 import components.user.UserBUS;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 
 public class UserDashboard extends JFrame {
     private CardLayout cardLayout; // Khai báo CardLayout để quản lý các trang
@@ -123,6 +127,7 @@ public class UserDashboard extends JFrame {
 
     // Phương thức main để chạy chương trình
     // public static void main(String[] args) {
-    //     SwingUtilities.invokeLater(() -> new UserDashboard()); // Khởi tạo cửa sổ UserDashboard
+    // SwingUtilities.invokeLater(() -> new UserDashboard()); // Khởi tạo cửa sổ
+    // UserDashboard
     // }
 }

@@ -1,7 +1,8 @@
 package components.message;
 
-import components.user.UserBUS;
 import java.util.ArrayList;
+
+import components.user.UserBUS;
 
 public class MessageBUS {
     private MessageDAO messageDAO;
@@ -46,5 +47,9 @@ public class MessageBUS {
 
     public ArrayList<MessageDTO> getNewMessages(String username, String receiver) {
         return messageDAO.getNewMessages(username, receiver);
+    }
+
+    public ArrayList<MessageDTO> getNewGroupMessages(int groupID) {
+        return messageDAO.getNewGroupMessages(groupID);
     }
 }

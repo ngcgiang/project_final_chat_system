@@ -1,12 +1,13 @@
 package components.message;
 
-import config.DbConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+
+import config.DbConnection;
 
 public class MessageDAO {
     private Timestamp lastLoadedTimestamp;
@@ -248,4 +249,39 @@ public class MessageDAO {
         }
         return newMessages;
     }
+
+    public ArrayList<MessageDTO> getNewGroupMessages(int groupID) {
+        // Lấy tin nhắn mới hơn thời gian cuối cùng đã load trong một nhóm
+        String query = "SELECT * FROM group_messages WHERE GroupID = ? AND SentAt > ? ORDER BY SentAt ASC";
+        ArrayList<MessageDTO> newMessages = new ArrayList<>();
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+
+            // Gán giá trị cho các tham số trong query
+            stmt.setInt(1, groupID);
+            stmt.setTimestamp(2, lastLoadedTimestamp);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                // Tạo đối tượng MessageDTO từ dữ liệu trong ResultSet
+                MessageDTO message = new MessageDTO(
+                        rs.getInt("MessageID"),
+                        rs.getInt("SenderID"),
+                        groupID,
+                        rs.getString("Content"),
+                        rs.getTimestamp("SentAt"));
+                newMessages.add(message);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Cập nhật lastLoadedTimestamp nếu có tin nhắn mới
+        if (!newMessages.isEmpty()) {
+            lastLoadedTimestamp = newMessages.get(newMessages.size() - 1).getSentAt();
+        }
+
+        return newMessages;
+    }
+
 }

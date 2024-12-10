@@ -1,20 +1,39 @@
 package view.user;
 
-import components.conversation.ConversationBUS;
-import components.message.*;
-import components.shared.utils.CurrentUser;
-import components.shared.utils.Utilities;
-import components.user.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import javax.swing.*;
-import javax.swing.text.*;
+
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.Timer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
+
+import components.conversation.ConversationBUS;
+import components.message.MessageBUS;
+import components.message.MessageDTO;
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
+import components.user.UserDTO;
 
 public class Chat extends JPanel {
     private JPanel panel;
@@ -28,6 +47,9 @@ public class Chat extends JPanel {
     private JButton btnRenameGroup, btnAddMember, btnAssignAdmin, btnRemoveMember;
     private String currentGroupName = "Chat Group"; // Tên nhóm ban đầu
 
+    // Bộ đếm thời gian
+    private Timer timer;
+
     public Chat(String receiver, String accessFrom) {
         startPolling(receiver);
         panel = new JPanel();
@@ -38,7 +60,7 @@ public class Chat extends JPanel {
 
         // Khu vực hiển thị tin nhắn
         txtChat = new JTextArea();
-        txtChat.setEditable(false);
+        txtChat.setEditable(true);
         txtChat.setLineWrap(true);
         txtChat.setWrapStyleWord(true);
         txtChat.setFont(chatFont);
@@ -293,8 +315,6 @@ public class Chat extends JPanel {
     public JPanel getPanel() {
         return panel;
     }
-
-    private Timer timer;
 
     private void startPolling(String receiver) {
         MessageBUS messageBUS = new MessageBUS();
