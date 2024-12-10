@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
@@ -94,7 +93,16 @@ public class GroupChat extends JPanel {
         optionsPanel.add(btnClearHistory);
         optionsPanel.add(btnDeleteSelected);
         optionsPanel.add(btnSearchChat);
-        panel.add(optionsPanel, BorderLayout.NORTH);
+
+        btnBack = Utilities.createButton("Back");
+        JPanel backPanel = new JPanel();
+        backPanel.add(btnBack);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(backPanel, BorderLayout.WEST);
+        topPanel.add(optionsPanel, BorderLayout.CENTER);
+
+        panel.add(topPanel, BorderLayout.NORTH);
 
         // Thiết lập phông chữ cho các nút
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
@@ -184,17 +192,12 @@ public class GroupChat extends JPanel {
             removeMember(groupDTO);
         });
 
-        btnBack = Utilities.createButton("Back");
-        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        backPanel.add(btnBack);
-
         // Thêm các thành phần vào panel quản lý nhóm
         groupPanel.add(btnRenameGroup);
         groupPanel.add(txtGroupName);
         groupPanel.add(btnAddMember);
         groupPanel.add(btnAssignAdmin);
         groupPanel.add(btnRemoveMember);
-        groupPanel.add(backPanel, BorderLayout.SOUTH);
 
         return groupPanel;
     }

@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Timestamp;
@@ -91,7 +89,16 @@ public class Chat extends JPanel {
         optionsPanel.add(btnClearHistory);
         optionsPanel.add(btnDeleteSelected);
         optionsPanel.add(btnSearchChat);
-        panel.add(optionsPanel, BorderLayout.NORTH);
+
+        btnBack = Utilities.createButton("Back");
+        JPanel backPanel = new JPanel();
+        backPanel.add(btnBack);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(backPanel, BorderLayout.WEST);
+        topPanel.add(optionsPanel, BorderLayout.CENTER);
+
+        panel.add(topPanel, BorderLayout.NORTH);
 
         // Thiết lập phông chữ cho các nút
         Font buttonFont = new Font("Arial", Font.BOLD, 14);
@@ -99,9 +106,6 @@ public class Chat extends JPanel {
         btnClearHistory.setFont(buttonFont);
         btnDeleteSelected.setFont(buttonFont);
         btnSearchChat.setFont(buttonFont);
-
-        // Thêm khung quản lý nhóm ở bên phải
-        panel.add(createGroupManagementPanel(), BorderLayout.EAST);
 
         // Hành động gửi tin nhắn
         btnSend.addActionListener(e -> {
@@ -144,17 +148,6 @@ public class Chat extends JPanel {
                 ((UserDashboard) topLevel).switchPanel(accessFrom);
             }
         });
-    }
-
-    private JPanel createGroupManagementPanel() {
-        JPanel groupPanel = new JPanel(new GridLayout(7, 1, 5, 5));
-
-        btnBack = Utilities.createButton("Back");
-        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        backPanel.add(btnBack);
-        groupPanel.add(backPanel, BorderLayout.SOUTH);
-
-        return groupPanel;
     }
 
     private void loadMessages(ArrayList<MessageDTO> chatHistory, String receiver) {
