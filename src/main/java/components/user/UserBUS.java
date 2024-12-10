@@ -58,6 +58,9 @@ public class UserBUS {
             return new Response(false, "Username is not valid!");
         }
 
+        if (userDAO.getOne(username).getStatus().equals("Online")) {
+            return new Response(false, "Someone else is accessing the account!");
+        }
         Response result = userDAO.checkPassword(username, password);
         if (result.isSuccess()) {
             CurrentUser.getInstance().setUsername(username);
