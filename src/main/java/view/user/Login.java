@@ -15,14 +15,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import components.shared.utils.Response;
 import components.shared.utils.Utilities;
 import components.user.UserBUS;
-import view.App;
 
-class Login extends JFrame {
+public class Login extends JFrame {
     private JPanel panel;
     private JTextField txtUsername;
     private JPasswordField txtPassword;
@@ -33,7 +31,7 @@ class Login extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Tạo các trường nhập liệu
-        txtUsername = new JTextField(20); 
+        txtUsername = new JTextField(20);
         txtPassword = new JPasswordField(20);
 
         // Thay đổi kích thước font chữ
@@ -46,8 +44,8 @@ class Login extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        gbc.gridx = 0; 
-        gbc.gridy = 0; 
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         panel.add(Utilities.createLabel("Username:", "bold", 16), gbc);
 
         gbc.gridx = 1;
@@ -85,26 +83,6 @@ class Login extends JFrame {
         gbc.gridy = 4;
         panel.add(btnRegister, gbc);
 
-        // Thêm nút "Back"
-        JButton btnBack = new JButton("Back");
-        btnBack.setFont(font);
-        btnBack.setBackground(Color.ORANGE);
-        btnBack.setForeground(Color.WHITE);
-        btnBack.setFocusPainted(false);
-        btnBack.setBorderPainted(true);
-        btnBack.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        
-        gbc.gridy = 5;
-        panel.add(btnBack, gbc);
-        
-        // Logic cho nút Back
-        btnBack.addActionListener(e -> {
-            SwingUtilities.invokeLater(() -> {
-                dispose(); // Đóng cửa sổ hiện tại
-                new App(); // Tạo màn hình chính mới
-            });
-        });
-        
         // Thêm logic cho nút Login
         btnLogin.addActionListener(e -> {
             String username = txtUsername.getText();

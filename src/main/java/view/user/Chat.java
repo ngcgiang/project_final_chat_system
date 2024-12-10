@@ -25,13 +25,13 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-import components.conversation.ConversationBUS;
-import components.message.MessageBUS;
-import components.message.MessageDTO;
 import components.shared.utils.CurrentUser;
 import components.shared.utils.Utilities;
 import components.user.UserBUS;
 import components.user.UserDTO;
+import components.user.conversation.ConversationBUS;
+import components.user.message.MessageBUS;
+import components.user.message.MessageDTO;
 
 public class Chat extends JPanel {
     private JPanel panel;

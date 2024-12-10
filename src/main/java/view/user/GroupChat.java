@@ -27,16 +27,16 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-import components.conversation.ConversationBUS;
-import components.group.GroupBUS;
-import components.group.GroupDTO;
-import components.message.MessageBUS;
-import components.message.MessageDTO;
 import components.shared.utils.CurrentUser;
 import components.shared.utils.Response;
 import components.shared.utils.Utilities;
 import components.user.UserBUS;
 import components.user.UserDTO;
+import components.user.conversation.ConversationBUS;
+import components.user.group.GroupBUS;
+import components.user.group.GroupDTO;
+import components.user.message.MessageBUS;
+import components.user.message.MessageDTO;
 
 public class GroupChat extends JPanel {
     private JPanel panel;

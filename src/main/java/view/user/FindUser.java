@@ -1,18 +1,31 @@
 package view.user;
 
-import components.relationship.RelationshipBUS;
-import components.shared.utils.CurrentUser;
-import components.shared.utils.Utilities;
-import components.user.UserBUS;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
-import javax.swing.*;
+
+import javax.swing.AbstractCellEditor;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
+
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Utilities;
+import components.user.UserBUS;
+import components.user.relationship.RelationshipBUS;
 
 public class FindUser extends JPanel {
     private JPanel panel;

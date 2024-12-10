@@ -6,10 +6,11 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-import components.group.GroupDTO;
 import components.shared.utils.CurrentUser;
 import components.user.UserBUS;
+import components.user.group.GroupDTO;
 
 public class UserDashboard extends JFrame {
     private CardLayout cardLayout; // Khai báo CardLayout để quản lý các trang
@@ -126,8 +127,7 @@ public class UserDashboard extends JFrame {
     }
 
     // Phương thức main để chạy chương trình
-    // public static void main(String[] args) {
-    // SwingUtilities.invokeLater(() -> new UserDashboard()); // Khởi tạo cửa sổ
-    // UserDashboard
-    // }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new UserDashboard());
+    }
 }

@@ -1,15 +1,24 @@
 package view.admin;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.*;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class AdminDashboard extends JFrame {
     private JPanel headerPanel;
     private JPanel logoutJPanel;
-
 
     public AdminDashboard() {
         // Setting main windows
@@ -81,7 +90,7 @@ public class AdminDashboard extends JFrame {
         userManagementButton.addActionListener(e -> {
             UserManagement userManagementPanel = new UserManagement();
             userManagementPanel.reloadUserData(null, null);
-            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); 
+            userManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(userManagementPanel);
         });
         // to login management
@@ -93,7 +102,7 @@ public class AdminDashboard extends JFrame {
         // to group chat management
         groupChatManagementButton.addActionListener(e -> {
             GroupChatManagement groupChatManagementPanel = new GroupChatManagement(this);
-            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer)); 
+            groupChatManagementPanel.getBackButton().addActionListener(event -> switchPanel(mainContainer));
             switchPanel(groupChatManagementPanel);
         });
         // to report management
@@ -141,14 +150,14 @@ public class AdminDashboard extends JFrame {
         add(headerPanel, BorderLayout.NORTH); // Giữ header
         add(newPanel, BorderLayout.CENTER);
         if (newPanel instanceof JPanel && newPanel.getLayout() instanceof GridLayout) {
-            add(logoutJPanel, BorderLayout.SOUTH); 
+            add(logoutJPanel, BorderLayout.SOUTH);
         }
         revalidate();
         repaint();
     }
-     
+
     // public static void main(String[] args) {
-    //     SwingUtilities.invokeLater(() -> new AdminDashboard());
+    // SwingUtilities.invokeLater(() -> new AdminDashboard());
     // }
 
 }

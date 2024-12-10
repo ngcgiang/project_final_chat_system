@@ -17,13 +17,12 @@ import javax.swing.SwingUtilities;
 
 import components.admin.AdminUserBUS;
 import components.shared.utils.Response;
-import view.App;
 
 public class LoginFrame extends JFrame {
 
     private JTextField txtUsername;
     private JPasswordField txtPassword;
-    private JButton btnLogin, btnBack;
+    private JButton btnLogin;
 
     public LoginFrame() {
         // Cài đặt khung chính
@@ -54,7 +53,6 @@ public class LoginFrame extends JFrame {
         txtPassword = new JPasswordField(15);
 
         btnLogin = new JButton("Login");
-        btnBack = new JButton("Back");
 
         // Bố trí giao diện
         gbc.gridx = 0;
@@ -77,18 +75,8 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 2;
         mainPanel.add(btnLogin, gbc);
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        mainPanel.add(btnBack, gbc);
-
         // Thêm Logic xử lý khi click Login
         btnLogin.addActionListener(e -> handleLogin());
-
-        // Logic xử lý cho nút Back
-        btnBack.addActionListener(e -> {
-            dispose();
-            new App();
-        });
 
         add(mainPanel, BorderLayout.CENTER);
     }
@@ -109,5 +97,9 @@ public class LoginFrame extends JFrame {
         } else {
             JOptionPane.showMessageDialog(null, "Login Failed: " + response.getMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LoginFrame());
     }
 }

@@ -1,10 +1,11 @@
 package view.user;
 
-import components.conversation.ConversationBUS;
-import components.group.GroupBUS;
-import components.group.GroupDTO;
 import components.shared.utils.CurrentUser;
 import components.shared.utils.Utilities;
+import components.user.conversation.ConversationBUS;
+import components.user.group.GroupBUS;
+import components.user.group.GroupDTO;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
