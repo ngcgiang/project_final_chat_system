@@ -1,9 +1,13 @@
 package components.user;
 
-import components.shared.utils.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+
+import org.mindrot.jbcrypt.BCrypt;
+
+import components.shared.utils.CurrentUser;
+import components.shared.utils.Response;
 
 public class UserBUS {
     private UserDAO userDAO;
@@ -37,7 +41,9 @@ public class UserBUS {
             return new Response(false, "Passwords do not match. Please try again!");
         }
 
-        UserDTO newUser = new UserDTO(username, password);
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+        UserDTO newUser = new UserDTO(username, hashedPassword);
         Response result = userDAO.addUser(newUser);
 
         return result;
@@ -61,7 +67,11 @@ public class UserBUS {
         if (userDAO.getOne(username).getStatus().equals("Online")) {
             return new Response(false, "Someone else is accessing the account!");
         }
-        Response result = userDAO.checkPassword(username, password);
+
+        UserDTO userDTO = userDAO.getOne(username);
+
+        boolean isPasswordMatch = BCrypt.checkpw(password, userDTO.getPassword());
+        Response result = new Response(isPasswordMatch, isPasswordMatch ? "Login successful!" : "Wrong password!");
         if (result.isSuccess()) {
             CurrentUser.getInstance().setUsername(username);
             userDAO.setStatus(username, "Online");

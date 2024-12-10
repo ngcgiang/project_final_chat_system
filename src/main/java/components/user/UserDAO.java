@@ -1,11 +1,15 @@
 package components.user;
 
-import components.shared.utils.*;
-import config.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import components.shared.utils.Response;
+import config.DbConnection;
 
 public class UserDAO {
     public String getUsernameById(int userId) {
@@ -51,27 +55,6 @@ public class UserDAO {
             int rowsAffected = stmt.executeUpdate();
             return (rowsAffected > 0) ? new Response(true, "Registration successful!")
                     : new Response(false, "Registration failure!");
-        } catch (SQLException e) {
-            return new Response(false, e.getMessage());
-        }
-    }
-
-    // Phương thức kiểm tra password được nhập vào có khớp với password của username
-    // trong database không
-    public Response checkPassword(String username, String password) {
-        String query = "SELECT Password FROM users WHERE Username = ?";
-        try (Connection conn = new DbConnection().getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                String dbPassword = rs.getString("Password");
-                if (password.equals(dbPassword)) {
-                    return new Response(true, "Login successful!");
-                }
-            }
-
-            return new Response(false, "Wrong password!");
         } catch (SQLException e) {
             return new Response(false, e.getMessage());
         }

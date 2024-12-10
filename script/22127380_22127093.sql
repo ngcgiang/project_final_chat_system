@@ -9,7 +9,7 @@ USE chat_system;
 CREATE TABLE users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã người dùng
     Username VARCHAR(50) UNIQUE NOT NULL,  -- Tên đăng nhập
-    Password VARCHAR(50) NOT NULL,  -- Mật khẩu đã mã hóa
+    Password VARCHAR(200) NOT NULL,  -- Mật khẩu đã mã hóa
     FullName VARCHAR(50),  -- Tên đầy đủ
     Address VARCHAR(100),
     DateOfBirth DATE DEFAULT '2000-01-01',
