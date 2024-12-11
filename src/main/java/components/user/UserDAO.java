@@ -47,11 +47,12 @@ public class UserDAO {
 
     // Phương thức thêm User vào db
     public Response addUser(UserDTO user) {
-        String query = "INSERT INTO users (Username, Password) VALUES (?, ?)";
+        String query = "INSERT INTO users (Username, Password, FullName) VALUES (?, ?, ?)";
         try (Connection conn = new DbConnection().getConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());
+            stmt.setString(3, "User");
             int rowsAffected = stmt.executeUpdate();
             return (rowsAffected > 0) ? new Response(true, "Registration successful!")
                     : new Response(false, "Registration failure!");

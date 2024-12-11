@@ -104,12 +104,12 @@ public class UserBUS {
 
     public Response updatePassword(String username, String oldPassword, String newPassword,
             String confirmNewPassword) {
-        if (newPassword.isEmpty() || confirmNewPassword.isEmpty()) {
+        if (oldPassword.isEmpty() || newPassword.isEmpty() || confirmNewPassword.isEmpty()) {
             return new Response(false, "Please enter password!");
         }
 
         UserDTO user = userDAO.getOne(username);
-        if (!user.getPassword().equals(oldPassword)) {
+        if (!BCrypt.checkpw(oldPassword, user.getPassword())) {
             return new Response(false, "Wrong password!");
         }
 
@@ -117,15 +117,19 @@ public class UserBUS {
             return new Response(false, "Passwords do not match. Please try again!");
         }
 
-        userDAO.updateOne(username, newPassword, user.getFullName(), user.getAddress(), user.getDob(), user.getEmail(),
+        String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+        userDAO.updateOne(username, hashedNewPassword, user.getFullName(), user.getAddress(), user.getDob(),
+                user.getEmail(),
                 user.getPhone(), user.getGender());
 
         return new Response(true, "Password updated!");
     }
 
     public void resetPassword(String username, String newPassword) {
+        String hashedNewPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
         UserDTO user = userDAO.getOne(username);
-        userDAO.updateOne(username, newPassword, user.getFullName(), user.getAddress(), user.getDob(), user.getEmail(),
+        userDAO.updateOne(username, hashedNewPassword, user.getFullName(), user.getAddress(), user.getDob(),
+                user.getEmail(),
                 user.getPhone(), user.getGender());
     }
 

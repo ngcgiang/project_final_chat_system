@@ -35,7 +35,7 @@ public class Management {
         JButton btnUpdatePassword = Utilities.createButton("Update Password", width, height);
         JButton btnFriendList = Utilities.createButton("Friend List", width, height);
         JButton btnMessage = Utilities.createButton("Message", width, height);
-        JButton btnFindUser = Utilities.createButton("Find user", width, height);
+        JButton btnFindUser = Utilities.createButton("Find User", width, height);
 
         // Các button tiếp theo
         gbc.gridx = 0;

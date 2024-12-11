@@ -28,4 +28,8 @@ public class RelationshipBUS {
         relationshipDAO.removeFriendship(username1, username2);
         return relationshipDAO.addBlockingRelationship(username1, username2);
     }
+
+    public boolean report(String accused, String accuser, String reason) {
+        return relationshipDAO.addReport(accused, accuser, reason);
+    }
 }

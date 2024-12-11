@@ -394,14 +394,34 @@ public class FriendList {
             String friendName = (String) tableModel.getValueAt(modelRow, 1);
 
             String notification = "";
-            boolean flag = true;
+            boolean flag = false;
             if (e.getSource() == btnReport) {
-                JOptionPane.showMessageDialog(panel, "Reported " + friendName);
+                String reason = JOptionPane.showInputDialog(
+                        null,
+                        "Please enter the reason for the report:",
+                        "Report Reason",
+                        JOptionPane.PLAIN_MESSAGE);
+
+                if (reason == null) {
+                    return;
+                }
+                flag = true;
+                if (reason.trim().isEmpty()) {
+                    notification = "You must provide a reason to submit report";
+                } else {
+                    boolean success = relationshipBUS.report(username2, username1, reason);
+                    if (success) {
+                        notification = friendName + " has been reported";
+                    } else {
+                        notification = "Report failure";
+                    }
+                }
             } else if (e.getSource() == btnUnfriend) {
                 int confirm = JOptionPane.showConfirmDialog(panel,
                         "Are you sure you want to unfriend " + friendName + "?");
                 if (confirm == JOptionPane.YES_OPTION) {
                     boolean success = relationshipBUS.unfriend(username1, username2);
+                    flag = true;
                     if (success) {
                         tableModel.removeRow(modelRow);
                         notification = friendName + " has been unfriended";
@@ -414,6 +434,7 @@ public class FriendList {
                         "Are you sure you want to block and unfriend " + friendName + "?");
                 if (confirm == JOptionPane.YES_OPTION) {
                     boolean success = relationshipBUS.block(username1, username2);
+                    flag = true;
                     if (success) {
                         tableModel.removeRow(modelRow);
                         notification = friendName + " has been blocked and unfriended";

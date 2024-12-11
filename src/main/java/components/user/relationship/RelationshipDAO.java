@@ -94,4 +94,25 @@ public class RelationshipDAO {
         }
         return false;
     }
+
+    public boolean addReport(String accused, String accuser, String reason) {
+        String query = """
+                INSERT INTO spam_reports (UserID, ReportedBy, Reason)
+                VALUES (
+                    (SELECT UserID FROM users WHERE Username = ?),
+                    (SELECT UserID FROM users WHERE Username = ?),
+                    ?
+                );
+                """;
+        try (Connection connection = new DbConnection().getConnection();
+                PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, accused);
+            stmt.setString(2, accuser);
+            stmt.setString(3, reason);
+            return stmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

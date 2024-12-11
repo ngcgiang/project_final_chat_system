@@ -117,6 +117,15 @@ CREATE TABLE conversations (
     UNIQUE(User1ID, User2ID)                       -- Đảm bảo mỗi cặp UserID-FriendID chỉ có một cuộc hội thoại
 );
 
+-- Bảng thông tin nhóm
+CREATE TABLE group_info (
+    GroupID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã nhóm
+    GroupName VARCHAR(100) NOT NULL,  -- Tên nhóm
+    AdminID INT NOT NULL,  -- Quản trị viên nhóm
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tạo nhóm
+    FOREIGN KEY (AdminID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
 CREATE TABLE group_conversations (
     ConversationID INT AUTO_INCREMENT PRIMARY KEY,   -- Mã cuộc hội thoại
     GroupID INT NOT NULL,                            -- Mã nhóm
@@ -125,16 +134,6 @@ CREATE TABLE group_conversations (
     SenderID INT NOT NULL,                           -- Người gửi tin nhắn
     FOREIGN KEY (GroupID) REFERENCES group_info(GroupID) ON DELETE CASCADE,  -- Liên kết tới bảng nhóm
     FOREIGN KEY (SenderID) REFERENCES Users(UserID) ON DELETE CASCADE   -- Liên kết tới bảng người dùng
-);
-
-
--- Bảng thông tin nhóm
-CREATE TABLE group_info (
-    GroupID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã nhóm
-    GroupName VARCHAR(100) NOT NULL,  -- Tên nhóm
-    AdminID INT NOT NULL,  -- Quản trị viên nhóm
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian tạo nhóm
-    FOREIGN KEY (AdminID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
 
 -- Bảng thành viên nhóm
@@ -178,18 +177,6 @@ CREATE TABLE user_activities (
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
--- Bảng lịch sử trò chuyện (bao gồm tin nhắn cá nhân và nhóm)
-CREATE TABLE chat_history (
-    ChatHistoryID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã lịch sử trò chuyện
-    UserID INT NOT NULL,  -- Mã người dùng
-    GroupID INT DEFAULT NULL,  -- Mã nhóm (nếu có)
-    MessageContent TEXT NOT NULL,  -- Nội dung tin nhắn
-    MessageTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian gửi tin nhắn
-    IsGroupMessage BOOLEAN DEFAULT FALSE,  -- Tin nhắn nhóm hay cá nhân
-    FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (GroupID) REFERENCES group_info(GroupID)
-);
-
 -- Tạo dữ liệu giả cho bảng administrators
 INSERT INTO administrators (UserID) VALUES
 (1), (2);
@@ -225,10 +212,3 @@ INSERT INTO user_activities (UserID, LoginTime, LogoutTime) VALUES
 (2, '2024-12-06 09:00:00', NULL),
 (3, '2024-12-06 08:30:00', '2024-12-06 09:30:00'),
 (4, '2024-12-06 10:00:00', NULL);
-
--- Tạo dữ liệu giả cho bảng chat_history
-INSERT INTO chat_history (UserID, GroupID, MessageContent, IsGroupMessage) VALUES
-(1, NULL, 'Hello! Bạn đang làm gì vậy?', FALSE),
-(2, 1, 'Mọi người đã chuẩn bị bài tập nhóm chưa?', TRUE),
-(3, 2, 'Tôi đang tìm hiểu sách cho chủ đề tuần này.', TRUE),
-(4, 3, 'Hẹn gặp mọi người ở điểm tập trung nhé.', TRUE);
