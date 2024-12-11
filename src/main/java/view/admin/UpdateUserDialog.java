@@ -1,14 +1,23 @@
 package view.admin;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.util.Date;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class UpdateUserDialog extends JDialog {
     private JTextField fullNameField;
     private JTextField addressField;
     private JTextField dobField; // Format: yyyy-MM-dd
-    private JTextField genderField;
+    private JComboBox<String> genderComboBox;
     private JTextField emailField;
     private JComboBox<String> statusComboBox;
     private boolean saved;
@@ -36,15 +45,16 @@ public class UpdateUserDialog extends JDialog {
         formPanel.add(dobField);
 
         formPanel.add(new JLabel("Gender:"));
-        genderField = new JTextField(gender);
-        formPanel.add(genderField);
+        genderComboBox = new JComboBox<>(new String[]{"Male", "Female", "Other"});
+        genderComboBox.setSelectedItem(gender);
+        formPanel.add(genderComboBox);
 
         formPanel.add(new JLabel("Email:"));
         emailField = new JTextField(email);
         formPanel.add(emailField);
 
         formPanel.add(new JLabel("Status:"));
-        statusComboBox = new JComboBox<>(new String[]{"online", "offline"});
+        statusComboBox = new JComboBox<>(new String[]{"Online", "Offline"});
         statusComboBox.setSelectedItem(status);
         formPanel.add(statusComboBox);
 
@@ -86,7 +96,7 @@ public class UpdateUserDialog extends JDialog {
     }
 
     public String getGender() {
-        return genderField.getText();
+        return (String) genderComboBox.getSelectedItem();
     }
 
     public String getEmail() {
