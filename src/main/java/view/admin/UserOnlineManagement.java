@@ -1,11 +1,25 @@
 package view.admin;
 
-import components.admin.user_activity.*;
-
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+
+import components.admin.user_activity.UserActivityBUS;
+import components.admin.user_activity.UserActivityDTO;
 
 public class UserOnlineManagement extends JPanel {
     private JTable reportTable;
@@ -85,7 +99,7 @@ public class UserOnlineManagement extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         // Show Chart Button
-        showChartButton = new JButton("Show Registration Chart");
+        showChartButton = new JButton("Show Amount of User Online Chart");
         showChartButton.addActionListener(e -> {
             AmountUserOnlineChart amountUserOnlineChart = new AmountUserOnlineChart();
             amountUserOnlineChart.getBackButton().addActionListener(event -> switchPanel(this));
