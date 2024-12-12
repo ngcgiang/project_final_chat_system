@@ -5,3 +5,5 @@ report.pdf
 .vscode
 target
 .env
+admin.jar
+user.jar
