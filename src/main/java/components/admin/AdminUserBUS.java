@@ -43,8 +43,8 @@ public class AdminUserBUS {
         return userDAO.getAllUsers();
     }
 
-    public List<AdminUserDTO> getUsers(String searchValue, String filterColumn) {
-        return userDAO.reloadUserData(searchValue, filterColumn);
+    public List<AdminUserDTO> getUsers(String searchValue, String filterColumn, String sortBy) {
+        return userDAO.reloadUserData(searchValue, filterColumn, sortBy);
     }
 
     public List<AdminUserDTO> getNewUsers(String sortBy, String time, String fullName){

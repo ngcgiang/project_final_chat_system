@@ -26,13 +26,12 @@ public class AdminUserDTO {
         this.email = "";
         this.status = "";
         this.access = "yes";
-        this.access = "";
         this.createdAt = null;
     }
 
     // Constructor
     public AdminUserDTO(int userId, String username, String fullName, String address, 
-                        Date dateOfBirth, String gender, String email, String status, Timestamp createdAt) {
+                        Date dateOfBirth, String gender, String email, String status, String access, Timestamp createdAt) {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
@@ -41,6 +40,7 @@ public class AdminUserDTO {
         this.gender = gender;
         this.email = email;
         this.status = status;
+        this.access = access;
         this.createdAt = createdAt;
     }
 

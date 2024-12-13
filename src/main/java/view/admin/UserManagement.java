@@ -1,11 +1,28 @@
 package view.admin;
 
-import components.admin.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
 import java.util.Date;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+
+import components.admin.AdminUserBUS;
+import components.admin.AdminUserDTO;
 
 public class UserManagement extends JPanel {
     private AdminUserBUS adminUserBUS;
@@ -14,6 +31,8 @@ public class UserManagement extends JPanel {
     private JTextField searchField;
     private JComboBox<String> filterComboBox;
     private JButton searchButton;
+    private JButton sortButton;
+    private JComboBox<String> sortComboBox;
     private JButton backButton;
 
     public UserManagement() {
@@ -34,7 +53,7 @@ public class UserManagement extends JPanel {
         headerPanel.add(titleLabel);
 
         // Main Table Panel for User Information
-        String[] columnNames = {"User ID", "Username", "Full-name", "Address", "DOB", "Gender", "Email", "Status"};
+        String[] columnNames = {"User ID", "Username", "Full-name", "Address", "DOB", "Gender", "Email", "Status", "Access", "Created At"};
         tableModel = new DefaultTableModel(columnNames, 0);
         userTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(userTable);
@@ -50,6 +69,11 @@ public class UserManagement extends JPanel {
         filterComboBox = new JComboBox<>(new String[]{"Username", "Full-name", "Status"});
         filterPanel.add(new JLabel("Filter:"));
         filterPanel.add(filterComboBox);
+
+        sortButton = new JButton("Sort by");
+        sortComboBox = new JComboBox<>(new String[]{"UserID", "Full-name", "Created At"});
+        filterPanel.add(new JLabel("Sort by:"));
+        filterPanel.add(sortComboBox);
 
         // North Panel to combine header and filter panels
         JPanel northPanel = new JPanel(new BorderLayout());
@@ -83,6 +107,7 @@ public class UserManagement extends JPanel {
         searchButton.addActionListener(e -> {
             String searchValue = searchField.getText(); // Get search value from text field
             String filterColumn;
+            String sortBy = sortComboBox.getSelectedItem().toString();
 
             // Determine the column to filter based on ComboBox selection
             switch (filterComboBox.getSelectedItem().toString()) {
@@ -101,7 +126,16 @@ public class UserManagement extends JPanel {
             }
 
             // Reload data with search and filter criteria
-            reloadUserData(searchValue, filterColumn);
+            reloadUserData(searchValue, filterColumn, sortBy);
+        });
+
+        // Add ActionListener for the sort button
+        sortComboBox.addActionListener(e -> {
+            String searchValue = searchField.getText();
+            String filterColumn = filterComboBox.getSelectedItem().toString();
+            String sortBy = sortComboBox.getSelectedItem().toString();
+
+            reloadUserData(searchValue, filterColumn, sortBy);
         });
 
        // Thêm ActionListener cho nút Update
@@ -149,7 +183,7 @@ public class UserManagement extends JPanel {
                     user.setStatus(status);
 
                     if (adminUserBUS.updateUser(user)) {
-                        reloadUserData(null, null);
+                        reloadUserData(null, null, "UserID");
                     } else {
                         JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -180,7 +214,7 @@ public class UserManagement extends JPanel {
             }
         
             if (adminUserBUS.deleteUser(userId)) {
-                reloadUserData(null, null);
+                reloadUserData(null, null, "UserID");
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to update user.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -240,7 +274,7 @@ public class UserManagement extends JPanel {
                 );
 
                 // Làm mới dữ liệu trong bảng (giả sử `reloadUserData()` là phương thức cập nhật lại bảng)
-                reloadUserData(null,null);
+                reloadUserData(null,null,null);
             } else {
                 JOptionPane.showMessageDialog(
                     this,
@@ -348,15 +382,15 @@ public class UserManagement extends JPanel {
         });
 
         // Load initial data
-        reloadUserData(null, null);
+        reloadUserData(null, null, "UserID");
     }
 
     public JButton getBackButton() {
         return backButton;
     }
 
-    public void reloadUserData(String searchValue, String filterColumn) {
-        List<AdminUserDTO> userList = adminUserBUS.getUsers(searchValue, filterColumn);
+    public void reloadUserData(String searchValue, String filterColumn, String sortBy) {
+        List<AdminUserDTO> userList = adminUserBUS.getUsers(searchValue, filterColumn, sortBy);
         
         // Clear existing table data
         tableModel.setRowCount(0);
@@ -371,7 +405,9 @@ public class UserManagement extends JPanel {
                 user.getDateOfBirth(),
                 user.getGender(),
                 user.getEmail(),
-                user.getStatus()
+                user.getStatus(),
+                user.getAccess(),
+                user.getCreatedAt()
             });
         }
     }

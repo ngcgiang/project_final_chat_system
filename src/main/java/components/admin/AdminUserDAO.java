@@ -87,6 +87,7 @@ public class AdminUserDAO {
                     resultSet.getString("Gender"),
                     resultSet.getString("Email"),
                     resultSet.getString("Status"),
+                    resultSet.getString("Access"),
                     resultSet.getTimestamp("createdAt")
                 );
                 userList.add(user);
@@ -99,13 +100,27 @@ public class AdminUserDAO {
     }
 
     //reload if has changes or search 
-    public List<AdminUserDTO> reloadUserData(String searchValue, String filterColumn) {
+    public List<AdminUserDTO> reloadUserData(String searchValue, String filterColumn, String sortBy) {
         List<AdminUserDTO> userList = new ArrayList<>();
         String query = "SELECT * FROM Users";
 
         // If search criteria are provided, add WHERE clause
         if (searchValue != null && !searchValue.isEmpty() && filterColumn != null) {
             query += " WHERE " + filterColumn + " LIKE ?";
+        }
+
+        if (sortBy != null && !sortBy.isEmpty()) {
+            switch (sortBy) {
+                case "UserID":
+                    query += " ORDER BY UserID";
+                    break;
+                case "Full-name":
+                    query += " ORDER BY FullName";
+                    break;
+                case "Created At":
+                    query += " ORDER BY CreatedAt";
+                    break;
+            }
         }
 
         try (Connection conn = new DbConnection().getConnection();
@@ -128,6 +143,8 @@ public class AdminUserDAO {
                 user.setGender(resultSet.getString("Gender"));
                 user.setEmail(resultSet.getString("Email"));
                 user.setStatus(resultSet.getString("Status"));
+                user.setAccess(resultSet.getString("Access"));
+                user.setCreatedAt(resultSet.getTimestamp("CreatedAt"));
                 userList.add(user);
             }
         } catch (SQLException e) {
