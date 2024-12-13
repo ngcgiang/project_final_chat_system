@@ -1,22 +1,24 @@
 package view.admin;
 
 import java.awt.*;
-import java.sql.*;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
-import components.admin.user_friends.*;
-
+import java.sql.SQLException;
 import java.util.List;
 
+import javax.swing.table.DefaultTableModel;
+
+import components.admin.user_friends.UserFriendBUS;
+import components.admin.user_friends.UserFriendDTO;
+
 public class UserFriendListManagement extends JPanel {
-    private JTable reportTable;
+    private JTable friendListTable;
     private DefaultTableModel tableModel;
     private JTextField usernameFilterField;
     private JTextField amountOfFriendsFilterField;
     private JComboBox<String> amountFilterComboBox;
     private JComboBox<String> sortComboBox;
     private JButton applyFilterButton;
+    private JButton userFriendListButton;
     private JButton backButton;
     private UserFriendBUS userFriendBUS;
 
@@ -74,15 +76,17 @@ public class UserFriendListManagement extends JPanel {
 
         // Table for displaying user friend list
         tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Amount of friends"}, 0);
-        reportTable = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(reportTable);
+        friendListTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(friendListTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Back button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         backButton = new JButton("BACK");
+        userFriendListButton = new JButton("User Friend List");
 
         buttonPanel.add(backButton);
+        buttonPanel.add(userFriendListButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -92,6 +96,28 @@ public class UserFriendListManagement extends JPanel {
         usernameFilterField.addActionListener(e -> applyFilters());
         applyFilterButton.addActionListener(e -> applyFilters());
 
+        // Add ActionListener for userFriendListButton
+        userFriendListButton.addActionListener(e->{
+            int selectedRow = friendListTable.getSelectedRow();
+
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Please select a user to view their friends list.", "No User Selected", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int userId = (int) friendListTable.getValueAt(selectedRow, 0);
+
+            JFrame userFriendListFrame = new JFrame("Friend List Of UserID: " + userId);
+            UserFriendListManagement userFriendListManagement = new UserFriendListManagement(userId);
+            
+            userFriendListFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            userFriendListFrame.setSize(800, 600);
+            userFriendListFrame.add(userFriendListManagement);
+            userFriendListFrame.setLocationRelativeTo(null);
+            
+            userFriendListFrame.setVisible(true);
+    
+        });
         // Load data from the database
         loadDataFromDatabase();
 
@@ -147,8 +173,8 @@ public class UserFriendListManagement extends JPanel {
 
         // Table for displaying user friend list
         tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Date of Creation"}, 0);
-        reportTable = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(reportTable);
+        friendListTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(friendListTable);
         add(scrollPane, BorderLayout.CENTER);
 
         // Back button
