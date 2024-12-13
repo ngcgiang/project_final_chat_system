@@ -24,7 +24,7 @@ import components.admin.user_activity.UserActivityDTO;
 public class UserOnlineManagement extends JPanel {
     private JTable reportTable;
     private DefaultTableModel tableModel;
-    private JTextField usernameFilterField;
+    private JTextField nameFilterField;
     private JTextField activityCountField;
     private JComboBox<String> activityFilterComboBox;
     private JComboBox<String> timeFilterComboBox;
@@ -59,7 +59,7 @@ public class UserOnlineManagement extends JPanel {
         JPanel filterSortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         // Sorting Options
-        sortComboBox = new JComboBox<>(new String[]{"Date Creation", "Username"});
+        sortComboBox = new JComboBox<>(new String[]{"Date Creation", "FullName"});
         filterSortPanel.add(new JLabel("Sort by:"));
         filterSortPanel.add(sortComboBox);
 
@@ -75,10 +75,10 @@ public class UserOnlineManagement extends JPanel {
         filterSortPanel.add(activityFilterComboBox);
         filterSortPanel.add(activityCountField);
 
-        // Filter by Username
-        usernameFilterField = new JTextField(7);
-        filterSortPanel.add(new JLabel("Username:"));
-        filterSortPanel.add(usernameFilterField);
+        // Filter by name
+        nameFilterField = new JTextField(7);
+        filterSortPanel.add(new JLabel("Full-name:"));
+        filterSortPanel.add(nameFilterField);
 
         // Apply Filter Button
         applyFilterButton = new JButton("Apply");
@@ -93,7 +93,7 @@ public class UserOnlineManagement extends JPanel {
         add(northPanel, BorderLayout.NORTH);
 
         // Table for displaying user information
-        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Open app", "Chat with amount of people", "Chat with amount of group", "Date creation"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Full-name", "Open app", "Chat with amount of people", "Chat with amount of group", "Date creation"}, 0);
         reportTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(reportTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -119,26 +119,26 @@ public class UserOnlineManagement extends JPanel {
         timeFilterComboBox.addActionListener(e -> applyFilters());
         activityFilterComboBox.addActionListener(e -> applyFilters());
         activityCountField.addActionListener(e -> applyFilters());
-        usernameFilterField.addActionListener(e -> applyFilters());
+        nameFilterField.addActionListener(e -> applyFilters());
 
         applyFilterButton.addActionListener(e -> applyFilters());
 
-        String usernameDef = null;
+        String nameDef = null;
         String sortByDef = "Date Creation";
         String dateRangeDef = "All";
         String comparisonDef = "Equal to";
         String compareToDef = null;
-        loadDataFromDatabase(sortByDef, dateRangeDef, comparisonDef, compareToDef, usernameDef);
+        loadDataFromDatabase(sortByDef, dateRangeDef, comparisonDef, compareToDef, nameDef);
 
     }
 
-    private void loadDataFromDatabase(String sortBy, String dateRange, String comparison, String compareTo, String username) {
-        List<UserActivityDTO> activities = userActivityBUS.getUserActivities(sortBy, dateRange, comparison, compareTo, username);
+    private void loadDataFromDatabase(String sortBy, String dateRange, String comparison, String compareTo, String fullName) {
+        List<UserActivityDTO> activities = userActivityBUS.getUserActivities(sortBy, dateRange, comparison, compareTo, fullName);
         tableModel.setRowCount(0);
         for (UserActivityDTO activity : activities) {
             tableModel.addRow(new Object[]{
                 activity.getUserID(),
-                activity.getUserName(),
+                activity.getFullName(),
                 activity.getSessionsCount(),
                 activity.getUniqueUsersMessaged(),
                 activity.getUniqueGroupsMessaged(),
@@ -148,7 +148,7 @@ public class UserOnlineManagement extends JPanel {
     }
     
     private void applyFilters() {
-        String username = usernameFilterField.getText();
+        String fullName = nameFilterField.getText();
         String sortBy = (String) sortComboBox.getSelectedItem();
         String dateRange = (String) timeFilterComboBox.getSelectedItem();
         String comparison = (String) activityFilterComboBox.getSelectedItem();
@@ -160,7 +160,7 @@ public class UserOnlineManagement extends JPanel {
         }
     
         // Load data from database with filters
-        loadDataFromDatabase(sortBy, dateRange, comparison, compareTo, username);
+        loadDataFromDatabase(sortBy, dateRange, comparison, compareTo, fullName);
     }
     
     private boolean isValidNonNegativeInteger(String input) {

@@ -2,7 +2,7 @@ package components.admin.user_activity;
 
 public class UserActivityDTO {
     private int userID;
-    private String userName;
+    private String fullName;
     private int sessionsCount;
     private int uniqueUsersMessaged;
     private int uniqueGroupsMessaged;
@@ -20,12 +20,12 @@ public class UserActivityDTO {
         this.userID = userID;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setFullName(String userName) {
+        this.fullName = userName;
     }
 
     public int getSessionsCount() {

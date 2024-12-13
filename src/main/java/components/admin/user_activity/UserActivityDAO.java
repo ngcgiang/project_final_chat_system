@@ -1,6 +1,9 @@
 package components.admin.user_activity;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,13 +11,13 @@ import config.DbConnection;
 
 public class UserActivityDAO {
 
-    public List<UserActivityDTO> fetchUserActivities(String sortBy, String dateRange, String comparison, String compareTo, String username) {
+    public List<UserActivityDTO> fetchUserActivities(String sortBy, String dateRange, String comparison, String compareTo, String fullName) {
         List<UserActivityDTO> userActivities = new ArrayList<>();
 
         StringBuilder query = new StringBuilder("""
             SELECT 
                 u.UserID, 
-                u.UserName, 
+                u.FullName, 
                 COUNT(DISTINCT DATE(ua.LoginTime)) AS SessionsCount, 
                 COUNT(DISTINCT m.ReceiverID) AS UniqueUsersMessaged,
                 COUNT(DISTINCT gm.GroupID) AS UniqueGroupsMessaged,
@@ -31,8 +34,8 @@ public class UserActivityDAO {
         """);
 
         // Dynamically add WHERE clauses
-        if (username != null && !username.trim().isEmpty()) {
-            query.append(" AND u.UserName LIKE ?");
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            query.append(" AND u.FullName LIKE ?");
         }
 
         // Filter by date range
@@ -52,7 +55,7 @@ public class UserActivityDAO {
         }
 
         // Add GROUP BY clause
-        query.append(" GROUP BY u.UserID, u.UserName");
+        query.append(" GROUP BY u.UserID, u.FullName");
 
         // Add HAVING clause
         if (comparison != null && !comparison.trim().isEmpty() && compareTo != null && !compareTo.trim().isEmpty()) {
@@ -78,8 +81,8 @@ public class UserActivityDAO {
                 case "Date Creation":
                     query.append(" ORDER BY CreatedAt DESC");
                     break;
-                case "Username":
-                    query.append(" ORDER BY u.UserName ASC");
+                case "FullName":
+                    query.append(" ORDER BY u.FullName ASC");
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
@@ -92,8 +95,8 @@ public class UserActivityDAO {
             int paramIndex = 1;
 
             // Set parameters
-            if (username != null && !username.trim().isEmpty()) {
-                preparedStatement.setString(paramIndex++, "%" + username.trim() + "%");
+            if (fullName != null && !fullName.trim().isEmpty()) {
+                preparedStatement.setString(paramIndex++, "%" + fullName.trim() + "%");
             }
 
             if (comparison != null && !comparison.trim().isEmpty() && compareTo != null && !compareTo.trim().isEmpty()) {
@@ -106,7 +109,7 @@ public class UserActivityDAO {
             while (resultSet.next()) {
                 UserActivityDTO dto = new UserActivityDTO();
                 dto.setUserID(resultSet.getInt("UserID"));
-                dto.setUserName(resultSet.getString("UserName"));
+                dto.setFullName(resultSet.getString("FullName"));
                 dto.setSessionsCount(resultSet.getInt("SessionsCount"));
                 dto.setUniqueUsersMessaged(resultSet.getInt("UniqueUsersMessaged"));
                 dto.setUniqueGroupsMessaged(resultSet.getInt("UniqueGroupsMessaged"));

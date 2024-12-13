@@ -1,10 +1,24 @@
 package view.admin;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Window;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 import components.admin.user_friends.UserFriendBUS;
@@ -13,7 +27,7 @@ import components.admin.user_friends.UserFriendDTO;
 public class UserFriendListManagement extends JPanel {
     private JTable friendListTable;
     private DefaultTableModel tableModel;
-    private JTextField usernameFilterField;
+    private JTextField nameFilterField;
     private JTextField amountOfFriendsFilterField;
     private JComboBox<String> amountFilterComboBox;
     private JComboBox<String> sortComboBox;
@@ -44,7 +58,7 @@ public class UserFriendListManagement extends JPanel {
         JPanel filterSortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         // Sorting Options
-        sortComboBox = new JComboBox<>(new String[]{"UserID", "Username"});
+        sortComboBox = new JComboBox<>(new String[]{"UserID", "FullName"});
         filterSortPanel.add(new JLabel("Sort by:"));
         filterSortPanel.add(sortComboBox);
 
@@ -58,9 +72,9 @@ public class UserFriendListManagement extends JPanel {
         filterSortPanel.add(amountOfFriendsFilterField);
 
         // Filter by Username
-        usernameFilterField = new JTextField(10);
-        filterSortPanel.add(new JLabel("Filter by Username:"));
-        filterSortPanel.add(usernameFilterField);
+        nameFilterField = new JTextField(10);
+        filterSortPanel.add(new JLabel("Filter by Full-name:"));
+        filterSortPanel.add(nameFilterField);
 
         // Apply Filter Button
         applyFilterButton = new JButton("Apply Filter");
@@ -75,7 +89,7 @@ public class UserFriendListManagement extends JPanel {
         add(northPanel, BorderLayout.NORTH);
 
         // Table for displaying user friend list
-        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Amount of friends"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Full-name", "Amount of friends"}, 0);
         friendListTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(friendListTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -93,7 +107,7 @@ public class UserFriendListManagement extends JPanel {
         sortComboBox.addActionListener(e -> applyFilters());
         amountFilterComboBox.addActionListener(e -> applyFilters());
         amountOfFriendsFilterField.addActionListener(e -> applyFilters());
-        usernameFilterField.addActionListener(e -> applyFilters());
+        nameFilterField.addActionListener(e -> applyFilters());
         applyFilterButton.addActionListener(e -> applyFilters());
 
         // Add ActionListener for userFriendListButton
@@ -141,7 +155,7 @@ public class UserFriendListManagement extends JPanel {
             for (UserFriendDTO user : userList) {
                 tableModel.addRow(new Object[]{
                     user.getUserId(),
-                    user.getUsername(),
+                    user.getFullName(),
                     user.getFriendCount()
                 });
             }
@@ -172,7 +186,7 @@ public class UserFriendListManagement extends JPanel {
         add(headerPanel, BorderLayout.NORTH);
 
         // Table for displaying user friend list
-        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Date of Creation"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Full-name", "Date of Creation"}, 0);
         friendListTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(friendListTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -213,7 +227,7 @@ public class UserFriendListManagement extends JPanel {
             for (UserFriendDTO user : userList) {
                 tableModel.addRow(new Object[]{
                     user.getUserId(),
-                    user.getUsername(),
+                    user.getFullName(),
                     user.getDateOfCreation()
                 });
             }
@@ -224,10 +238,10 @@ public class UserFriendListManagement extends JPanel {
         }
     }
     
-    private void loadDataFromDatabase(String sortBy, String comparison, String compareTo, String username) {
+    private void loadDataFromDatabase(String sortBy, String comparison, String compareTo, String fullName) {
         try {
             // Fetch data through the business logic layer
-            List<UserFriendDTO> userList = userFriendBUS.getFilteredUserFriends(sortBy, comparison, compareTo, username);
+            List<UserFriendDTO> userList = userFriendBUS.getFilteredUserFriends(sortBy, comparison, compareTo, fullName);
             
             // Check if the list is not null and has elements
             if (userList == null || userList.isEmpty()) {
@@ -242,7 +256,7 @@ public class UserFriendListManagement extends JPanel {
            for (UserFriendDTO user : userList) {
             tableModel.addRow(new Object[]{
                 user.getUserId(),
-                user.getUsername(),
+                user.getFullName(),
                 user.getFriendCount()
             });
         }
@@ -257,7 +271,7 @@ public class UserFriendListManagement extends JPanel {
         String sortBy = sortComboBox.getSelectedItem().toString();
         String comparison = amountFilterComboBox.getSelectedItem().toString();
         String compareTo = amountOfFriendsFilterField.getText();
-        String username = usernameFilterField.getText();
+        String username = nameFilterField.getText();
         if (!isValidNonNegativeInteger(compareTo)) {
             return;
         }

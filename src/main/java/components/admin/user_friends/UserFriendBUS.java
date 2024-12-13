@@ -19,7 +19,7 @@ public class UserFriendBUS {
         return userFriendDAO.getUserFriendsByUserId(userId);
     }
 
-    public List<UserFriendDTO> getFilteredUserFriends(String sortBy, String comparison, String compareTo, String username) throws SQLException {
-        return userFriendDAO.getFilteredUserFriends(sortBy, comparison, compareTo, username);
+    public List<UserFriendDTO> getFilteredUserFriends(String sortBy, String comparison, String compareTo, String fullName) throws SQLException {
+        return userFriendDAO.getFilteredUserFriends(sortBy, comparison, compareTo, fullName);
     }
 }

@@ -1,11 +1,23 @@
 package view.admin;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.List;
 
-import components.admin.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import components.admin.AdminUserBUS;
+import components.admin.AdminUserDTO;
 
 public class NewUserManagement extends JPanel {
     private JTable userTable;
@@ -45,7 +57,7 @@ public class NewUserManagement extends JPanel {
         JPanel filterSortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         // Sorting Options
-        sortComboBox = new JComboBox<>(new String[]{"Registration time", "Username"});
+        sortComboBox = new JComboBox<>(new String[]{"Registration time", "Full-name"});
         filterSortPanel.add(new JLabel("Sort by:"));
         filterSortPanel.add(sortComboBox);
 
@@ -56,7 +68,7 @@ public class NewUserManagement extends JPanel {
 
         // Filter by Username
         nameFilterField = new JTextField(15);
-        filterSortPanel.add(new JLabel("Search by Username:"));
+        filterSortPanel.add(new JLabel("Search by Name:"));
         filterSortPanel.add(nameFilterField);
 
         // Apply Filter Button
@@ -72,7 +84,7 @@ public class NewUserManagement extends JPanel {
         add(northPanel, BorderLayout.NORTH);
 
         // Table for displaying new user registrations
-        tableModel = new DefaultTableModel(new Object[]{"User ID", "Username", "Registration Time"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"User ID", "Full-name", "Registration Time"}, 0);
         userTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(userTable);
         add(scrollPane, BorderLayout.CENTER);
@@ -97,29 +109,29 @@ public class NewUserManagement extends JPanel {
 
         //Add actionListener sort
         sortComboBox.addActionListener(e ->{
-            String username = nameFilterField.getText();
+            String fullName = nameFilterField.getText();
             String sortBy = sortComboBox.getSelectedItem().toString();
             String time = dateRangeComboBox.getSelectedItem().toString();
 
-            loadDataFromDatabase(sortBy, time, username);
+            loadDataFromDatabase(sortBy, time, fullName);
         });
 
         //Add actionListener apply time
         dateRangeComboBox.addActionListener(e -> {
-            String username = nameFilterField.getText();
+            String fullName = nameFilterField.getText();
             String sortBy = sortComboBox.getSelectedItem().toString();
             String time = dateRangeComboBox.getSelectedItem().toString();
 
-            loadDataFromDatabase(sortBy, time, username);
+            loadDataFromDatabase(sortBy, time, fullName);
         });
 
         //Add actionListener search filter
         applyFilterButton.addActionListener(e -> {
-            String username = nameFilterField.getText();
+            String fullName = nameFilterField.getText();
             String sortBy = sortComboBox.getSelectedItem().toString();
             String time = dateRangeComboBox.getSelectedItem().toString();
 
-            loadDataFromDatabase(sortBy, time, username);
+            loadDataFromDatabase(sortBy, time, fullName);
         });
 
         String usernameDef = null;
@@ -129,13 +141,13 @@ public class NewUserManagement extends JPanel {
         loadDataFromDatabase(sortByDef, timeDef, usernameDef);
     }
 
-    private void loadDataFromDatabase(String sortBy, String time, String username) {
-        List<AdminUserDTO> newUserList = adminUserBUS.getNewUsers(sortBy, time, username);
+    private void loadDataFromDatabase(String sortBy, String time, String fullName) {
+        List<AdminUserDTO> newUserList = adminUserBUS.getNewUsers(sortBy, time, fullName);
         tableModel.setRowCount(0);
         for (AdminUserDTO user : newUserList) {
             tableModel.addRow(new Object[]{
                 user.getUserId(),
-                user.getUsername(),
+                user.getFullName(),
                 user.getCreatedAt(),
             });
         }

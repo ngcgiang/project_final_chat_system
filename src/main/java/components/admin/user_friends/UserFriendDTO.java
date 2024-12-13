@@ -5,13 +5,15 @@ public class UserFriendDTO {
     private String username;
     private int friendCount;
     private String dateOfCreation;
+    private String fullName;
 
     // Constructor, getters, and setters
-    public UserFriendDTO(int userId, String username, int friendCount, String dateOfCreation) {
+    public UserFriendDTO(int userId, String fullName, int friendCount, String dateOfCreation) {
         this.userId = userId;
-        this.username = username;
+        this.username = fullName;
         this.friendCount = friendCount;
         this.dateOfCreation = dateOfCreation;
+        this.fullName = fullName;
     }
 
     public int getUserId() {
@@ -22,12 +24,12 @@ public class UserFriendDTO {
         this.userId = userId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public int getFriendCount() {

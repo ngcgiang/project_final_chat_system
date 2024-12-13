@@ -137,17 +137,17 @@ public class AdminUserDAO {
         return userList;
     }
 
-    public List<AdminUserDTO> loadNewUserData(String sortBy, String time, String username) {
+    public List<AdminUserDTO> loadNewUserData(String sortBy, String time, String fullName) {
         List<AdminUserDTO> newUserList = new ArrayList<>();
         StringBuilder query = new StringBuilder("""
-                SELECT u.UserID, u.Username, u.CreatedAt
+                SELECT u.UserID, u.FullName, u.CreatedAt
                 FROM Users u
                 WHERE 1=1
             """);
     
-        // Append WHERE clause for username search
-        if (username != null && !username.isEmpty()) {
-            query.append(" AND u.Username LIKE ?");
+        // Append WHERE clause for full name search
+        if (fullName != null && !fullName.isEmpty()) {
+            query.append(" AND u.FullName LIKE ?");
         }
     
         // Append WHERE clause for time filter
@@ -165,7 +165,7 @@ public class AdminUserDAO {
         if (sortBy != null && !sortBy.isEmpty()) {
             switch (sortBy) {
                 case "Registration time" -> query.append(" ORDER BY u.CreatedAt DESC");
-                case "Username" -> query.append(" ORDER BY u.Username");
+                case "Full-name" -> query.append(" ORDER BY u.FullName");
                 default -> throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
             }
         }
@@ -175,8 +175,8 @@ public class AdminUserDAO {
     
             // Set parameters for username search
             int paramIndex = 1;
-            if (username != null && !username.isEmpty()) {
-                preparedStatement.setString(paramIndex++, "%" + username + "%");
+            if (fullName != null && !fullName.isEmpty()) {
+                preparedStatement.setString(paramIndex++, "%" + fullName + "%");
             }
     
             // Execute query and fetch results
@@ -184,7 +184,7 @@ public class AdminUserDAO {
                 while (resultSet.next()) {
                     AdminUserDTO user = new AdminUserDTO();
                     user.setUserId(resultSet.getInt("UserID"));
-                    user.setUsername(resultSet.getString("Username"));
+                    user.setFullName(resultSet.getString("FullName"));
                     user.setCreatedAt(resultSet.getTimestamp("CreatedAt"));
                     newUserList.add(user);
                 }

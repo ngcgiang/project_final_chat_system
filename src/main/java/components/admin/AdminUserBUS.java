@@ -1,7 +1,8 @@
 package components.admin;
 
-import components.shared.utils.Response;
 import java.util.List;
+
+import components.shared.utils.Response;
 
 public class AdminUserBUS {
     private final AdminUserDAO userDAO;
@@ -46,8 +47,8 @@ public class AdminUserBUS {
         return userDAO.reloadUserData(searchValue, filterColumn);
     }
 
-    public List<AdminUserDTO> getNewUsers(String sortBy, String time, String username){
-        return userDAO.loadNewUserData(sortBy, time, username);
+    public List<AdminUserDTO> getNewUsers(String sortBy, String time, String fullName){
+        return userDAO.loadNewUserData(sortBy, time, fullName);
     }
 
     public boolean updateUser(AdminUserDTO user) {
