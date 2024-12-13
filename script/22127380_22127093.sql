@@ -9,7 +9,7 @@ USE chat_system;
 CREATE TABLE users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã người dùng
     Username VARCHAR(50) UNIQUE NOT NULL,  -- Tên đăng nhập
-    Password VARCHAR(200) NOT NULL,  -- Mật khẩu đã mã hóa
+    Password VARCHAR(50) NOT NULL,  -- Mật khẩu đã mã hóa
     FullName VARCHAR(50),  -- Tên đầy đủ
     Address VARCHAR(100),
     DateOfBirth DATE DEFAULT '2000-01-01',
@@ -21,18 +21,18 @@ CREATE TABLE users (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Thời gian tạo tài khoản
 );
 
-INSERT INTO users (Username, Password, FullName, Address, DateOfBirth, Email, Phone, Gender)
+INSERT INTO users (Username, Password, FullName, Address, DateOfBirth, Email, Phone, Gender, CreatedAt)
 VALUES
-('e1', '123', 'Nguyễn Văn A', 'Hà Nội, Việt Nam', '1990-01-01', 'nguyenvana@example.com', '0123456789', 'Male'),
-('e2', '123', 'Trần Thị B', 'TP.HCM, Việt Nam', '1992-02-02', 'tranthib@example.com', '0987654321', 'Female'),
-('e3', '123', 'Lê Minh C', 'Đà Nẵng, Việt Nam', '1985-03-03', 'leminhc@example.com', '0912345678', 'Male'),
-('e4', '123', 'Phạm Thị D', 'Hải Phòng, Việt Nam', '1995-04-04', 'phamthid@example.com', '0945123456', 'Female'),
-('e5', '123', 'Nguyễn Minh E', 'Cần Thơ, Việt Nam', '2000-05-05', 'nguyenmine@example.com', '0976123456', 'Male'),
-('e6', '123', 'Lê Thị F', 'Bình Dương, Việt Nam', '1994-06-06', 'lethif@example.com', '0986123456', 'Female'),
-('e7', '123', 'Trần Minh G', 'Vũng Tàu, Việt Nam', '1988-07-07', 'tranming@example.com', '0903123456', 'Male'),
-('e8', '123', 'Phạm Thị H', 'Quảng Ninh, Việt Nam', '1996-08-08', 'phamthih@example.com', '0965123456', 'Female'),
-('e9', '123', 'Nguyễn Minh I', 'Nam Định, Việt Nam', '1992-09-09', 'nguyenmini@example.com', '0916123456', 'Male'),
-('e10', '123', 'Lê Thị J', 'Hà Tĩnh, Việt Nam', '2001-10-10', 'lethij@example.com', '0932123456', 'Female');
+('e1', '123', 'Nguyễn Văn A', 'Hà Nội, Việt Nam', '1990-01-01', 'nguyenvana@example.com', '0123456789', 'Male', '2024-12-06 08:00:00'),
+('e2', '123', 'Trần Thị B', 'TP.HCM, Việt Nam', '1992-02-02', 'tranthib@example.com', '0987654321', 'Female', '2024-11-06 08:00:00'),
+('e3', '123', 'Lê Minh C', 'Đà Nẵng, Việt Nam', '1985-03-03', 'leminhc@example.com', '0912345678', 'Male', '2024-11-26 08:00:00'),
+('e4', '123', 'Phạm Thị D', 'Hải Phòng, Việt Nam', '1995-04-04', 'phamthid@example.com', '0945123456', 'Female', '2024-11-26 08:00:00'),
+('e5', '123', 'Nguyễn Minh E', 'Cần Thơ, Việt Nam', '2000-05-05', 'nguyenmine@example.com', '0976123456', 'Male', '2024-11-26 08:00:00'),
+('e6', '123', 'Lê Thị F', 'Bình Dương, Việt Nam', '1994-06-06', 'lethif@example.com', '0986123456', 'Female', '2024-10-26 08:00:00'),
+('e7', '123', 'Trần Minh G', 'Vũng Tàu, Việt Nam', '1988-07-07', 'tranming@example.com', '0903123456', 'Male', '2024-12-05 08:00:00'),
+('e8', '123', 'Phạm Thị H', 'Quảng Ninh, Việt Nam', '1996-08-08', 'phamthih@example.com', '0965123456', 'Female', '2024-11-26 08:00:00'),
+('e9', '123', 'Nguyễn Minh I', 'Nam Định, Việt Nam', '1992-09-09', 'nguyenmini@example.com', '0916123456', 'Male', '2024-12-13 08:00:00'),
+('e10', '123', 'Lê Thị J', 'Hà Tĩnh, Việt Nam', '2001-10-10', 'lethij@example.com', '0932123456', 'Female', '2024-12-13 08:00:00');
 
 
 -- Bảng lưu thông tin quản trị viên
@@ -117,6 +117,7 @@ CREATE TABLE conversations (
     UNIQUE(User1ID, User2ID)                       -- Đảm bảo mỗi cặp UserID-FriendID chỉ có một cuộc hội thoại
 );
 
+
 -- Bảng thông tin nhóm
 CREATE TABLE group_info (
     GroupID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã nhóm
@@ -177,15 +178,27 @@ CREATE TABLE user_activities (
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
+-- Bảng lịch sử trò chuyện (bao gồm tin nhắn cá nhân và nhóm)
+CREATE TABLE chat_history (
+    ChatHistoryID INT AUTO_INCREMENT PRIMARY KEY,  -- Mã lịch sử trò chuyện
+    UserID INT NOT NULL,  -- Mã người dùng
+    GroupID INT DEFAULT NULL,  -- Mã nhóm (nếu có)
+    MessageContent TEXT NOT NULL,  -- Nội dung tin nhắn
+    MessageTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Thời gian gửi tin nhắn
+    IsGroupMessage BOOLEAN DEFAULT FALSE,  -- Tin nhắn nhóm hay cá nhân
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (GroupID) REFERENCES group_info(GroupID)
+);
+
 -- Tạo dữ liệu giả cho bảng administrators
 INSERT INTO administrators (UserID) VALUES
 (1), (2);
 
 -- Tạo dữ liệu giả cho bảng group_info
-INSERT INTO group_info (GroupName, AdminID) VALUES
-('Nhóm IT', 1),
-('Nhóm Sách', 2),
-('Nhóm Du Lịch', 3);
+INSERT INTO group_info (GroupName, AdminID, CreatedAt) VALUES
+('Nhóm IT', 1, '2024-12-06 10:00:00'),
+('Nhóm Sách', 2, '2024-12-13 10:00:00'),
+('Nhóm Du Lịch', 3, '2024-12-06 10:00:00');
 
 -- Tạo dữ liệu giả cho bảng group_members
 INSERT INTO group_members (GroupID, UserID) VALUES
@@ -202,13 +215,22 @@ INSERT INTO group_messages (GroupID, SenderID, Content) VALUES
 (3, 3, 'Chuyến du lịch tháng tới mọi người sắp xếp nhé.');
 
 -- Tạo dữ liệu giả cho bảng spam_reports
-INSERT INTO spam_reports (UserID, ReportedBy, Reason) VALUES
-(1, 3, 'Spam tin nhắn không cần thiết.'),
-(2, 4, 'Quảng cáo liên tục trong nhóm.');
+INSERT INTO spam_reports (UserID, ReportedBy, Reason, ReportTime) VALUES
+(1, 3, 'Spam tin nhắn không cần thiết.', '2024-12-06 10:00:00'),
+(2, 4, 'Quảng cáo liên tục trong nhóm.', '2024-12-13 10:00:00');
 
 -- Tạo dữ liệu giả cho bảng user_activities
 INSERT INTO user_activities (UserID, LoginTime, LogoutTime) VALUES
 (1, '2024-12-06 08:00:00', '2024-12-06 10:00:00'),
 (2, '2024-12-06 09:00:00', NULL),
 (3, '2024-12-06 08:30:00', '2024-12-06 09:30:00'),
-(4, '2024-12-06 10:00:00', NULL);
+(4, '2024-12-06 10:00:00', NULL),
+(5, '2024-11-25 10:00:00', '2024-11-25 11:30:00');
+
+
+-- Tạo dữ liệu giả cho bảng chat_history
+INSERT INTO chat_history (UserID, GroupID, MessageContent, IsGroupMessage) VALUES
+(1, NULL, 'Hello! Bạn đang làm gì vậy?', FALSE),
+(2, 1, 'Mọi người đã chuẩn bị bài tập nhóm chưa?', TRUE),
+(3, 2, 'Tôi đang tìm hiểu sách cho chủ đề tuần này.', TRUE),
+(4, 3, 'Hẹn gặp mọi người ở điểm tập trung nhé.', TRUE);
