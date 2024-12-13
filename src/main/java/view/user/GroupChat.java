@@ -173,8 +173,10 @@ public class GroupChat extends JPanel {
         // Gán quyền admin
         btnAssignAdmin = Utilities.createButton("Assign Admin");
         btnAssignAdmin.addActionListener(e -> {
+            GroupBUS groupBUS = new GroupBUS();
+            GroupDTO newGroupDTO = groupBUS.getGroup(groupDTO.getGroupID());
             UserBUS userBUS = new UserBUS();
-            if (userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID() != groupDTO.getAdminID()) {
+            if (userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID() != newGroupDTO.getAdminID()) {
                 JOptionPane.showMessageDialog(this, "Only admin has this right!");
                 return;
             }
@@ -184,8 +186,10 @@ public class GroupChat extends JPanel {
         // Xoá thành viên (chỉ dành cho admin)
         btnRemoveMember = Utilities.createButton("Remove Member");
         btnRemoveMember.addActionListener(e -> {
+            GroupBUS groupBUS = new GroupBUS();
+            GroupDTO newGroupDTO = groupBUS.getGroup(groupDTO.getGroupID());
             UserBUS userBUS = new UserBUS();
-            if (userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID() != groupDTO.getAdminID()) {
+            if (userBUS.getAccountInfo(CurrentUser.getInstance().getUsername()).getID() != newGroupDTO.getAdminID()) {
                 JOptionPane.showMessageDialog(this, "Only admin has this right!");
                 return;
             }
